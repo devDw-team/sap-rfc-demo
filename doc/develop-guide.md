@@ -99,10 +99,10 @@ sap-rfc-demo/
 ### 4.3 application.properties 설정
 ```properties
 # SAP Connection Properties
-sap.client.mshost=vhcwlcoqcs.sap.coway.do
+sap.client.mshost=xxx.xxx.xxx.xxx
 sap.client.client=100
-sap.client.user=CORFCB2B01
-sap.client.passwd=Coway123!
+sap.client.user=userid
+sap.client.passwd=userpwd
 sap.client.lang=KO
 sap.client.group=TITAN
 sap.client.r3name=COQ
