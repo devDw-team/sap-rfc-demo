@@ -1,0 +1,293 @@
+
+**** Error file opened at 20250425 103930 Korean Standard Time Rel 3.0.11 (2014-04-15) [721.713]
+Error:  >Fri Apr 25 10:39:30,967<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       service '?' unknown
+TIME        Fri Apr 25 10:39:30 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -3
+DETAIL      NiErrSet
+COUNTER     2
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+
+**** Error file opened at 20250425 104331 Korean Standard Time Rel 3.0.11 (2014-04-15) [721.713]
+Error:  >Fri Apr 25 10:43:31,133<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do MSSERV=3600 R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       partner '10.207.30.126:3600' not reached
+TIME        Fri Apr 25 10:43:31 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3283
+DETAIL      NiPConnect2: 10.207.30.126:3600
+SYSTEM CALL connect
+ERRNO       10061
+ERRNO TEXT  WSAECONNREFUSED: Connection refused
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 10:47:17,157<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       service 'sapmsCOQ' unknown
+TIME        Fri Apr 25 10:47:17 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -3
+MODULE      nixxsl.cpp
+LINE        184
+DETAIL      NiSrvLGetServNo: service name cached as unknown
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:03:03,700<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       service '?' unknown
+TIME        Fri Apr 25 11:03:03 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -3
+DETAIL      NiErrSet
+COUNTER     2
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:03:08,162<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       service 'sapmsCOQ' unknown
+TIME        Fri Apr 25 11:03:08 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -3
+MODULE      nixxsl.cpp
+LINE        184
+DETAIL      NiSrvLGetServNo: service name cached as unknown
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:03:11,838<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       service 'sapmsCOQ' unknown
+TIME        Fri Apr 25 11:03:11 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -3
+MODULE      nixxsl.cpp
+LINE        184
+DETAIL      NiSrvLGetServNo: service name cached as unknown
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:06:53,066<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       service 'sapmsCOQ' unknown
+TIME        Fri Apr 25 11:06:53 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -3
+MODULE      nixxsl.cpp
+LINE        184
+DETAIL      NiSrvLGetServNo: service name cached as unknown
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:11:45,298<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       service 'sapmsCOQ' unknown
+TIME        Fri Apr 25 11:11:45 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -3
+MODULE      nixxsl.cpp
+LINE        184
+DETAIL      NiSrvLGetServNo: service name cached as unknown
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:11:51,204<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       service 'sapmsCOQ' unknown
+TIME        Fri Apr 25 11:11:51 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -3
+MODULE      nixxsl.cpp
+LINE        184
+DETAIL      NiSrvLGetServNo: service name cached as unknown
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+
+**** Error file opened at 20250425 111355 Korean Standard Time Rel 3.0.11 (2014-04-15) [721.713]
+Error:  >Fri Apr 25 11:13:55,086<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=10.207.30.126 R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       partner '10.207.30.126:sapmsCOQ' not reached
+TIME        Fri Apr 25 11:13:55 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3283
+DETAIL      NiPConnect2: 10.207.30.126:3600
+SYSTEM CALL connect
+ERRNO       10061
+ERRNO TEXT  WSAECONNREFUSED: Connection refused
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:23:54,769<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=10.207.30.126 R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       partner '10.207.30.126:sapmsCOQ' not reached
+TIME        Fri Apr 25 11:23:54 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3283
+DETAIL      NiPConnect2: 10.207.30.126:3600
+SYSTEM CALL connect
+ERRNO       10061
+ERRNO TEXT  WSAECONNREFUSED: Connection refused
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:24:11,414<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=10.207.30.126 R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       partner '10.207.30.126:sapmsCOQ' not reached
+TIME        Fri Apr 25 11:24:11 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3283
+DETAIL      NiPConnect2: 10.207.30.126:3600
+SYSTEM CALL connect
+ERRNO       10061
+ERRNO TEXT  WSAECONNREFUSED: Connection refused
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:27:23,557<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=10.207.30.126 R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       partner '10.207.30.126:sapmsCOQ' not reached
+TIME        Fri Apr 25 11:27:23 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3283
+DETAIL      NiPConnect2: 10.207.30.126:3600
+SYSTEM CALL connect
+ERRNO       10061
+ERRNO TEXT  WSAECONNREFUSED: Connection refused
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 11:31:11,134<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=10.207.30.126 R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       partner '10.207.30.126:sapmsCOQ' not reached
+TIME        Fri Apr 25 11:31:11 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3283
+DETAIL      NiPConnect2: 10.207.30.126:3600
+SYSTEM CALL connect
+ERRNO       10061
+ERRNO TEXT  WSAECONNREFUSED: Connection refused
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri Apr 25 12:13:45,169<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=10.207.30.126 R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       partner '10.207.30.126:sapmsCOQ' not reached
+TIME        Fri Apr 25 12:13:45 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+RC          -10
+MODULE      nixxi.cpp
+LINE        3283
+DETAIL      NiPConnect2: 10.207.30.126:3600
+SYSTEM CALL connect
+ERRNO       10061
+ERRNO TEXT  WSAECONNREFUSED: Connection refused
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
