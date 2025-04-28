@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>이메일 발송</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h2>이메일 발송 폼</h2>
+<form th:action="@{/email/send}" th:object="${emailSendRequest}" method="post">
+    <div>
+        <label>수신 이메일 주소:</label>
+        <input type="email" th:field="*{email}" required/>
+    </div>
+    <div>
+        <label>메일 제목:</label>
+        <input type="text" th:field="*{title}" required/>
+    </div>
+    <div>
+        <label>메일 본문(HTML):</label>
+        <textarea th:field="*{contents}" required></textarea>
+    </div>
+    <div>
+        <label>보내는 사람:</label>
+        <input type="text" th:field="*{fromName}" required/>
+    </div>
+    <div>
+        <label>보내는 메일:</label>
+        <input type="email" th:field="*{fromAddress}" required/>
+    </div>
+    <button type="submit">발송하기</button>
+</form>
+<div th:if="${resultMsg}">
+    <p th:text="${resultMsg}"></p>
+</div>
+</body>
+</html> 

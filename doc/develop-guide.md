@@ -17,12 +17,16 @@ sap-rfc-demo/
 │   │   │               └── sap_rfc_demo/
 │   │   │                   ├── config/           # 설정 클래스
 │   │   │                   ├── controller/       # 컨트롤러
+│   │   │                   │   └── EmailController.java   # 이메일 발송 컨트롤러
 │   │   │                   ├── dto/             # 데이터 전송 객체
+│   │   │                   │   └── EmailSendRequest.java  # 이메일 발송 DTO
 │   │   │                   ├── service/         # 서비스
+│   │   │                   │   └── EmailService.java      # 이메일 발송 서비스
 │   │   │                   └── SapRfcDemoApplication.java
 │   │   └── resources/
 │   │       ├── static/      # 정적 리소스
 │   │       ├── templates/   # Thymeleaf 템플릿
+│   │       │   └── email-form.html                        # 이메일 발송 폼 템플릿
 │   │       └── application.properties
 │   └── test/               # 테스트 코드
 ├── doc/                    # 문서
@@ -45,19 +49,23 @@ sap-rfc-demo/
 #### controller 패키지
 - `SapController.java`: 웹 페이지 요청을 처리하는 컨트롤러
 - `SapApiController.java`: JSON API 요청을 처리하는 REST 컨트롤러
+- `EmailController.java`: 이메일 발송 폼 화면 및 발송 처리 컨트롤러
 
 #### dto 패키지
 - `CustomerInfoResponse.java`: 고객 정보 API 응답을 위한 DTO 클래스
 - `BillInfoResponse.java`: 청구 정보 API 응답을 위한 DTO 클래스
+- `EmailSendRequest.java`: 이메일 발송 폼 데이터 DTO
 
 #### service 패키지
 - `SapService.java`: SAP RFC 호출 및 데이터 처리를 담당하는 서비스 클래스
 - `SapConnectionTestService.java`: SAP 연결 테스트를 위한 서비스 클래스
+- `EmailService.java`: 이메일 발송 REST API 연동 서비스
 
 #### templates 패키지
 - `customer-info.html`: 고객 정보 조회 웹 페이지 템플릿
 - `bill-info.html`: 청구 정보 조회 웹 페이지 템플릿
 - `connection-test.html`: SAP 연결 테스트 웹 페이지 템플릿
+- `email-form.html`: 이메일 발송 입력 폼 템플릿
 
 #### resources 패키지
 - `application.properties`: 애플리케이션 설정 파일
@@ -102,6 +110,10 @@ sap-rfc-demo/
    - 응답 형식: JSON
    - 설명: 청구 정보 JSON 조회
 
+### 3.3 이메일 발송 기능
+- 이메일 발송 폼에서 수신자, 제목, 본문(HTML), 발신자명, 발신 이메일을 입력받아 외부 REST API로 이메일을 발송
+- 외부 API 연동 정보는 application.properties에서 관리
+
 ## 4. 개발 환경 설정
 
 ### 4.1 필수 요구사항
@@ -128,6 +140,11 @@ sap.client.group=TITAN
 sap.client.r3name=COQ
 sap.destination.peak_limit=5
 sap.destination.pool_capacity=2
+
+# 이메일 발송 API 설정
+email.api.url=https://xxx.xxx.xxx.xxx
+email.api.auth-id=userid
+email.api.auth-key=...
 ```
 
 ## 5. 빌드 및 실행
@@ -163,6 +180,12 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
    curl http://localhost:8080/api/customer-info?erdat=20250423
    curl http://localhost:8080/api/bill-info?recpYm=202501
    ```
+
+### 6.3 이메일 발송 테스트
+1. 웹 브라우저에서 접속:
+   - 이메일 발송 폼:  
+     `http://localhost:8080/email/form`
+2. 폼 입력 후 '발송하기' 클릭 시 외부 API로 이메일 발송
 
 ## 7. 주의사항
 1. SAP JCo 라이브러리 버전과 Java 버전이 호환되어야 합니다.
