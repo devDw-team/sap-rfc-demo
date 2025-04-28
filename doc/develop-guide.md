@@ -48,6 +48,7 @@ sap-rfc-demo/
 
 #### dto 패키지
 - `CustomerInfoResponse.java`: 고객 정보 API 응답을 위한 DTO 클래스
+- `BillInfoResponse.java`: 청구 정보 API 응답을 위한 DTO 클래스
 
 #### service 패키지
 - `SapService.java`: SAP RFC 호출 및 데이터 처리를 담당하는 서비스 클래스
@@ -55,6 +56,7 @@ sap-rfc-demo/
 
 #### templates 패키지
 - `customer-info.html`: 고객 정보 조회 웹 페이지 템플릿
+- `bill-info.html`: 청구 정보 조회 웹 페이지 템플릿
 - `connection-test.html`: SAP 연결 테스트 웹 페이지 템플릿
 
 #### resources 패키지
@@ -65,22 +67,40 @@ sap-rfc-demo/
 
 ### 3.1 SAP RFC 호출
 - RFC 함수명: `Z_RE_B2B_CUST_INFO`
-- 입력 파라미터: `IV_ERDAT` (날짜)
-- 출력 파라미터: 
-  - `ES_RETURN`: 반환 정보
-  - `ET_CUST_DATA`: 고객 데이터 테이블
+  - 입력 파라미터: `IV_ERDAT` (날짜)
+  - 출력 파라미터: 
+    - `ES_RETURN`: 반환 정보
+    - `ET_CUST_DATA`: 고객 데이터 테이블
+- RFC 함수명: `Z_RE_B2B_BILL_INFO`
+  - 입력 파라미터: `IV_RECP_YM` (청구년월)
+  - 출력 파라미터:
+    - `ES_RETURN`: 반환 정보
+    - `ET_BILL_DATA`: 청구 데이터 테이블
 
 ### 3.2 API 엔드포인트
 1. 웹 페이지
    - URL: `/customer-info`
    - Method: GET
    - 파라미터: `erdat` (YYYYMMDD 형식, 기본값: 20250423)
+   - 설명: 고객 정보 조회
+   
+   - URL: `/bill-info`
+   - Method: GET
+   - 파라미터: `recpYm` (YYYYMM 형식, 기본값: 202501)
+   - 설명: 청구 정보 조회
 
 2. JSON API
    - URL: `/api/customer-info`
    - Method: GET
    - 파라미터: `erdat` (YYYYMMDD 형식, 기본값: 20250423)
    - 응답 형식: JSON
+   - 설명: 고객 정보 JSON 조회
+
+   - URL: `/api/bill-info`
+   - Method: GET
+   - 파라미터: `recpYm` (YYYYMM 형식, 기본값: 202501)
+   - 응답 형식: JSON
+   - 설명: 청구 정보 JSON 조회
 
 ## 4. 개발 환경 설정
 
@@ -126,19 +146,22 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
 
 ### 6.1 웹 페이지 테스트
 1. 웹 브라우저에서 접속:
-   ```
-   http://localhost:8080/customer-info
-   ```
-2. 날짜 입력 및 검색
+   - 고객 정보:  
+     `http://localhost:8080/customer-info`
+   - 청구 정보:  
+     `http://localhost:8080/bill-info`
+2. 날짜(erdat) 또는 청구년월(recpYm) 입력 및 검색
 
 ### 6.2 API 테스트
-1. 웹 브라우저에서 접속:
-   ```
-   http://localhost:8080/api/customer-info?erdat=20250423
-   ```
-2. curl 명령어:
+1. 웹 브라우저 또는 curl 등으로 접속:
+   - 고객 정보:  
+     `http://localhost:8080/api/customer-info?erdat=20250423`
+   - 청구 정보:  
+     `http://localhost:8080/api/bill-info?recpYm=202501`
+2. curl 명령어 예시:
    ```bash
    curl http://localhost:8080/api/customer-info?erdat=20250423
+   curl http://localhost:8080/api/bill-info?recpYm=202501
    ```
 
 ## 7. 주의사항

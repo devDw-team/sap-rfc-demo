@@ -27,4 +27,17 @@ public class SapController {
         }
         return "customer-info";
     }
+
+    @GetMapping("/bill-info")
+    public String getBillInfo(@RequestParam(defaultValue = "202501") String recpYm, Model model) {
+        try {
+            Map<String, Object> result = sapService.getBillInfo(recpYm);
+            model.addAttribute("returnInfo", result.get("returnInfo"));
+            model.addAttribute("billList", result.get("billList"));
+            model.addAttribute("recpYm", recpYm);
+        } catch (JCoException e) {
+            model.addAttribute("error", "Error occurred while fetching bill data from SAP: " + e.getMessage());
+        }
+        return "bill-info";
+    }
 } 

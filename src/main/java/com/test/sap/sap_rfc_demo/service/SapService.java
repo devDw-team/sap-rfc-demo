@@ -57,4 +57,43 @@ public class SapService {
 
         return result;
     }
+
+    public Map<String, Object> getBillInfo(String ivRecpYm) throws JCoException {
+        JCoFunction function = destination.getRepository().getFunction("Z_RE_B2B_BILL_INFO");
+        if (function == null) {
+            throw new RuntimeException("RFC Z_RE_B2B_BILL_INFO not found in SAP.");
+        }
+
+        // Import 파라미터 세팅
+        function.getImportParameterList().setValue("IV_RECP_YM", ivRecpYm);
+
+        // RFC 실행
+        function.execute(destination);
+
+        Map<String, Object> result = new HashMap<>();
+
+        // Export 파라미터 처리
+        JCoStructure esReturn = function.getExportParameterList().getStructure("ES_RETURN");
+        if (esReturn != null) {
+            Map<String, String> returnInfo = new HashMap<>();
+            for (JCoField field : esReturn) {
+                returnInfo.put(field.getName(), field.getString());
+            }
+            result.put("returnInfo", returnInfo);
+        }
+
+        // Table 파라미터 처리
+        JCoTable billTable = function.getTableParameterList().getTable("ET_BILL_DATA");
+        List<Map<String, String>> billList = new ArrayList<>();
+        for (int i = 0; i < billTable.getNumRows(); i++) {
+            billTable.setRow(i);
+            Map<String, String> row = new HashMap<>();
+            for (JCoField field : billTable) {
+                row.put(field.getName(), field.getString());
+            }
+            billList.add(row);
+        }
+        result.put("billList", billList);
+        return result;
+    }
 } 

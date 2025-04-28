@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.test.sap.sap_rfc_demo.service.SapService;
 import com.test.sap.sap_rfc_demo.dto.CustomerInfoResponse;
+import com.test.sap.sap_rfc_demo.dto.BillInfoResponse;
 import com.sap.conn.jco.JCoException;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,16 @@ public class SapApiController {
             (Map<String, String>) result.get("returnInfo"),
             (List<Map<String, String>>) result.get("customerList"),
             erdat
+        );
+    }
+
+    @GetMapping("/bill-info")
+    public BillInfoResponse getBillInfo(@RequestParam(defaultValue = "202501") String recpYm) throws JCoException {
+        Map<String, Object> result = sapService.getBillInfo(recpYm);
+        return new BillInfoResponse(
+            (Map<String, String>) result.get("returnInfo"),
+            (List<Map<String, String>>) result.get("billList"),
+            recpYm
         );
     }
 } 
