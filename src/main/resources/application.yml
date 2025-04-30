@@ -1,0 +1,29 @@
+spring:
+  batch:
+    job:
+      enabled: false  # 애플리케이션 시작 시 모든 Spring Batch 작업을 자동으로 실행하지 않음
+    jdbc:
+      initialize-schema: always  # 배치 메타 테이블 자동 생성
+  
+  datasource:
+    url: jdbc:mysql://localhost:3306/cowaytestdb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: coway_test
+    password: k45s80d0801#
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  sql:
+    init:
+      mode: always  # 데이터베이스 초기화 모드 활성화
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect  # MySQL 방언 설정
+
+logging:
+  level:
+    com.test.sap.sap_rfc_demo: DEBUG
+    org.springframework.batch: DEBUG 

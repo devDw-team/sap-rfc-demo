@@ -17,16 +17,33 @@ sap-rfc-demo/
 │   │   │               └── sap_rfc_demo/
 │   │   │                   ├── config/           # 설정 클래스
 │   │   │                   ├── controller/       # 컨트롤러
-│   │   │                   │   └── EmailController.java   # 이메일 발송 컨트롤러
+│   │   │                   │   ├── SapController.java      # 웹 페이지 컨트롤러
+│   │   │                   │   ├── SapApiController.java   # API 컨트롤러
+│   │   │                   │   └── EmailController.java    # 이메일 발송 컨트롤러
 │   │   │                   ├── dto/             # 데이터 전송 객체
-│   │   │                   │   └── EmailSendRequest.java  # 이메일 발송 DTO
+│   │   │                   │   ├── CustomerInfoResponse.java  # 고객 정보 응답 DTO
+│   │   │                   │   ├── BillInfoResponse.java     # 청구 정보 응답 DTO
+│   │   │                   │   └── EmailSendRequest.java     # 이메일 발송 DTO
+│   │   │                   ├── entity/          # JPA 엔티티
+│   │   │                   │   ├── SapCustomerInfo.java     # 고객 정보 엔티티
+│   │   │                   │   └── SapBillInfo.java         # 청구 정보 엔티티
+│   │   │                   ├── repository/      # JPA 레포지토리
+│   │   │                   │   ├── SapCustomerInfoRepository.java  # 고객 정보 레포지토리
+│   │   │                   │   └── SapBillInfoRepository.java      # 청구 정보 레포지토리
 │   │   │                   ├── service/         # 서비스
-│   │   │                   │   └── EmailService.java      # 이메일 발송 서비스
+│   │   │                   │   ├── SapService.java              # SAP RFC 서비스
+│   │   │                   │   ├── SapCustomerInfoService.java  # 고객 정보 서비스
+│   │   │                   │   ├── SapBillInfoService.java      # 청구 정보 서비스
+│   │   │                   │   ├── SapConnectionTestService.java # 연결 테스트 서비스
+│   │   │                   │   └── EmailService.java            # 이메일 발송 서비스
 │   │   │                   └── SapRfcDemoApplication.java
 │   │   └── resources/
 │   │       ├── static/      # 정적 리소스
 │   │       ├── templates/   # Thymeleaf 템플릿
-│   │       │   └── email-form.html                        # 이메일 발송 폼 템플릿
+│   │       │   ├── customer-info.html     # 고객 정보 조회 페이지
+│   │       │   ├── bill-info.html         # 청구 정보 조회 페이지
+│   │       │   ├── connection-test.html   # 연결 테스트 페이지
+│   │       │   └── email-form.html        # 이메일 발송 폼
 │   │       └── application.properties
 │   └── test/               # 테스트 코드
 ├── doc/                    # 문서
@@ -38,6 +55,8 @@ sap-rfc-demo/
 - `config`: SAP 연결 설정 및 기타 설정 클래스
 - `controller`: 웹 요청 처리 및 API 엔드포인트
 - `dto`: 데이터 전송 객체
+- `entity`: JPA 엔티티
+- `repository`: JPA 레포지토리 인터페이스
 - `service`: 비즈니스 로직 및 SAP RFC 호출
 - `templates`: Thymeleaf 템플릿 파일
 
@@ -49,15 +68,25 @@ sap-rfc-demo/
 #### controller 패키지
 - `SapController.java`: 웹 페이지 요청을 처리하는 컨트롤러
 - `SapApiController.java`: JSON API 요청을 처리하는 REST 컨트롤러
-- `EmailController.java`: 이메일 발송 폼 화면 및 발송 처리 컨트롤러
+- `EmailController.java`: 이메일 발송 컨트롤러
 
 #### dto 패키지
 - `CustomerInfoResponse.java`: 고객 정보 API 응답을 위한 DTO 클래스
 - `BillInfoResponse.java`: 청구 정보 API 응답을 위한 DTO 클래스
-- `EmailSendRequest.java`: 이메일 발송 폼 데이터 DTO
+- `EmailSendRequest.java`: 이메일 발송 DTO
+
+#### entity 패키지
+- `SapCustomerInfo.java`: 고객 정보 JPA 엔티티
+- `SapBillInfo.java`: 청구 정보 JPA 엔티티
+
+#### repository 패키지
+- `SapCustomerInfoRepository.java`: 고객 정보 JPA 레포지토리
+- `SapBillInfoRepository.java`: 청구 정보 JPA 레포지토리
 
 #### service 패키지
 - `SapService.java`: SAP RFC 호출 및 데이터 처리를 담당하는 서비스 클래스
+- `SapCustomerInfoService.java`: 고객 정보 처리 서비스
+- `SapBillInfoService.java`: 청구 정보 처리 서비스
 - `SapConnectionTestService.java`: SAP 연결 테스트를 위한 서비스 클래스
 - `EmailService.java`: 이메일 발송 REST API 연동 서비스
 
@@ -145,7 +174,23 @@ sap-rfc-demo/
    - Method: GET
    - 파라미터: `recpYm` (YYYYMM 형식, 기본값: 202501)
    - 응답 형식: JSON
-   - 설명: 청구 정보 JSON 조회
+   - 설명: 청구 정보 조회 후 DB 저장 및 원본 데이터 반환
+   - 응답 예시:
+     ```json
+     {
+       "returnInfo": {
+         "TYPE": "S",
+         "MESSAGE": "정상처리되었습니다"
+       },
+       "billList": [
+         {
+           "ORDER_NO": "...",
+           "STCD2": "...",
+           // ... 기타 필드들
+         }
+       ]
+     }
+     ```
 
 ### 3.3 이메일 발송 기능
 - 이메일 발송 폼에서 수신자, 제목, 본문(HTML), 발신자명, 발신 이메일을 입력받아 외부 REST API로 이메일을 발송
@@ -177,6 +222,13 @@ sap.client.group=TITAN
 sap.client.r3name=COQ
 sap.destination.peak_limit=5
 sap.destination.pool_capacity=2
+
+# Database Properties
+spring.datasource.url=jdbc:mysql://localhost:3306/your_database
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
 # 이메일 발송 API 설정
 email.api.url=https://xxx.xxx.xxx.xxx
@@ -232,7 +284,8 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
 ## 8. 참고 자료
 - [SAP JCo Documentation](https://help.sap.com/doc/saphelp_nwpi71/7.1/en-US/48/8fe37933114e6fe10000000a42189c/content.htm)
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
-- [Thymeleaf Documentation](https://www.thymeleaf.org/documentation.html) 
+- [Thymeleaf Documentation](https://www.thymeleaf.org/documentation.html)
+- [Spring Data JPA Documentation](https://docs.spring.io/spring-data/jpa/docs/current/reference/html/)
 
 ## 9. 테이블 구조
 1. SAP 고객 정보 저장 테이블 : sap_cwb2b_cust_info 
@@ -263,6 +316,7 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
       PRIMARY KEY (`SEQ`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='SAP 고객정보';
     ```
+
 2. SAP 고객 청구 정보 저장 테이블 : sap_cwb2b_bill_info
     ```sql
     CREATE TABLE `sap_cwb2b_bill_info` (
@@ -307,7 +361,8 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
       `REGID` varchar(20) NOT NULL DEFAULT 'SAP RFC',
       `REGDT` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
       PRIMARY KEY (`SEQ`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+    ```
 
 ## 10. JPA 엔티티 구조
 1. SapCustomerInfo 엔티티
@@ -338,6 +393,31 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
    }
    ```
 
+2. SapBillInfo 엔티티
+   ```java
+   @Entity
+   @Table(name = "sap_cwb2b_bill_info")
+   public class SapBillInfo {
+       @Id
+       @GeneratedValue(strategy = GenerationType.IDENTITY)
+       @Column(columnDefinition = "INT UNSIGNED")
+       private Integer seq;
+
+       @Column(name = "ORDER_NO", length = 12)
+       private String orderNo;
+
+       // ... 기타 필드들
+
+       @Column(name = "FIX_SUPPLY_VALUE", precision = 13)
+       private BigDecimal fixSupplyValue;
+
+       @Column(name = "FIX_VAT", precision = 13)
+       private BigDecimal fixVat;
+
+       // ... 나머지 필드들
+   }
+   ```
+
 ## 11. 데이터 처리 흐름
 1. `/api/customer-info` 엔드포인트
    - SAP RFC 호출
@@ -349,7 +429,12 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
    - 응답 데이터를 가공하여 JSON 형식으로 변환
    - DB 저장 없이 바로 반환
 
-3. 데이터 저장 프로세스
+3. `/api/bill-info` 엔드포인트
+   - SAP RFC 호출
+   - 응답 데이터를 DB에 저장
+   - 원본 응답 데이터 반환
+
+4. 데이터 저장 프로세스
    - SAP RFC 응답 데이터를 엔티티로 변환
    - JPA를 통한 데이터 저장
    - 트랜잭션 관리
@@ -363,9 +448,29 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
    - JPA 예외 처리
    - 트랜잭션 롤백
 
-3. 응답 형식
+3. 데이터 변환 에러
+   - 숫자 형식 변환 실패 시 null 처리
+   - 날짜 형식 변환 실패 시 기본값 처리
+
+4. 응답 형식
    ```json
    {
      "error": "에러 메시지"
    }
    ```
+
+## 13. 로깅 전략
+1. Controller 레벨
+   - DEBUG: API 요청 파라미터, 응답 데이터
+   - INFO: API 호출 결과
+   - ERROR: 예외 발생 상황
+
+2. Service 레벨
+   - DEBUG: 데이터 처리 과정
+   - INFO: 데이터 저장 결과
+   - WARN: 데이터 변환 실패
+   - ERROR: 비즈니스 로직 실패
+
+3. Repository 레벨
+   - DEBUG: 쿼리 실행
+   - ERROR: DB 작업 실패
