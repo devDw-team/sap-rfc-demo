@@ -90,7 +90,7 @@ sap-rfc-demo/
    - URL: `/customer-info`
    - Method: GET
    - 파라미터: `erdat` (YYYYMMDD 형식, 기본값: 20250423)
-   - 설명: 고객 정보 조회
+   - 설명: 고객 정보 조회 및 DB 저장
    
    - URL: `/bill-info`
    - Method: GET
@@ -102,7 +102,44 @@ sap-rfc-demo/
    - Method: GET
    - 파라미터: `erdat` (YYYYMMDD 형식, 기본값: 20250423)
    - 응답 형식: JSON
-   - 설명: 고객 정보 JSON 조회
+   - 설명: 고객 정보 조회 후 DB 저장 및 원본 데이터 반환
+   - 응답 예시:
+     ```json
+     {
+       "ES_RETURN": {
+         "TYPE": "S",
+         "MESSAGE": "정상처리되었습니다"
+       },
+       "ET_CUST_DATA": [
+         {
+           "ORDER_NO": "...",
+           "STCD2": "...",
+           // ... 기타 필드들
+         }
+       ]
+     }
+     ```
+
+   - URL: `/api/customer-info-json`
+   - Method: GET
+   - 파라미터: `erdat` (YYYYMMDD 형식, 기본값: 20250423)
+   - 응답 형식: JSON
+   - 설명: SAP RFC 호출 결과를 가공하여 JSON 형식으로 반환 (DB 저장 없음)
+   - 응답 예시:
+     ```json
+     {
+       "status": "S",
+       "message": "정상처리되었습니다",
+       "customerList": [
+         {
+           "ORDER_NO": "...",
+           "STCD2": "...",
+           // ... 기타 필드들
+         }
+       ],
+       "searchDate": "20250423"
+     }
+     ```
 
    - URL: `/api/bill-info`
    - Method: GET
@@ -196,3 +233,139 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
 - [SAP JCo Documentation](https://help.sap.com/doc/saphelp_nwpi71/7.1/en-US/48/8fe37933114e6fe10000000a42189c/content.htm)
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
 - [Thymeleaf Documentation](https://www.thymeleaf.org/documentation.html) 
+
+## 9. 테이블 구조
+1. SAP 고객 정보 저장 테이블 : sap_cwb2b_cust_info 
+    ```sql
+    CREATE TABLE `sap_cwb2b_cust_info` (
+      `SEQ` 		INT 		UNSIGNED NOT NULL AUTO_INCREMENT,	
+      `ORDER_NO`    VARCHAR(12)          NULL     COMMENT '고객주문번호',
+      `STCD2`       VARCHAR(11)          NULL     COMMENT '사업자번호',
+      `KUNNR`       VARCHAR(10)          NULL     COMMENT '고객 번호',
+      `CUST_NM`     VARCHAR(40)          NULL     COMMENT '고객명',
+      `FXDAY`       TINYINT UNSIGNED     NULL     COMMENT '발행일 (일자 2자리)',
+      `ZGRPNO`      INT UNSIGNED         NULL     COMMENT '묶음번호',
+      `SEL_KUN`     VARCHAR(1)           NULL     COMMENT '대표고객 여부',
+      `JUSO`        VARCHAR(255)         NULL     COMMENT '주소',
+      `PSTLZ`       VARCHAR(10)          NULL     COMMENT '도시우편번호',
+      `J_1KFTBUS`   VARCHAR(30)          NULL     COMMENT '업태',
+      `J_1KFTIND`   VARCHAR(30)          NULL     COMMENT '업종',
+      `J_1KFREPRE`  VARCHAR(20)          NULL     COMMENT '대표자명',
+      `EMAIL`       VARCHAR(50)          NULL     COMMENT '이메일주소',
+      `EMAIL2`      VARCHAR(50)          NULL     COMMENT '이메일주소2',
+      `PAY_MTHD`    VARCHAR(4)           NULL     COMMENT '결제구분',
+      `PAY_MTHD_TX` VARCHAR(50)          NULL     COMMENT '입금유형명',
+      `PAY_COM`     VARCHAR(4)           NULL     COMMENT '결제수단',
+      `PAY_COM_TX`  VARCHAR(50)          NULL     COMMENT '결제수단명',
+      `PAY_NO`      VARCHAR(20)          NULL     COMMENT '계좌/카드번호',
+      `REGID`  		VARCHAR(20) 		 NOT NULL DEFAULT 'SAP RFC',
+      `REGDT`  		DATETIME    		 NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (`SEQ`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='SAP 고객정보';
+    ```
+2. SAP 고객 청구 정보 저장 테이블 : sap_cwb2b_bill_info
+    ```sql
+    CREATE TABLE `sap_cwb2b_bill_info` (
+      `SEQ` int unsigned NOT NULL AUTO_INCREMENT,
+      `ORDER_NO` varchar(12) DEFAULT NULL,
+      `STCD2` varchar(11) DEFAULT NULL,
+      `KUNNR` varchar(10) DEFAULT NULL,
+      `ZGRPNO` varchar(10) DEFAULT NULL,
+      `SEL_KUN` varchar(1) DEFAULT NULL,
+      `PAY_MTHD` varchar(4) DEFAULT NULL,
+      `PAY_MTHD_TX` varchar(50) DEFAULT NULL,
+      `PAY_COM` varchar(4) DEFAULT NULL,
+      `PAY_COM_TX` varchar(50) DEFAULT NULL,
+      `PAY_NO` varchar(20) DEFAULT NULL,
+      `GOODS_SN` varchar(18) DEFAULT NULL,
+      `GOODS_CD` varchar(18) DEFAULT NULL,
+      `GOODS_TX` varchar(40) DEFAULT NULL,
+      `PRODH` varchar(18) DEFAULT NULL,
+      `VTEXT` varchar(40) DEFAULT NULL,
+      `RECP_YM` varchar(6) DEFAULT NULL,
+      `RECP_TP` varchar(4) DEFAULT NULL,
+      `RECP_TP_TX` varchar(20) DEFAULT NULL,
+      `FIX_SUPPLY_VALUE` decimal(13,0) DEFAULT NULL,
+      `FIX_VAT` decimal(13,0) DEFAULT NULL,
+      `FIX_BILL_AMT` decimal(13,0) DEFAULT NULL,
+      `SUPPLY_VALUE` decimal(13,0) DEFAULT NULL,
+      `VAT` decimal(13,0) DEFAULT NULL,
+      `BILL_AMT` decimal(13,0) DEFAULT NULL,
+      `DUE_DATE` varchar(8) DEFAULT NULL,
+      `PRE_AMT` decimal(13,0) DEFAULT NULL,
+      `REMAIN_AMT` decimal(13,0) DEFAULT NULL,
+      `PRE_MONTH` varchar(3) DEFAULT NULL,
+      `INST_DT` varchar(8) DEFAULT NULL,
+      `USE_MONTH` varchar(3) DEFAULT NULL,
+      `USE_DUTY_MONTH` varchar(3) DEFAULT NULL,
+      `OWNER_DATE` varchar(8) DEFAULT NULL,
+      `INST_JUSO` varchar(255) DEFAULT NULL,
+      `DEPT_CD` varchar(3) DEFAULT NULL,
+      `DEPT_CD_TX` varchar(20) DEFAULT NULL,
+      `DEPT_TELNR` varchar(25) DEFAULT NULL,
+      `ZBIGO` varchar(50) DEFAULT NULL,
+      `REGID` varchar(20) NOT NULL DEFAULT 'SAP RFC',
+      `REGDT` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (`SEQ`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3
+
+## 10. JPA 엔티티 구조
+1. SapCustomerInfo 엔티티
+   ```java
+   @Entity
+   @Table(name = "sap_cwb2b_cust_info")
+   public class SapCustomerInfo {
+       @Id
+       @GeneratedValue(strategy = GenerationType.IDENTITY)
+       @Column(columnDefinition = "INT UNSIGNED")
+       private Integer seq;
+
+       @Column(name = "ORDER_NO", length = 12)
+       private String orderNo;
+
+       @Column(name = "STCD2", length = 11)
+       private String stcd2;
+
+       // ... 기타 필드들
+
+       @Column(name = "FXDAY", columnDefinition = "TINYINT UNSIGNED")
+       private Short fxday;
+
+       @Column(name = "ZGRPNO", columnDefinition = "INT UNSIGNED")
+       private Integer zgrpno;
+
+       // ... 나머지 필드들
+   }
+   ```
+
+## 11. 데이터 처리 흐름
+1. `/api/customer-info` 엔드포인트
+   - SAP RFC 호출
+   - 응답 데이터를 DB에 저장
+   - 원본 응답 데이터 반환
+
+2. `/api/customer-info-json` 엔드포인트
+   - SAP RFC 호출
+   - 응답 데이터를 가공하여 JSON 형식으로 변환
+   - DB 저장 없이 바로 반환
+
+3. 데이터 저장 프로세스
+   - SAP RFC 응답 데이터를 엔티티로 변환
+   - JPA를 통한 데이터 저장
+   - 트랜잭션 관리
+
+## 12. 에러 처리
+1. RFC 호출 에러
+   - JCoException 처리
+   - 에러 메시지를 JSON 형식으로 반환
+
+2. 데이터베이스 에러
+   - JPA 예외 처리
+   - 트랜잭션 롤백
+
+3. 응답 형식
+   ```json
+   {
+     "error": "에러 메시지"
+   }
+   ```

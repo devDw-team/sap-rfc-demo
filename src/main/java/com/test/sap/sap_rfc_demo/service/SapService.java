@@ -1,5 +1,7 @@
 package com.test.sap.sap_rfc_demo.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.sap.conn.jco.*;
@@ -11,10 +13,14 @@ import java.util.Map;
 @Service
 public class SapService {
 
+    private static final Logger logger = LoggerFactory.getLogger(SapService.class);
+
     @Autowired
     private JCoDestination destination;
 
     public Map<String, Object> getCustomerInfo(String ivErdat) throws JCoException {
+        logger.debug("Calling SAP RFC with erdat: {}", ivErdat);
+        
         JCoFunction function = destination.getRepository().getFunction("Z_RE_B2B_CUST_INFO");
         if (function == null) {
             throw new RuntimeException("RFC Z_RE_B2B_CUST_INFO not found in SAP.");
@@ -25,6 +31,7 @@ public class SapService {
 
         // Execute the function
         function.execute(destination);
+        logger.debug("SAP RFC executed successfully");
 
         // Get the result
         Map<String, Object> result = new HashMap<>();
@@ -32,20 +39,21 @@ public class SapService {
         // Get export parameter
         JCoStructure esReturn = function.getExportParameterList().getStructure("ES_RETURN");
         if (esReturn != null) {
-            Map<String, String> returnInfo = new HashMap<>();
+            Map<String, Object> returnInfo = new HashMap<>();
             for (JCoField field : esReturn) {
                 returnInfo.put(field.getName(), field.getString());
             }
             result.put("returnInfo", returnInfo);
+            logger.debug("Return info processed: {}", returnInfo);
         }
 
         // Get table parameter
         JCoTable resultTable = function.getTableParameterList().getTable("ET_CUST_DATA");
-        List<Map<String, String>> customerList = new ArrayList<>();
+        List<Map<String, Object>> customerList = new ArrayList<>();
 
         for (int i = 0; i < resultTable.getNumRows(); i++) {
             resultTable.setRow(i);
-            Map<String, String> row = new HashMap<>();
+            Map<String, Object> row = new HashMap<>();
             
             for (JCoField field : resultTable) {
                 row.put(field.getName(), field.getString());
@@ -54,6 +62,7 @@ public class SapService {
             customerList.add(row);
         }
         result.put("customerList", customerList);
+        logger.debug("Processed {} customer records", customerList.size());
 
         return result;
     }

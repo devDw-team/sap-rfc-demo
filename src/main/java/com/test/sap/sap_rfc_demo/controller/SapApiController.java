@@ -1,41 +1,153 @@
 package com.test.sap.sap_rfc_demo.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import com.test.sap.sap_rfc_demo.service.SapService;
+import com.test.sap.sap_rfc_demo.service.SapCustomerInfoService;
+import com.test.sap.sap_rfc_demo.service.SapBillInfoService;
 import com.test.sap.sap_rfc_demo.dto.CustomerInfoResponse;
 import com.test.sap.sap_rfc_demo.dto.BillInfoResponse;
-import com.sap.conn.jco.JCoException;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
+import com.sap.conn.jco.JCoException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/api")
 public class SapApiController {
+    private static final Logger logger = LoggerFactory.getLogger(SapApiController.class);
+
+    private final SapService sapService;
+    private final SapCustomerInfoService customerInfoService;
+    private final SapBillInfoService billInfoService;
 
     @Autowired
-    private SapService sapService;
+    public SapApiController(SapService sapService, 
+                          SapCustomerInfoService customerInfoService,
+                          SapBillInfoService billInfoService) {
+        this.sapService = sapService;
+        this.customerInfoService = customerInfoService;
+        this.billInfoService = billInfoService;
+    }
 
     @GetMapping("/customer-info")
-    public CustomerInfoResponse getCustomerInfo(@RequestParam(defaultValue = "20250423") String erdat) throws JCoException {
-        Map<String, Object> result = sapService.getCustomerInfo(erdat);
-        return new CustomerInfoResponse(
-            (Map<String, String>) result.get("returnInfo"),
-            (List<Map<String, String>>) result.get("customerList"),
-            erdat
-        );
+    public ResponseEntity<?> getCustomerInfo(@RequestParam(defaultValue = "20250423") String erdat) {
+        try {
+            Map<String, Object> result = sapService.getCustomerInfo(erdat);
+            logger.debug("SAP Response: {}", result);  // 응답 데이터 로깅
+
+            // customerList 키로 데이터 확인
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> customerDataList = (List<Map<String, Object>>) result.get("customerList");
+            
+            // customerList가 없으면 ET_CUST_DATA 키로 한번 더 확인
+            if (customerDataList == null) {
+                customerDataList = (List<Map<String, Object>>) result.get("ET_CUST_DATA");
+                logger.debug("Using ET_CUST_DATA key, found data: {}", customerDataList != null);
+            }
+
+            if (customerDataList != null && !customerDataList.isEmpty()) {
+                logger.info("Found {} customer records to save", customerDataList.size());
+                try {
+                    customerInfoService.saveCustomerInfoFromApi(customerDataList);
+                    logger.info("Successfully saved {} customer records", customerDataList.size());
+                } catch (Exception e) {
+                    logger.error("Error saving customer data to database", e);
+                    throw e;
+                }
+            } else {
+                logger.warn("No customer data found in the response");
+            }
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Error processing customer info request", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @GetMapping("/customer-info-json")
+    public ResponseEntity<?> getCustomerInfoJson(@RequestParam(defaultValue = "20250423") String erdat) {
+        try {
+            Map<String, Object> result = sapService.getCustomerInfo(erdat);
+            logger.debug("SAP Response for JSON: {}", result);  // 응답 데이터 로깅
+
+            // 응답 데이터 구성
+            Map<String, Object> response = new HashMap<>();
+            
+            // returnInfo 처리
+            Map<String, Object> returnInfo = (Map<String, Object>) result.get("returnInfo");
+            if (returnInfo == null) {
+                returnInfo = (Map<String, Object>) result.get("ES_RETURN");
+            }
+            
+            if (returnInfo != null) {
+                response.put("status", returnInfo.get("TYPE"));
+                response.put("message", returnInfo.get("MESSAGE"));
+            } else {
+                response.put("status", "S");
+                response.put("message", "조회완료");
+            }
+
+            // 고객 데이터 처리
+            List<Map<String, Object>> customerDataList = (List<Map<String, Object>>) result.get("customerList");
+            if (customerDataList == null) {
+                customerDataList = (List<Map<String, Object>>) result.get("ET_CUST_DATA");
+            }
+            
+            response.put("customerList", customerDataList != null ? customerDataList : new ArrayList<>());
+            response.put("searchDate", erdat);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Error processing customer info JSON request", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 
     @GetMapping("/bill-info")
-    public BillInfoResponse getBillInfo(@RequestParam(defaultValue = "202501") String recpYm) throws JCoException {
-        Map<String, Object> result = sapService.getBillInfo(recpYm);
-        return new BillInfoResponse(
-            (Map<String, String>) result.get("returnInfo"),
-            (List<Map<String, String>>) result.get("billList"),
-            recpYm
-        );
+    public ResponseEntity<?> getBillInfo(@RequestParam(defaultValue = "202501") String recpYm) {
+        try {
+            Map<String, Object> result = sapService.getBillInfo(recpYm);
+            logger.debug("SAP Response for bill info: {}", result);
+
+            // billList 키로 데이터 확인
+            @SuppressWarnings("unchecked")
+            List<Map<String, String>> billDataList = (List<Map<String, String>>) result.get("billList");
+            
+            // billList가 없으면 ET_BILL_DATA 키로 한번 더 확인
+            if (billDataList == null) {
+                billDataList = (List<Map<String, String>>) result.get("ET_BILL_DATA");
+                logger.debug("Using ET_BILL_DATA key, found data: {}", billDataList != null);
+            }
+
+            if (billDataList != null && !billDataList.isEmpty()) {
+                logger.info("Found {} bill records to save", billDataList.size());
+                try {
+                    billInfoService.saveBillInfoFromApi(billDataList);
+                    logger.info("Successfully saved {} bill records", billDataList.size());
+                } catch (Exception e) {
+                    logger.error("Error saving bill data to database", e);
+                    throw e;
+                }
+            } else {
+                logger.warn("No bill data found in the response");
+            }
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Error processing bill info request", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 } 
