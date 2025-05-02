@@ -18,7 +18,7 @@ public class CustomerInfoJobScheduler {
     private final JobLauncher jobLauncher;
     private final Job customerInfoJob;
 
-    @Scheduled(cron = "0 40 16 * * ?") // 매일 16시에 실행
+    @Scheduled(cron = "0 10 09 * * ?") // 매일 16시에 실행
     public void runJob() {
         try {
             JobParameters jobParameters = new JobParametersBuilder()

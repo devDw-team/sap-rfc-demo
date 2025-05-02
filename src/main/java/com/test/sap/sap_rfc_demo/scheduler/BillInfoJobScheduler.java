@@ -19,7 +19,7 @@ public class BillInfoJobScheduler {
     @Qualifier("billInfoJob")
     private final Job billInfoJob;
 
-    @Scheduled(cron = "0 50 16 * * ?") // 매일 18시에 실행
+    @Scheduled(cron = "0 07 09 * * ?") // 매일 18시에 실행
     public void runJob() {
         try {
             JobParameters jobParameters = new JobParametersBuilder()

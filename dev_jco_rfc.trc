@@ -291,3 +291,80 @@ COUNTER     1
     return code: RFC_FAILURE (1)
     error group: 102
     key: RFC_ERROR_COMMUNICATION
+
+**** Error file opened at 20250502 090010 Korean Standard Time Rel 3.0.11 (2014-04-15) [721.713]
+Error:  >Fri May 02 09:00:10,545<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       *** ERROR ***
+TIME        Fri May 02 09:00:10 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+DETAIL      NiErrSet
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri May 02 09:00:25,702<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       *** ERROR ***
+TIME        Fri May 02 09:00:25 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+DETAIL      NiErrSet
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri May 02 09:00:40,757<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       *** ERROR ***
+TIME        Fri May 02 09:00:40 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+DETAIL      NiErrSet
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri May 02 09:00:55,825<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       *** ERROR ***
+TIME        Fri May 02 09:00:55 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+DETAIL      NiErrSet
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION
+Error:  >Fri May 02 09:01:10,874<    RfcException:
+    message: Connect to message server host failed
+Connection parameters: TYPE=B DEST=RFC_DESTINATION MSHOST=vhcwlcoqcs.sap.coway.do R3NAME=COQ GROUP=TITAN PCS=1
+
+ERROR       *** ERROR ***
+TIME        Fri May 02 09:01:10 2025
+RELEASE     721
+COMPONENT   NI (network interface)
+VERSION     40
+DETAIL      NiErrSet
+COUNTER     1
+
+    return code: RFC_FAILURE (1)
+    error group: 102
+    key: RFC_ERROR_COMMUNICATION

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>청구서 데이터 검색</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">청구서 데이터 검색</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="searchForm">
+                            <div class="mb-3">
+                                <label for="orderNo" class="form-label">주문번호</label>
+                                <input type="text" class="form-control" id="orderNo" name="orderNo" maxlength="12">
+                            </div>
+                            <div class="mb-3">
+                                <label for="stcd2" class="form-label">사업자번호</label>
+                                <input type="text" class="form-control" id="stcd2" name="stcd2" maxlength="11">
+                            </div>
+                            <div class="mb-3">
+                                <label for="kunnr" class="form-label">묶음번호</label>
+                                <input type="text" class="form-control" id="kunnr" name="kunnr" maxlength="10">
+                            </div>
+                            <div class="text-center">
+                                <button type="button" class="btn btn-primary" id="searchBtn">검색하기</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- 검색 결과 표시 영역 -->
+                <div id="searchResult" class="mt-4" style="display: none;">
+                    <div class="alert alert-info">
+                        <pre id="resultContent"></pre>
+                    </div>
+                    <!-- 엑셀 파일 생성 버튼 영역 -->
+                    <div class="text-center mt-3">
+                        <button type="button" class="btn btn-success" id="excelBtn">
+                            <i class="bi bi-file-excel me-2"></i>엑셀파일 생성
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    
+    <script>
+        $(document).ready(function() {
+            // 검색 결과 데이터를 저장할 변수
+            let searchResultData = null;
+
+            $('#searchBtn').click(function() {
+                var params = {
+                    orderNo: $('#orderNo').val(),
+                    stcd2: $('#stcd2').val(),
+                    kunnr: $('#kunnr').val()
+                };
+
+                $.ajax({
+                    url: '/api/invoice/excel_data',
+                    type: 'GET',
+                    data: params,
+                    success: function(response) {
+                        searchResultData = response; // 검색 결과 저장
+                        $('#searchResult').show();
+                        $('#resultContent').text(JSON.stringify(response, null, 2));
+                    },
+                    error: function(xhr, status, error) {
+                        alert('데이터 조회 중 오류가 발생했습니다.');
+                        console.error(error);
+                        $('#searchResult').hide(); // 에러 시 결과 영역 숨김
+                        searchResultData = null; // 데이터 초기화
+                    }
+                });
+            });
+
+            // 엑셀 파일 생성 버튼 클릭 이벤트
+            $('#excelBtn').click(function() {
+                if (!searchResultData) {
+                    alert('먼저 데이터를 조회해주세요.');
+                    return;
+                }
+
+                // 엑셀 파일 생성 API 호출
+                $.ajax({
+                    url: '/api/invoice/generate_excel',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(searchResultData),
+                    success: function(response) {
+                        // 파일 다운로드 처리
+                        if (response.fileUrl) {
+                            window.location.href = response.fileUrl;
+                        } else {
+                            alert('엑셀 파일 생성에 실패했습니다.');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('엑셀 파일 생성 중 오류가 발생했습니다.');
+                        console.error(error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
