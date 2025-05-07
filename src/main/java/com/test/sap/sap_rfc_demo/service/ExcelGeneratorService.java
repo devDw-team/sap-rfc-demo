@@ -23,6 +23,11 @@ public class ExcelGeneratorService {
     private CellStyle boldCenterStyle;
     private CellStyle totalAmtStyle;
     private CellStyle boldTotalAmtStyle;
+    private CellStyle moneyStyle;
+    private CellStyle boldMoneyStyle;
+    private CellStyle centerBottomBorderStyle;
+    private CellStyle moneyBottomBorderStyle;
+    private CellStyle totalAmtBottomBorderStyle;
     
     @SuppressWarnings("unchecked")
     public boolean generateExcelFromTemplate(Map<String, Object> data) {
@@ -44,6 +49,11 @@ public class ExcelGeneratorService {
             this.boldCenterStyle = createBoldCenterStyle(workbook);
             this.totalAmtStyle = createTotalAmtStyle(workbook, false);
             this.boldTotalAmtStyle = createTotalAmtStyle(workbook, true);
+            this.moneyStyle = createMoneyStyle(workbook, false);
+            this.boldMoneyStyle = createMoneyStyle(workbook, true);
+            this.centerBottomBorderStyle = createCenterAlignedBottomBorderStyle(workbook);
+            this.moneyBottomBorderStyle = createMoneyBottomBorderStyle(workbook);
+            this.totalAmtBottomBorderStyle = createTotalAmtBottomBorderStyle(workbook, false);
             Sheet sheet = workbook.getSheetAt(0);
             
             // customerInfo 데이터 매핑
@@ -58,6 +68,12 @@ public class ExcelGeneratorService {
             // 청구서 제목의 연월 변경
             replacePlaceholderWithoutStyle(sheet, "{YYYY}", year);
             replacePlaceholderWithoutStyle(sheet, "{MM}", month);
+            
+            // 파일명에 사용할 사업자명 추출 및 파일명 안전화
+            String rawCustNm = String.valueOf(customerInfo.get("custNm"));
+            String safeCustNm = rawCustNm.replaceAll("[\\\\/:*?\"<>|]", "_").trim(); // 파일명에 부적합한 문자 제거
+            String fileName = String.format("%s %s년 %s월 대금정구서.xlsx", safeCustNm, year, month);
+            FileOutputStream fileOut = new FileOutputStream(DOWNLOAD_PATH + fileName);
             
             // billInfo 데이터 매핑 (28행부터)
             List<Map<String, Object>> billInfoList = (List<Map<String, Object>>) data.get("billInfo");
@@ -83,16 +99,16 @@ public class ExcelGeneratorService {
                     row = sheet.createRow(startRow + i);
                 }
                 
-                // 데이터 입력
-                setCellValueWithStyle(row, 0, "");
-                setCellValueWithStyle(row, 1, String.valueOf(billInfo.get("orderNo")));
-                setCellValueWithStyle(row, 2, String.valueOf(billInfo.get("vtext")));
-                setCellValueWithStyle(row, 3, String.valueOf(billInfo.get("goodsTx")));
-                setCellValueWithStyle(row, 4, String.valueOf(billInfo.get("instDt")));
-                setCellValueWithStyle(row, 5, String.valueOf(billInfo.get("useDutyMonth")));
-                setCellValueWithStyle(row, 6, ""); // 약정기간
-                setCellValueWithStyle(row, 7, ""); // 사용월
-                setCellValueWithStyle(row, 8, String.valueOf(billInfo.get("recpTp")));
+                // 컬럼 0: 하단 테두리 없는 center 스타일 적용
+                setCellValueWithCustomStyle(row, 0, "", this.centerStyle);
+                setCellValueWithCustomStyle(row, 1, String.valueOf(billInfo.get("orderNo")), this.centerBottomBorderStyle);
+                setCellValueWithCustomStyle(row, 2, String.valueOf(billInfo.get("vtext")), this.centerBottomBorderStyle);
+                setCellValueWithCustomStyle(row, 3, String.valueOf(billInfo.get("goodsTx")), this.centerBottomBorderStyle);
+                setCellValueWithCustomStyle(row, 4, String.valueOf(billInfo.get("instDt")), this.centerBottomBorderStyle);
+                setCellValueWithCustomStyle(row, 5, String.valueOf(billInfo.get("useDutyMonth")), this.centerBottomBorderStyle);
+                setCellValueWithCustomStyle(row, 6, "", this.centerBottomBorderStyle); // 약정기간
+                setCellValueWithCustomStyle(row, 7, "", this.centerBottomBorderStyle); // 사용월
+                setCellValueWithCustomStyle(row, 8, String.valueOf(billInfo.get("recpTp")), this.centerBottomBorderStyle);
                 
                 // 금액 데이터 입력 및 합계 계산
                 double fixSupplyValue = parseDoubleValue(billInfo.get("fixSupplyValue"));
@@ -103,17 +119,13 @@ public class ExcelGeneratorService {
                 double billAmt = parseDoubleValue(billInfo.get("billAmt"));
                 double rowTotAmt = fixSupplyValue+fixVat+fixBillAmt+supplyValue+vat+billAmt;
 
-                setCellValueWithStyle(row, 9, fixSupplyValue);
-                setCellValueWithStyle(row, 10, fixVat);
-                setCellValueWithStyle(row, 11, fixBillAmt);
-                setCellValueWithStyle(row, 12, supplyValue);
-                setCellValueWithStyle(row, 13, vat);
-                setCellValueWithStyle(row, 14, billAmt);
-                
-                // 행별 총액에 배경색 적용
-                Cell rowTotalCell = row.createCell(15);
-                rowTotalCell.setCellValue(rowTotAmt);
-                rowTotalCell.setCellStyle(this.totalAmtStyle);
+                setMoneyCellValueWithCustomStyle(row, 9, fixSupplyValue, this.moneyBottomBorderStyle);
+                setMoneyCellValueWithCustomStyle(row, 10, fixVat, this.moneyBottomBorderStyle);
+                setMoneyCellValueWithCustomStyle(row, 11, fixBillAmt, this.moneyBottomBorderStyle);
+                setMoneyCellValueWithCustomStyle(row, 12, supplyValue, this.moneyBottomBorderStyle);
+                setMoneyCellValueWithCustomStyle(row, 13, vat, this.moneyBottomBorderStyle);
+                setMoneyCellValueWithCustomStyle(row, 14, billAmt, this.moneyBottomBorderStyle);
+                setMoneyCellValueWithCustomStyle(row, 15, rowTotAmt, this.moneyBottomBorderStyle);
                 
                 // 합계 누적
                 totalFixSupplyValue += fixSupplyValue;
@@ -123,32 +135,42 @@ public class ExcelGeneratorService {
                 totalVat += vat;
                 totalBillAmt += billAmt;
                 totAmt += rowTotAmt;
+                
             }
             
             // 합계 행 생성
             int totalRow = startRow + billInfoList.size();
             Row row = sheet.createRow(totalRow);
+            // 합계 행 높이 20px(약 15pt)로 고정
+            row.setHeightInPoints(40f);
 
-            // 합계 텍스트에 볼드체 적용
+            // 컬럼 1: "합계" 텍스트, 하단 테두리 + 볼드
             Cell totalCell = row.createCell(1);
             totalCell.setCellValue("합계");
-            totalCell.setCellStyle(this.boldCenterStyle);
+            CellStyle boldCenterBottomBorderStyle = workbook.createCellStyle();
+            boldCenterBottomBorderStyle.cloneStyleFrom(this.centerBottomBorderStyle);
+            Font boldFont = workbook.createFont();
+            boldFont.setBold(true);
+            boldCenterBottomBorderStyle.setFont(boldFont);
+            totalCell.setCellStyle(boldCenterBottomBorderStyle);
 
-            setCellValueWithStyle(row, 9, totalFixSupplyValue);
-            setCellValueWithStyle(row, 10, totalFixVat);
-            setCellValueWithStyle(row, 11, totalFixBillAmt);
-            setCellValueWithStyle(row, 12, totalSupplyValue);
-            setCellValueWithStyle(row, 13, totalVat);
-            setCellValueWithStyle(row, 14, totalBillAmt);
-            
-            // 합계 행의 총액에 볼드체와 배경색 적용
+            // 컬럼 2~8: 하단 테두리 center 스타일
+            for (int col = 2; col <= 8; col++) {
+                setCellValueWithCustomStyle(row, col, "", this.centerBottomBorderStyle);
+            }
+            // 컬럼 9~14: 하단 테두리 money 스타일
+            setMoneyCellValueWithCustomStyle(row, 9, totalFixSupplyValue, this.moneyBottomBorderStyle);
+            setMoneyCellValueWithCustomStyle(row, 10, totalFixVat, this.moneyBottomBorderStyle);
+            setMoneyCellValueWithCustomStyle(row, 11, totalFixBillAmt, this.moneyBottomBorderStyle);
+            setMoneyCellValueWithCustomStyle(row, 12, totalSupplyValue, this.moneyBottomBorderStyle);
+            setMoneyCellValueWithCustomStyle(row, 13, totalVat, this.moneyBottomBorderStyle);
+            setMoneyCellValueWithCustomStyle(row, 14, totalBillAmt, this.moneyBottomBorderStyle);
+            // 컬럼 15: 하단 테두리 totalAmt 스타일
             Cell totalAmtCell = row.createCell(15);
             totalAmtCell.setCellValue(totAmt);
-            totalAmtCell.setCellStyle(this.boldTotalAmtStyle);
+            totalAmtCell.setCellStyle(this.totalAmtBottomBorderStyle);
             
             // 파일 저장
-            String fileName = String.format("%s-%s-bill_info_Excel.xlsx", year, month);
-            FileOutputStream fileOut = new FileOutputStream(DOWNLOAD_PATH + fileName);
             workbook.write(fileOut);
             fileOut.close();
             workbook.close();
@@ -222,6 +244,10 @@ public class ExcelGeneratorService {
         style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         
+        // 숫자 포맷(세 자리마다 콤마) 적용
+        DataFormat format = workbook.createDataFormat();
+        style.setDataFormat(format.getFormat("#,##0"));
+        
         if (bold) {
             // 볼드체 폰트 설정
             Font boldFont = workbook.createFont();
@@ -229,6 +255,20 @@ public class ExcelGeneratorService {
             style.setFont(boldFont);
         }
         
+        return style;
+    }
+    
+    private CellStyle createMoneyStyle(Workbook workbook, boolean bold) {
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        DataFormat format = workbook.createDataFormat();
+        style.setDataFormat(format.getFormat("#,##0"));
+        if (bold) {
+            Font boldFont = workbook.createFont();
+            boldFont.setBold(true);
+            style.setFont(boldFont);
+        }
         return style;
     }
     
@@ -245,5 +285,69 @@ public class ExcelGeneratorService {
         
         // 미리 생성된 스타일 적용
         cell.setCellStyle(this.centerStyle);
+    }
+
+    private void setMoneyCellValueWithStyle(Row row, int column, double value, boolean bold) {
+        Cell cell = row.createCell(column);
+        cell.setCellValue(value);
+        cell.setCellStyle(bold ? this.boldMoneyStyle : this.moneyStyle);
+    }
+
+    // 하단 테두리 포함 center 스타일
+    private CellStyle createCenterAlignedBottomBorderStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderBottom(BorderStyle.THIN);
+        return style;
+    }
+
+    // 하단 테두리 포함 money 스타일
+    private CellStyle createMoneyBottomBorderStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setBorderBottom(BorderStyle.THIN);
+        DataFormat format = workbook.createDataFormat();
+        style.setDataFormat(format.getFormat("#,##0"));
+        return style;
+    }
+
+    // 커스텀 스타일로 셀 값 입력 (문자열)
+    private void setCellValueWithCustomStyle(Row row, int column, Object value, CellStyle style) {
+        Cell cell = row.createCell(column);
+        if (value instanceof String) {
+            cell.setCellValue((String) value);
+        } else if (value instanceof Double) {
+            cell.setCellValue((Double) value);
+        } else if (value instanceof Integer) {
+            cell.setCellValue((Integer) value);
+        }
+        cell.setCellStyle(style);
+    }
+
+    // 커스텀 스타일로 셀 값 입력 (숫자)
+    private void setMoneyCellValueWithCustomStyle(Row row, int column, double value, CellStyle style) {
+        Cell cell = row.createCell(column);
+        cell.setCellValue(value);
+        cell.setCellStyle(style);
+    }
+
+    // 하단 테두리 포함 totalAmt 스타일
+    private CellStyle createTotalAmtBottomBorderStyle(Workbook workbook, boolean bold) {
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setBorderBottom(BorderStyle.THIN);
+        DataFormat format = workbook.createDataFormat();
+        style.setDataFormat(format.getFormat("#,##0"));
+        if (bold) {
+            Font boldFont = workbook.createFont();
+            boldFont.setBold(true);
+            style.setFont(boldFont);
+        }
+        return style;
     }
 } 
