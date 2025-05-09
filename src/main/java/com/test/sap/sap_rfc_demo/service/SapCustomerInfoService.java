@@ -35,7 +35,7 @@ public class SapCustomerInfoService {
                 customerInfo.setKunnr(convertToString(customerData.get("KUNNR")));
                 customerInfo.setCustNm(convertToString(customerData.get("CUST_NM")));
                 customerInfo.setFxday(parseShort(customerData.get("FXDAY")));
-                customerInfo.setZgrpno(parseInteger(customerData.get("ZGRPNO")));
+                customerInfo.setZgrpno(parseLong(customerData.get("ZGRPNO")));
                 customerInfo.setSelKun(convertToString(customerData.get("SEL_KUN")));
                 customerInfo.setJuso(convertToString(customerData.get("JUSO")));
                 customerInfo.setPstlz(convertToString(customerData.get("PSTLZ")));
@@ -49,6 +49,9 @@ public class SapCustomerInfoService {
                 customerInfo.setPayCom(convertToString(customerData.get("PAY_COM")));
                 customerInfo.setPayComTx(convertToString(customerData.get("PAY_COM_TX")));
                 customerInfo.setPayNo(convertToString(customerData.get("PAY_NO")));
+                customerInfo.setPreMonth(parseBigDecimal(customerData.get("PRE_MONTH")));
+                customerInfo.setPreAmt(parseBigDecimal(customerData.get("PRE_AMT")));
+                customerInfo.setRemainAmt(parseBigDecimal(customerData.get("REMAIN_AMT")));
 
                 customerInfoRepository.save(customerInfo);
                 logger.debug("Successfully saved customer with ORDER_NO: {}", customerInfo.getOrderNo());
@@ -77,6 +80,43 @@ public class SapCustomerInfoService {
             return null;
         } catch (NumberFormatException e) {
             logger.warn("Failed to parse integer value: {}", value);
+            return null;
+        }
+    }
+
+    private Long parseLong(Object value) {
+        if (value == null) return null;
+        try {
+            if (value instanceof Long) return (Long) value;
+            if (value instanceof Integer) return ((Integer) value).longValue();
+            if (value instanceof String) {
+                String strValue = (String) value;
+                return strValue.isEmpty() ? null : Long.parseLong(strValue);
+            }
+            if (value instanceof Number) {
+                return ((Number) value).longValue();
+            }
+            return null;
+        } catch (NumberFormatException e) {
+            logger.warn("Failed to parse long value: {}", value);
+            return null;
+        }
+    }
+
+    private java.math.BigDecimal parseBigDecimal(Object value) {
+        if (value == null) return null;
+        try {
+            if (value instanceof java.math.BigDecimal) return (java.math.BigDecimal) value;
+            if (value instanceof String) {
+                String strValue = (String) value;
+                return strValue.isEmpty() ? null : new java.math.BigDecimal(strValue);
+            }
+            if (value instanceof Number) {
+                return java.math.BigDecimal.valueOf(((Number) value).doubleValue());
+            }
+            return null;
+        } catch (NumberFormatException e) {
+            logger.warn("Failed to parse BigDecimal value: {}", value);
             return null;
         }
     }

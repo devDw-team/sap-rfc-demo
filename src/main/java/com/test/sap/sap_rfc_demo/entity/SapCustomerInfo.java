@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
-@Table(name = "sap_cwb2b_cust_info")
+@Table(name = "Z_RE_B2B_CUST_INFO")
 @Getter @Setter
 @NoArgsConstructor
 public class SapCustomerInfo {
@@ -18,7 +18,7 @@ public class SapCustomerInfo {
     @Column(columnDefinition = "INT UNSIGNED")
     private Integer seq;
 
-    @Column(name = "ORDER_NO", length = 12)
+    @Column(name = "ORDER_NO", length = 12, nullable = false)
     private String orderNo;
 
     @Column(name = "STCD2", length = 11)
@@ -30,11 +30,11 @@ public class SapCustomerInfo {
     @Column(name = "CUST_NM", length = 40)
     private String custNm;
 
-    @Column(name = "FXDAY", columnDefinition = "TINYINT UNSIGNED")
+    @Column(name = "FXDAY", columnDefinition = "SMALLINT UNSIGNED")
     private Short fxday;
 
-    @Column(name = "ZGRPNO", columnDefinition = "INT UNSIGNED")
-    private Integer zgrpno;
+    @Column(name = "ZGRPNO", columnDefinition = "BIGINT UNSIGNED")
+    private Long zgrpno;
 
     @Column(name = "SEL_KUN", length = 1)
     private String selKun;
@@ -75,9 +75,18 @@ public class SapCustomerInfo {
     @Column(name = "PAY_NO", length = 20)
     private String payNo;
 
+    @Column(name = "PRE_MONTH", precision = 3, scale = 0)
+    private java.math.BigDecimal preMonth;
+
+    @Column(name = "PRE_AMT", precision = 13, scale = 0)
+    private java.math.BigDecimal preAmt;
+
+    @Column(name = "REMAIN_AMT", precision = 13, scale = 0)
+    private java.math.BigDecimal remainAmt;
+
     @Column(name = "REGID", length = 20, nullable = false)
     private String regid = "SAP RFC";
 
     @Column(name = "REGDT", nullable = false)
-    private LocalDateTime regdt = LocalDateTime.now();
+    private java.time.LocalDateTime regdt = java.time.LocalDateTime.now();
 } 

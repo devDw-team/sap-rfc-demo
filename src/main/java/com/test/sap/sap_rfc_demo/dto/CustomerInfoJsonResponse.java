@@ -13,7 +13,7 @@ public class CustomerInfoJsonResponse {
     private String kunnr;
     private String custNm;
     private Short fxday;
-    private Integer zgrpno;
+    private Long zgrpno;
     private String selKun;
     private String juso;
     private String pstlz;
@@ -29,6 +29,9 @@ public class CustomerInfoJsonResponse {
     private String payNo;
     private String regid;
     private LocalDateTime regdt;
+    private java.math.BigDecimal preMonth;
+    private java.math.BigDecimal preAmt;
+    private java.math.BigDecimal remainAmt;
 
     public static CustomerInfoJsonResponse from(SapCustomerInfo entity) {
         CustomerInfoJsonResponse dto = new CustomerInfoJsonResponse();
@@ -54,6 +57,12 @@ public class CustomerInfoJsonResponse {
         dto.setPayNo(entity.getPayNo());
         dto.setRegid(entity.getRegid());
         dto.setRegdt(entity.getRegdt());
+        dto.setPreMonth(entity.getPreMonth());
+        dto.setPreAmt(entity.getPreAmt());
+        dto.setRemainAmt(entity.getRemainAmt());
         return dto;
     }
+
+    public void setZgrpno(Long zgrpno) { this.zgrpno = zgrpno; }
+    public Long getZgrpno() { return zgrpno; }
 } 

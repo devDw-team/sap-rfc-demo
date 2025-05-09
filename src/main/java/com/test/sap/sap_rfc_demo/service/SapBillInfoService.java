@@ -34,7 +34,7 @@ public class SapBillInfoService {
                 billInfo.setOrderNo(billData.get("ORDER_NO"));
                 billInfo.setStcd2(billData.get("STCD2"));
                 billInfo.setKunnr(billData.get("KUNNR"));
-                billInfo.setZgrpno(billData.get("ZGRPNO"));
+                billInfo.setZgrpno(parseLong(billData.get("ZGRPNO")));
                 billInfo.setSelKun(billData.get("SEL_KUN"));
                 billInfo.setPayMthd(billData.get("PAY_MTHD"));
                 billInfo.setPayMthdTx(billData.get("PAY_MTHD_TX"));
@@ -61,7 +61,7 @@ public class SapBillInfoService {
                 billInfo.setRemainAmt(parseBigDecimal(billData.get("REMAIN_AMT")));
                 
                 billInfo.setDueDate(billData.get("DUE_DATE"));
-                billInfo.setPreMonth(billData.get("PRE_MONTH"));
+                billInfo.setPreMonth(parseShort(billData.get("PRE_MONTH")));
                 billInfo.setInstDt(billData.get("INST_DT"));
                 billInfo.setUseMonth(billData.get("USE_MONTH"));
                 billInfo.setUseDutyMonth(billData.get("USE_DUTY_MONTH"));
@@ -86,6 +86,24 @@ public class SapBillInfoService {
             return value != null && !value.trim().isEmpty() ? new BigDecimal(value.trim()) : null;
         } catch (NumberFormatException e) {
             logger.warn("Failed to parse BigDecimal value: {}", value);
+            return null;
+        }
+    }
+
+    private Long parseLong(String value) {
+        try {
+            return value != null && !value.trim().isEmpty() ? Long.parseLong(value.trim()) : null;
+        } catch (NumberFormatException e) {
+            logger.warn("Failed to parse Long value: {}", value);
+            return null;
+        }
+    }
+
+    private Short parseShort(String value) {
+        try {
+            return value != null && !value.trim().isEmpty() ? Short.parseShort(value.trim()) : null;
+        } catch (NumberFormatException e) {
+            logger.warn("Failed to parse Short value: {}", value);
             return null;
         }
     }
