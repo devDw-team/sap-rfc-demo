@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>코웨이 청구서</title>
+	<meta name="title" content="coway" />
+	<meta name="keywords" content="coway" />
+	<meta name="description" content="coway" />
+
+	<meta property="og:title" content="coway" />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content="coway" />
+	<meta property="og:site_name" content="coway" />
+	<meta property="og:description" content="coway" />
+
+  <style>
+@import url("https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css");
+/* reset css */
+/*http://meyerweb.com/eric/tools/css/ reset/v2.0|20110126License:none(publicdomain)*/html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}/*HTML5display-roleresetforolderbrowsers*/article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block;}body{line-height:1;}ol,ul{list-style:none;}blockquote,q{quotes:none;}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none;}table{border-collapse:collapse;border-spacing:0;} h1,h2,h3,h4,h5,h6,p {vertical-align: middle;}img{display: block; vertical-align: middle;} input {padding: 0; margin: 0;}
+
+html, body {width: 100%; height: 100%;}
+body {font-family: 'Spoqa Han Sans Neo', 'sans-serif'; font-size: 14px; color: #1B2529; line-height: 1.2; word-break:keep-all;}
+
+section {margin: 0;}
+section, div {box-sizing: border-box;}
+
+.bill_container {display: none;}
+.bill_container.active {display: block;}
+.bill_wrap {position: relative;}
+.inner {max-width: 960px; margin: 0 auto;}
+
+.pc-block {display: block;}
+.mo-block {display: none;}
+.pc-inline-block {display: inline-block;}
+.mo-inline-block {display: none;}
+.mo-br {display: none;}
+.pc-br {display: block;}
+.pc-table-row {display: table-row;}
+.mo-table-row {display: none !important;}
+
+
+/* popup input */
+.popup-password-container {width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 1; display: flex; align-items: center; justify-content: center; background-color: #fff;}
+.popup-password-container.closed {display: none;}
+.popup-password-inner {width: 650px; display: block; margin: 0 auto;}
+.popup-password-header {background-image: url("https://www.digitalworks.co.kr/coway/mailimg/password_input_header_bg.png"); background-size: cover; background-position: 50% 0; padding: 38px 48px 27px;}
+.popup-password-header .popup-password-title { font-weight: 700; font-size: 30px; line-height: 39px; letter-spacing: 0; color: #FFF; margin-top: 12px;}
+.popup-password-content {padding: 44px 46px 60px;  border: 2px solid #EBEBEB; border-radius: 0 0 6px 6px; border-top: none;}
+.popup-password-para{font-size: 18px; line-height: 32px; letter-spacing: -.03em;}
+.popup-password-para strong {font-weight: 700;}
+
+/* form */
+.popup-password-form {font-size: 0; margin-top: 24px;}
+.input-number {width: 458px; margin-right: 6px; box-sizing: border-box; border: none; background-image: url("https://www.digitalworks.co.kr/coway/mailimg/input_number_bg.jpg"); background-size: cover; background-position: 50% 0;
+    font-size: 18px; padding: 14px 0; text-align: left; font-weight: 700; font-family: 'Spoqa Han Sans Neo', 'sans-serif'; padding-right: 10px; padding-left: 48px;}
+.input-number:focus {outline: none;}
+.input-number::placeholder {color: #BEC8CC; font-weight: normal; text-align: left;}
+input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0;}
+input[type=number] {-moz-appearance:textfield;}
+.btn-submit {width: 90px; font-family: 'Spoqa Han Sans Neo', 'sans-serif'; font-weight: 500; font-size: 16px; line-height: 24px; letter-spacing: -0.03em; background-color: #1B2529; color: #fff; border: none; border-radius: 4px; padding: 15px 0; cursor: pointer;}
+
+/* popup 1,2 */
+.popup-wrap {width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 2; display: none; align-items: center; justify-content: center;}
+.popup-wrap.active {display: flex;}
+.popup-wrap .popup-inner {width: 339px; background-color: #fff; border: 1px solid #EBEBEB; border-radius: 4px; text-align: center; padding: 40px 0;}
+.popup-wrap p {font-weight: 400; font-size: 16px; line-height: 24px; letter-spacing: -.03em; }
+.popup-wrap .btn-submit {margin-top: 21px;}
+
+/* 상세 팝업 mobile */
+.popup-detail-wrap {display: none;}
+
+/* bill title top */
+.bill-title-wrap {position: relative; background-image: url("https://www.digitalworks.co.kr/coway/mailimg/top_bg.jpg"); background-size: cover; background-position: 50% 0; padding: 50px 48px 36px;}
+.logo-img {}
+.bill-title {margin-top: 15px; font-weight: 700; font-size: 32px; line-height: 37px; letter-spacing: -.02em; color: #FFFFFF;}
+.bill-date {color: #FFF; font-size: 14px; font-weight: 400; line-height: 1; letter-spacing: -0.42px; position: absolute; bottom: 46px; right: 48px;}
+.bill-date svg {vertical-align: middle; margin: 0 6px;}
+
+/* bill summary */
+.bill-summary-wrap {text-align: center; font-size: 0; padding: 20px 21px;}
+.bill-summary-inner {padding: 50px 0 60px; background-color: #F6F6F6;}
+.summary-para {text-align: center; font-size: 16px; font-weight: 400; line-height: 28px; letter-spacing: -0.48px;}
+.summary-para .company-name {font-weight: 700;}
+.summary-para-2 {margin-top: 20px; margin-bottom: 30px; font-size: 32px; font-weight: 700; line-height: 48px; letter-spacing: -0.32px;}
+.summary-para-2 .month, .summary-para-2 .total-amount {color: #00A8E3;}
+
+.download-btn {border-radius: 4px; background: #1B2529; margin: 0; padding: 0; border: none; display: inline-block; width: 212px; height: 39px; vertical-align: middle; margin-right: 8px; cursor: pointer;}
+.download-btn-inner { padding: 10px 16px; display: flex; align-items: center; justify-content: center; gap: 0 8px;}
+.download-btn p { color: #FFF; font-size: 14px; font-weight: 700; letter-spacing: -.06em;}
+
+.print-btn {border-radius: 4px; background: #fff; margin: 0; padding: 0; border: none; display: inline-block;border: 1px solid #E5E9EB; width: 83px; height: 39px; vertical-align: middle; cursor: pointer;}
+.print-btn-inner { padding: 10px 16px; display: flex; align-items: center; justify-content: center; gap: 0 8px;}
+.print-btn p {font-weight: 400; font-size: 14px; line-height: 100%; letter-spacing: -.06em;}
+
+/* bill detail */
+.bill-detail-wrap {margin: 42px auto 0; max-width: 864px; padding: 0 48px; box-sizing: content-box;}
+.table-detail-wrap:not(:first-child) {margin-top: 60px;}
+.bill-detail-wrap .bill-detail-title {font-weight: 700; font-size: 18px; line-height: 28px; letter-spacing: -.06em; padding-bottom: 15px;}
+.bill-detail-wrap .bill-detail-title .btn-toggle {display: none;}
+.table-detail {border-top: 1px solid #1B2529; width: 100%;}
+.table-detail tr {border-bottom: 1px solid #EBEBEB;}
+.table-detail tr:nth-last-child {border-bottom: 1px solid rgba(27, 37, 41, .3);}
+.table-detail .table-list {border-bottom: 1px solid #EBEBEB;}
+.table-detail .border-bottom {border-bottom: 1px solid rgba(27, 37, 41, .3);}
+.table-detail th, td{vertical-align: middle; text-align: left;}
+
+/* flex-box */
+ul.table-detail {display: flex; flex-wrap: wrap;}
+ul.table-detail .table-list {display: flex; flex-wrap: wrap;}
+
+/* table 1,2 */
+.table-type-1 .table-list {flex: 0 0 33.33%;}
+.table-type-1 .table-list:nth-of-type(5) {flex: 0 0 66.66%;}
+.table-type-1 .table-list:nth-of-type(5) .list-name {flex: 0 0 17.01%;}
+.table-type-1 .table-list:nth-of-type(5) .list-data {flex: 0 0 82.98%;}
+.table-detail-2 .table-list:nth-of-type(6), .table-detail-2 .table-list:nth-of-type(7) {flex: 0 0 100%;}
+.table-detail-2 .table-list:nth-of-type(6) .list-name, .table-detail-2 .table-list:nth-of-type(7) .list-name {flex: 0 0 11.34%;}
+.table-detail-2 .table-list:nth-of-type(6) .list-data, .table-detail-2 .table-list:nth-of-type(7) .list-data {flex: 0 0 88.63%;}
+.table-type-1 .list-name {font-weight: bold; padding: 16px 0 16px; padding-left:  20px; flex: 0 0 34.02%; display: flex; align-items: center;}
+.table-type-1 .list-name p {font-size: 14px; line-height: 17px; letter-spacing: -.06em;}
+.table-type-1 tr:nth-of-type(4) th p {line-height: 1.6;}
+.table-type-1 .list-data {padding: 16px 0; padding-left:  16px; padding-right: 16px; flex: 0 0 65.97%;  display: flex; align-items: center;}
+.table-detail-2 .table-list:nth-of-type(1) .list-data, .table-detail-2 .table-list:nth-of-type(2) .list-data, .table-detail-2 .table-list:nth-of-type(3) .list-data 
+{padding-top: 6px; padding-bottom: 7px; display: flex; align-items: center;}
+.table-type-1 .list-data p {font-size: 14px; line-height: 18px; letter-spacing: -.04em; color: #565656;}
+.table-type-1 .line-height {line-height:  21px;}
+.table-type-1 .list-data ul {padding-left: 4px;}
+.table-type-1 .list-data li {text-indent: -4px; padding-left: 4px;}
+.table-type-1 .list-data li + li {margin-top: 8px;}
+.table-type-1 .list-data li::before {content: ""; width: 4px; height: 4px; display: inline-block; vertical-align: middle; margin-right: 8px; border-radius: 4px; background-color: #565656;}
+.table-type-1 .list-data li p {display: inline-block;}
+.stamp-wrap p {display: inline-block;}
+.stamp-wrap .stamp-img {display: inline-block; margin-left: 8px;}
+
+/* table 3 */
+.table-type-2 {border-top: none;}
+.table-type-2 tr.total-row {border-bottom-color: #BBBEBF;}
+.table-type-2 tr th { background-color: #00A8E3;}
+.table-type-2 tr th, .table-type-2 tr td {padding: 16px 0;}
+.table-type-2 tr th:nth-of-type(1), .table-type-2 tr td:nth-of-type(1) {font-weight: bold; padding-left: 20px; width: 60.416%;}
+.table-type-2 tr th:nth-of-type(2), .table-type-2 tr td:nth-of-type(2) {text-align: center; width: 18.518%;}
+.table-type-2 tr th:nth-of-type(3), .table-type-2 tr td:nth-of-type(3) {text-align: center; width: 21.064%;}
+.table-type-2 tr td:nth-of-type(3) {text-align: right; padding-right: 20px;}
+.table-type-2 tr th p {color: #fff; font-weight: 700; font-size: 14px; line-height: 18px; letter-spacing: -.03em;}
+.table-type-2 tr td p {font-weight: 400; font-size: 14px; line-height: 100%; letter-spacing: -.03em;}
+.table-type-2 tr td:nth-of-type(2) p {color: #636363;}
+.table-type-2 .total-row td {background-color: #F8F8F8;}
+.table-type-2 .total-row td:nth-of-type(1) p { font-weight: 700; font-size: 15px; line-height: 19px; letter-spacing: -3%; }
+.table-type-2 .total-row .total-amount {font-weight: 700; font-size: 20px; line-height: 25px; letter-spacing: -3%; color: #00A8E3; }
+.table-type-2 .total-row .total-amount .won {font-size: 16px;}
+
+/* table 4 */
+.table-detail-4 .table-detail {padding: 17px 20px; border-bottom: 1px solid #BBBEBF; box-sizing: border-box;}
+.table-detail-4 .table-detail p {font-size: 14px; line-height: 22px; letter-spacing: -3%;}
+
+/* table 5 */
+.table-detail-5 .bill-detail-title .total { font-size: 14px; line-height: 18px; color: rgba(27, 37, 41, .5); font-weight: 300; margin-left: 4px;}
+.table-type-3 tr th, .table-type-3 tr td {padding: 18px 0; text-align: center;}
+.table-type-3 tr th:nth-of-type(1) {width: 10.879%;}
+.table-type-3 tr th:nth-of-type(2) {width: 13.888%;}
+.table-type-3 tr th:nth-of-type(3) {width: 10.648%;}
+.table-type-3 tr th:nth-of-type(4) {width: 11.574%;}
+.table-type-3 tr th:nth-of-type(5) {width: 10.416%;}
+.table-type-3 tr th:nth-of-type(6), .table-type-3 tr th:nth-of-type(7), .table-type-3 tr th:nth-of-type(8), .table-type-3 tr th:nth-of-type(9) {width: 8.101%;}
+.table-type-3 tr th:nth-of-type(10) {width: 10.185%;}
+.table-type-3 tr p { font-size: 12px; line-height: 15px; letter-spacing: -.03em;}
+.table-type-3 tr th p {font-weight: 700;}
+.table-type-3 tr td:nth-of-type(2), .table-type-3 tr td:nth-of-type(5), .table-type-3 tr td:nth-of-type(6), .table-type-3 tr td:nth-of-type(8), .table-type-3 tr td:nth-of-type(9)
+{color: #999999; font-weight: 300;}
+.table-type-3 tr td:nth-of-type(3) {font-weight: 700;}
+.table-type-3 tr.total-row {border-bottom: none;}
+.table-type-3 .total-row td {background-color: #00A8E3; padding: 13px 0 12px; }
+.table-type-3 .total-row td:nth-of-type(2) {padding-right: 20px;}
+.table-type-3 .total-row td p {color: #fff; text-align: right;}
+.table-type-3 .total-row td:nth-of-type(1) p {text-align: left; padding-left: 20px; font-size: 15px; line-height: 19px; font-weight: 700;}
+.table-type-3 .total-row td:nth-of-type(2) p .total-amount-detail {color: rgba(255, 255, 255, .8); font-size: 14px; margin-right: 5px;}
+.table-type-3 .total-row td:nth-of-type(2) p .total-amount {font-size: 20px; line-height: 25px; font-weight: 700;}
+.table-type-3 .total-row td:nth-of-type(2) p .won {font-size: 16px; font-weight: 500;}
+
+.mo-table-total {display: none;}
+
+/* btn style */
+.btn-detail-more {display: block; width: 130px; height: 40px; margin: 20px auto 0; cursor: pointer; font-weight: 500; font-size: 13px; line-height: 1; letter-spacing: 0; background-color: transparent; text-align: center; border-radius: 4px; border-radius: 4px; border: 1px solid #E5E9EB; }
+.table-detail-5 tr {display: none;}
+.table-detail-5 tr:nth-of-type(1), .table-detail-5 tr:nth-of-type(2), .table-detail-5 tr:nth-of-type(3), .table-detail-5 tr:nth-of-type(4), .table-detail-5 tr:nth-of-type(5),
+.table-detail-5 tr:nth-of-type(6), .table-detail-5 tr:nth-of-type(7), .table-detail-5 tr:nth-of-type(8), .table-detail-5 tr:nth-of-type(9), .table-detail-5 tr:nth-of-type(10), .table-detail-5 tr:nth-of-type(11)
+{display: table-row;}
+
+/* option table 1 */
+.table-type-4 tr th {padding: 16px 0; padding-left: 20px; width: 11.342%;}
+.table-type-4 tr th p {font-weight: 700; font-size: 14px; line-height: 1; letter-spacing: 0; text-align: center; }
+.table-type-4 tr td {padding: 16px 0; padding-left: 16px; width: 88.65%;}
+.table-type-4 tr td p {font-size: 14px; line-height: 1; letter-spacing: 0; opacity: .8; font-weight: 300;}
+.table-type-4 tr td.payment-info-wrap {padding-left: 20px; padding-right: 20px;}
+.table-type-4 tr td.payment-info-wrap .payment-info-para {font-weight: 400; font-size: 14px; line-height: 22px; letter-spacing: 0; }
+.table-type-4 tr td.payment-info-wrap .payment-info-para svg {vertical-align: middle;}
+.table-type-4 tr td.payment-info-wrap ul {padding-left: 4px; margin-top: 6px;}
+.table-type-4 tr td.payment-info-wrap li {text-indent: -8px; padding-left: 8px;}
+.table-type-4 tr td.payment-info-wrap li + li {margin-top: 8px;}
+.table-type-4 tr td.payment-info-wrap li::before {content: ""; width: 3px; height: 3px; display: inline-block; vertical-align: middle; margin-right: 4px; border-radius: 4px; background-color: #797979;}
+.table-type-4 tr td.payment-info-wrap li p {display: inline; font-weight: 400; font-size: 12px; line-height: 18px; letter-spacing: -0.03em; opacity: .6;}
+
+/* option table 2 */
+.table-type-5 .table-list {flex: 0 0 33.33%;}
+.table-type-5 .list-name {flex: 0 0 34.02%;padding-left: 20px;font-weight: 700;}
+.table-type-5 .list-data {flex: 0 0 65.97%; padding-left: 16px; color: #565656;}
+.table-type-5 div {padding: 16px 0;}
+
+/* footer */
+footer { background-color: #F3F4F5; margin-top: 80px;}
+footer .inner {max-width: 948px; margin: 0 auto;}
+footer .footer-ul {margin: 0 auto; padding:  50px 48px 40px;}
+footer .footer-ul li p {font-size: 12px; line-height: 1; letter-spacing: 0; color: #90A0A6; font-weight: 300;}
+footer .footer-ul li + li {margin-top: 7px;}
+
+footer .coppy-right-wrap {border-top: 1px solid #BEC8CC;}
+footer .coppy-right-wrap .inner {max-width: 948px;}
+footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 50px; font-weight: 400; font-size: 12px; line-height: 100%; letter-spacing: 0; color: #BEC8CC; font-weight: 300; text-align: left;}
+
+@media screen and (max-width: 750px) {
+
+    .pc-block {display: none;}
+    .mo-block {display: block;}
+    .pc-inline-block {display: none !important;}
+    .mo-inline-block {display: inline-block;}
+    .mo-br {display: block;}
+    .pc-br {display: none;}
+    .pc-table-row {display: none !important;}
+    /* .table-detail-5 .mo-table-total tr.mo-table-row {display: table-row;}     */
+
+    .inner {width: 100%; margin: 0 auto;} 
+
+    /* popup input */
+    .popup-password-container {display: block;}
+    .popup-password-container {border-top: 7px solid #00A8E3; border-radius: 0; padding: 0 24px;}
+    .popup-password-inner {width: 100%;}
+    .popup-password-header {background-image: none; padding: 0;}
+    .logo-m {width: 92px; margin-top: 28px;}
+    .popup-password-header .popup-password-title {color: #1B2529; font-weight: 700; font-size: 20px; line-height: 32px; letter-spacing: 0; }
+    .popup-password-para { font-size: 15px; line-height: 22px; letter-spacing: 0; margin-top: 20px;}
+    .popup-password-content {padding: 0; border: none;}
+    .business-number-para {margin-top: 40px; font-weight: 700; font-size: 14px; line-height: 24px; letter-spacing: 0; }
+    .input-number {padding-left: 16px; padding-right: 16px; width: 100%; text-align: left; background-image: none; background-color: #F2F4F5; margin-right: 0; border-radius: 4px;}
+    .input-number::placeholder {font-weight: 400; font-size: 16px; line-height: 24px; letter-spacing: 0; color: #BEC8CC; padding-left: 16px;}
+    .btn-submit {width: 100%; margin-top: 30px;}
+
+    /* popup 1,2 */
+    .popup-wrap {background-color: rgba(27, 37, 41, 0.8);}
+    .popup-wrap .popup-inner {width: 288px; border-radius: none; border: 8px;}
+    .popup-wrap .btn-submit {width: 90px; height: 39px; padding: 0;}
+
+
+    /* bill title top */
+    .bill-title-wrap {position: relative; background-image: none; background-color: #00A8E3; padding: 25px 24px 25px;}
+    .logo-img {}
+    .bill-title {margin-top: 12px; font-size: 22px; line-height: 34px;}
+    .bill-date {color: #FFF; font-size: 13px; font-weight: 300; line-height: 1; letter-spacing: -0.42px; position: relative; bottom: initial; right: initial; margin-top: 12px;}
+    .bill-date svg {vertical-align: middle; margin: 0 6px;}
+
+    /* bill summary */
+    .bill-summary-wrap {text-align: center; font-size: 0; padding: 20px 21px;}
+    .bill-summary-inner {padding: 40px 0;}
+    .summary-para {text-align: center; font-size: 15px; line-height: 22px; letter-spacing: -0.48px;}
+    /* .summary-para .company-name {} */
+    .summary-para-2 {margin-top: 12px; margin-bottom: 24px; font-size: 22px; font-weight: 700; line-height: 32px; letter-spacing: 0;}
+
+    .download-btn {width: auto; margin-right: 0;}
+    .download-btn-inner {padding: 9px 32px 8px;}
+    .download-btn p { color: #FFF; font-size: 14px; line-height: 22px; font-weight: 700; letter-spacing: -.06em;}
+
+    /* bill detail */
+    .bill-detail-wrap {margin: 0 auto; padding: 20px 24px 60px;}
+    .table-detail-wrap:not(:first-child) {margin-top: 0;}
+    .bill-detail-wrap .bill-detail-title {font-size: 16px; line-height: 24px; letter-spacing: -.06em; padding-bottom: 12px;}
+    .bill-detail-wrap .bill-detail-title::after {content: ''; clear: both; display: block;}
+    .bill-detail-wrap .bill-detail-title svg {position: relative; top: 2px; margin-right: 2px;}
+
+    .bill-detail-wrap .bill-detail-title .btn-toggle {float: right; transition: .2s ease-in-out; display: block;}
+    .bill-detail-wrap .bill-detail-title .btn-toggle.rotated {transform: rotate(180deg);}
+    .bill-detail-wrap .bill-detail-title .btn-toggle svg {margin-bottom: 2px;}
+
+    /* table common */
+    .table-detail {border-top: 1px solid #1B2529; width: 100%;border-bottom: 1px solid rgba(27, 37, 41, .3);  margin-bottom: 50px;}
+    .table-toggle-contents.closed {display: none;}
+    .table-detail tr {border-bottom: none}
+    .table-detail tr:last-child {border-bottom: 1px solid rgba(27, 37, 41, .3);}
+
+    ul.table-detail {padding: 10px 0; margin-bottom: 50px;}
+    .table-detail .table-list {border-bottom: none; flex: 0 0 100% !important;}
+    .table-detail .table-list .list-name {padding: 8px 8px; width: 34.92% !important; flex: initial !important; align-items: baseline; display: block;}
+    .table-detail .table-list .list-name p { font-size: 14px; line-height: 22px;}
+    .table-detail .table-list .list-data {padding: 8px 8px; width: 65.08% !important; flex: initial !important; align-items: baseline; display: block;}
+    .table-detail .table-list .list-data p { font-size: 14px; line-height: 22px;}
+    .table-detail .table-list .list-data .line-height {word-break: break-all; line-height: 22px;}
+
+    .table-detail .border-bottom {border-bottom: none;}
+    .table-detail th, td{vertical-align: middle; text-align: left;}
+
+    /* table 2 */
+    .stamp-wrap .stamp-img {width: 24px; margin-left: 5px;}
+    .table-detail-2 .table-list:last-child .list-name,.table-detail-2 .table-list:last-child .list-data {width: 100% !important;}
+    .table-type-1 .list-data ul {padding: 14px 16px; background-color: #F6F6F6; border-radius: 4px;}
+    .table-type-1 .list-data li::before {width: 3px; height: 3px; margin-right: 8px;}
+    .table-type-1 .list-data li + li {margin-top: 2px;}
+    .table-detail-2 .table-list:last-child .list-data {padding-top: 0;}
+    .table-detail-2 .table-list:last-child .list-data p { font-size: 12px; line-height: 19px;}
+
+    /* table 3 */
+    table.table-detail tr:nth-of-type(1) th, table.table-detail tr:nth-of-type(1) td {padding-top: 18px;}
+    table.table-detail tr:last-child th, table.table-detail tr:last-child td {padding-bottom: 18px;}
+    .pc-table-row {display: none;}
+    .table-type-2 tr th, .table-type-2 tr td {padding: 8px 0;}
+    .table-detail tr:nth-of-type(2) td {padding-top: 18px;}
+    .table-detail.table-type-2 tr:last-child td {padding-bottom: 12px; padding-left: 12px;}
+    .table-type-2 tr td p {font-size: 14px; line-height: 22px;}
+
+    .table-type-2 tr th:nth-of-type(1), .table-type-2 tr td:nth-of-type(1) {padding-left: 8px; width: 45.22%;} /*123px / 272px*/
+    .table-type-2 tr th:nth-of-type(2), .table-type-2 tr td:nth-of-type(2) {width: 18.01%; text-align: right; padding-right: 10px;} /* 49px */
+    .table-type-2 tr td:nth-of-type(3) {width:36.76%; padding-right: 8px;} /* 100px */
+    .table-type-2 tr:last-child td:nth-of-type(3) {padding-right: 12px;}
+    .table-type-2 tr:nth-last-child(2) td {padding-bottom: 16px}
+    .table-type-2 tr:last-child td {padding-bottom: 12px; padding-top: 12px;}
+
+    .table-type-2 .total-row td:nth-of-type(1) p {font-size: 14px; line-height: 22px;}
+    .table-type-2 .total-row .total-amount {font-size: 18px; line-height: 22px;}
+
+    /* option table 1 */
+    .table-type-4 tr {border-bottom: 1px solid #BBBEBF;}
+    .table-type-4 tr th {padding: 18px 0; padding-left: 8px; padding-right: 8px; width: 24.632%;} /*67px*/
+    .table-type-4 tr th p {font-size: 14px; line-height: 22px;}
+    .table-type-4 tr td {padding-left: 28px; padding-right: 10px; width: 75.368%;}
+    .table-type-4 tr td p {line-height: 22px;}
+
+    .table-detail.table-type-4 tr td.payment-info-wrap {padding: 0;}
+    .table-detail.table-type-4, .table-detail.table-type-4 tr:last-child {border-bottom: none;}
+    .table-type-4 tr td.payment-info-wrap .payment-info-para {font-size: 13px; line-height: 20px; margin-top: 15px;}
+    .table-type-4 tr td.payment-info-wrap ul {margin-top: 5px;}
+    .table-type-4 tr td.payment-info-wrap li {text-indent: -8px; padding-left: 8px;}
+    .table-type-4 tr td.payment-info-wrap li + li {margin-top: 4px;}
+    .table-type-4 tr td.payment-info-wrap li::before {margin-right: 2px;}
+    .table-type-4 tr td.payment-info-wrap li p {font-size: 12px; line-height: 18px;}
+
+    /* option table 2 */
+    /* .table-type-5 .table-list {flex: 0 0 33.33%;}
+    .table-type-5 .list-name {flex: 0 0 34.02%;padding-left: 20px;font-weight: 700;}
+    .table-type-5 .list-data {flex: 0 0 65.97%; padding-left: 16px; color: #565656;}
+    .table-type-5 div {padding: 16px 0;} */
+
+    /* table 4 */
+    .table-detail-4 .table-detail {padding: 18px 8px;}
+
+    /* table 5 */
+    .table-detail-5 .table-detail {border-bottom: none; margin-bottom: 0;}
+    .table-detail-5 tr td {padding: 8px;}
+    .table-detail-5 tr:nth-last-child(2) td {padding-bottom: 20px;}
+    .table-detail-5 .bill-detail-title .total {font-size: 12px;}
+    .table-detail-5 tr:nth-of-type(1) {display: none !important;}
+
+    .table-type-3 tr p {font-size: 11px; text-align: left;}
+    .table-type-3 tr th:nth-child(2), .table-type-3 tr th:nth-child(5), .table-type-3 tr th:nth-child(6), .table-type-3 tr th:nth-child(7), .table-type-3 tr th:nth-child(8), .table-type-3 tr th:nth-child(9) {display: none;}
+    .table-type-3 tr td:nth-child(2), .table-type-3 tr td:nth-child(5), .table-type-3 tr td:nth-child(6), .table-type-3 tr td:nth-child(7), .table-type-3 tr td:nth-child(8), .table-type-3 tr td:nth-child(9) {display: none;}
+
+    .table-detail.table-type-3 tr td:nth-of-type(1) {width: 28.3%;}
+    .table-detail.table-type-3 tr td:nth-of-type(3) {padding-left: 0; width: 22.79%;}
+    .table-detail.table-type-3 tr td:nth-of-type(4) {padding-left: 0; width: 22.05%; padding-right: 0;}
+    .table-detail.table-type-3 tr td:nth-of-type(10) {width: 26.83%;}
+
+    .mo-table-total {width: 100%; background-color: #00A8E3; color: #fff;}
+    .mo-table-total.active {display: table;}
+    .table-detail-5 .mo-table-total  tr:nth-of-type(1) {display: table-row !important;}
+    .mo-table-total tr td {padding: 12px;}
+    .mo-table-total tr td:nth-of-type(1) {width: 28.67%; font-weight: 500; font-size: 14px; line-height: 22px; letter-spacing: -.06em;}
+    .mo-table-total tr td:nth-of-type(2) {width: 71.32%; text-align: right;}
+    .mo-table-total tr td:nth-of-type(2) p {font-weight: 700; font-size: 18px; line-height: 22px; text-align: right;}
+    .mo-table-total tr td:nth-of-type(2) p .won {font-size: 14px;}
+    
+
+    /* btn style */
+    .btn-detail-more {display: block; width: 100%; padding: 11px 10px; margin: 12px auto 0; cursor: pointer; font-weight: 500; font-size: 13px; line-height: 1; font-size: 14px;}
+    .table-detail-5 tr {display: none;}
+    .table-detail-5 tr:nth-of-type(1), .table-detail-5 tr:nth-of-type(2), .table-detail-5 tr:nth-of-type(3), .table-detail-5 tr:nth-of-type(4), .table-detail-5 tr:nth-of-type(5),
+    .table-detail-5 tr:nth-of-type(6), .table-detail-5 tr:nth-of-type(7), .table-detail-5 tr:nth-of-type(8), .table-detail-5 tr:nth-of-type(9), .table-detail-5 tr:nth-of-type(10), .table-detail-5 tr:nth-of-type(11)
+    {display: table-row;}
+
+    .table-type-3 tr .total-popup-btn {text-decoration: none; color:#1B2529;}
+    .table-type-3 tr .total-popup-btn p {font-weight: 700; text-align: right;}
+    .table-type-3 tr .total-popup-btn svg {display: inline-block;position: relative; top: 1px; margin-left: 3px;}
+
+    /* 청구서 상세 popup */
+    .popup-detail-wrap {width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 2; display: none; align-items: center; justify-content: center; background-color: rgba(0,0,0,.3);}
+    .popup-detail-wrap.active {display: flex;}
+    .popup-detail-wrap .popup-detail-inner {width: 320px; background-color: #fff; text-align: center;}
+    .popup-detail-header {padding: 17px 0 0; position: relative;}
+    .popup-detail-header h3 {font-weight: 700; font-size: 18px; line-height: 26px; text-align: center; margin-bottom: 29px; }
+    .popup-detail-header .btn-close-popup-detail {position: absolute; top: 20px; right: 20px; width: 24px; height: 24px; cursor: pointer; padding:0; margin:0; border: none; background-color: transparent;}
+    .popup-detail-header::after {content:''; position: relative; display: block; width: 272px; height: 1px; margin: 0 auto; background-color: #000;}
+    .popup-detail-content {padding: 0 24px 70px;}
+    .popup-detail-content-wrapper {width: 100%; height: 483px; overflow-x: scroll;}
+    .popup-detail-content .table-bill-detail {width: 100%; text-align: left;}
+    .popup-detail-content .table-bill-detail .total-amount {font-size: 14px; line-height: 22px; font-weight: bold; color: #00A8E3;}
+    .popup-detail-content tr th, .popup-detail-content tr td { font-size: 14px; line-height: 22px; padding: 8px 0;}
+    .popup-detail-content tr th {width: 43.02%; padding-left: 8px; font-weight: 700;}
+    .popup-detail-content tr:nth-of-type(1) th, .popup-detail-content tr:nth-of-type(1) td {padding-top: 18px;}
+    .popup-detail-content tr:last-child th, .popup-detail-content tr:last-child td {padding-bottom: 18px;}
+    .popup-detail-content tr td {width: 56.98%; color: #565656;}
+
+    .close-btn-wrap::before {content:''; position: relative; display: block; width: 272px; height: 1px; margin: 0 auto; background-color: #BBBEBF;}
+    .close-btn-wrap button {padding:0; margin:0; border: none; background-color: #1C252A; border-radius: 4px; width: 272px; color: #fff; margin-top: 30px; font-weight: 700; font-size: 16px; line-height: 24px; color: #fff; padding: 14px 0;}
+
+    footer {margin-top: 0;}
+    footer .inner {width: 100%; margin: 0 auto;}
+    footer .footer-ul {padding: 36px 24px 20px;}
+    footer .footer-ul li p {font-size: 12px; line-height: 15px; letter-spacing: -.005em;}
+    footer .footer-ul li + li {margin-top: 8px;}
+    footer .coppy-right-wrap {padding: 16px 24px 30px;}
+    footer .coppy-right-wrap .coppy-right-para {padding: 0; letter-spacing: -.03em;}
+}		
+	</style>
+</head>
+<body>
+
+	<!-- password input popup -->
+	<!-- popup-password-container.closed일 때 닫힘 -->
+	<div class="popup-password-container">
+		<div class="popup-password-wrap">
+			<div class="popup-password-inner">
+				<div class="popup-password-header">
+					<img class="pc-block" src="https://www.digitalworks.co.kr/coway/mailimg/logo.png" alt="코웨이 로고">
+					<img class="mo-block logo-m" src="https://www.digitalworks.co.kr/coway/mailimg/logo_mo.png" alt="코웨이 로고">
+					<p class="popup-password-title">
+						보안메일 비밀번호 입력
+					</p>
+				</div>
+				<div class="popup-password-content">
+					<p class="popup-password-para">
+						본 메일은 고객님의 정보보호를 위해<br class="mo-br"> 보안된 메일입니다. <br> <br class="mo-br">
+						청구서를 확인하시려면 <strong>사업자번호 10자리</strong> 입력 후 확인해 주시기 바랍니다.
+					</p>
+					<p class="mo-block business-number-para">
+						사업자 번호
+					</p>
+					<!--
+					<form class="popup-password-form">
+						<input class="input-number" type="number" maxlength="10" placeholder="‘-’없이 사업자번호 입력" autofocus oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+						<button class="btn-submit" type="submit">확인</button>
+					</form>
+					//-->
+					<!-- (1) 기존) <form class="popup-password-form"> -->
+					<form id="bizNumForm" class="popup-password-form">
+					  <!-- (2) 기존) <input class="input-number" type="number" …> -->
+					  <input
+						id="bizNumInput"
+						class="input-number"
+						type="number"
+						maxlength="10"
+						placeholder="‘-’없이 사업자번호 입력"
+						autofocus
+						oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+					  >
+					  <button class="btn-submit" type="submit">확인</button>
+					</form>
+				</div>
+			</div>
+	
+		</div>
+	</div>
+
+	<!-- popup 1 -->
+	<!-- div.popup-1.active일 때 팝업 노출 -->
+	<div class="popup-wrap popup-1">
+		<div class="popup-inner">
+			<p>
+				비밀번호가 일치하지 않습니다. <br>
+				사업자번호를 다시 확인해 주세요.
+			</p>
+			<button class="btn-submit btn-close" type="submit">확인</button>
+		</div>
+	</div>
+
+	<!-- popup 2 -->
+	<!-- div.popup-2.active일 때 팝업 노출 -->
+	<div class="popup-wrap popup-2">
+		<div class="popup-inner">
+			<p>
+				비밀번호를 입력해 주세요.
+			</p>
+			<button class="btn-submit btn-close" type="submit">확인</button>
+		</div>
+	</div>
+
+	<!-- bill container -->
+	<!-- div.active 일 때 노출  -->
+	<div class="bill_container">
+		<div class="bill_wrap">
+			<div class="inner">
+				<!-- bill title -->
+				<section class="bill-title-wrap">
+					<img class="logo-img" src="https://www.digitalworks.co.kr/coway/mailimg/logo.png" alt="코웨이 로고">
+					<h1 class="bill-title">코웨이(주) <br class="mo-br">
+						<span class="year">2025</span>년
+						<span class="month">04</span>월
+						대금 청구서
+					</h1>
+					<p class="bill-date">
+						<span>청구서 발송일</span>
+						<svg width="2" height="14" viewBox="0 0 2 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.8" d="M1 0V14" stroke="white"/></svg>
+						<!-- 날짜 -->
+						<span class="date">2025.4.1</span>
+					</p>
+				</section>
+				<!-- bill summary -->
+				<section class="bill-summary-wrap">
+					<div class="bill-summary-inner">
+						<p class="summary-para">
+							안녕하세요 <span class="company-name">${buyerInfo.companyName}</span> 고객님. <br>
+							코웨이(주) 제품을<br class="mo-br"> 이용해 주셔서 감사합니다.
+						</p>
+						<p class="summary-para-2">
+							<span class="month">{month}</span>월 납부하실 금액은<br class="mo-br"> <span class="total-amount">564,000</span>원이고, <br>
+							납부기한은<br class="mo-br"> <span class="">2025.04.30</span> 입니다.
+						</p>
+						<!-- bill download btn -->
+						<button class="download-btn">
+							<div class="download-btn-inner">
+								<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M1 9V14H14V9" stroke="white" stroke-width="1.25"/>
+									<path d="M7.5 0V10" stroke="white" stroke-width="1.25"/>
+									<path d="M11 7L7.5 10L4 7" stroke="white" stroke-width="1.25"/>
+									</svg>
+								<p>청구 상세내역 파일 다운로드</p>
+							</div>
+						</button>
+						<!-- print btn -->
+						<button class="print-btn pc-inline-block">
+							<div class="print-btn-inner">
+								<p>인쇄하기</p>
+							</div>
+						</button>
+					</div>
+				</section>
+				<!-- bill detail -->
+				<section class="bill-detail-wrap">
+					<!-- table 1 buyer -->
+					<div class="table-detail-wrap table-detail-1">
+						<h2 class="bill-detail-title">
+							<svg class="mo-inline-block" width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="0.625" y="0.625" width="10.75" height="15.75" stroke="#1B2529" stroke-width="1.25"/>
+								<rect x="11.625" y="5.625" width="4.75" height="10.75" stroke="#1B2529" stroke-width="1.25"/>
+								<rect x="4.625" y="11.625" width="2.75" height="4.75" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M3 11.5H9" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M2.5 4H5.5" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M6.5 4H9.5" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M2.5 6H5.5" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M6.5 6H9.5" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M2.5 8H5.5" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M6.5 8H9.5" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M13 8H15" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M13 10H15" stroke="#1B2529" stroke-width="1.25"/>
+							</svg>								
+							공급받는자
+							<a href="#" class="btn-toggle">
+								<svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path opacity="0.6" d="M1 7L7 1L13 7" stroke="#1B2529" stroke-linecap="round"/>
+								</svg>									
+							</a>
+						</h2>
+						<ul class="table-detail table-type-1 table-toggle-contents">
+							<li class="table-list">
+								<div class="list-name">
+									<p>사업자번호</p>
+								</div>
+								<div class="list-data">
+									<p class="">
+										${buyerInfo.businessNumber}
+									</p>
+								</div>
+							</li>
+							<li class="table-list">
+								<div class="list-name">
+									<p>사업자명</p>
+								</div>
+								<div class="list-data">
+									<p class="">
+										${buyerInfo.companyName}
+									</p>
+								</div>
+							</li>
+							<li class="table-list">
+								<div class="list-name">
+									<p>대표자</p>
+								</div>
+								<div class="list-data">
+									<p class="">
+										${buyerInfo.representative}
+									</p>
+								</div>
+							</li>
+							<li class="table-list border-bottom">
+								<div class="list-name">
+									<p>업태</p>
+								</div>
+								<div class="list-data">
+									<p class="">
+										${buyerInfo.businessType}
+									</p>
+								</div>
+							</li>
+							<li class="table-list border-bottom">
+								<div class="list-name">
+									<p>종목</p>
+								</div>
+								<div class="list-data">
+									<p class="line-height">
+										${buyerInfo.items}
+									</p>
+								</div>
+							</li>
+						</ul>
+					</div>
+
+					<!-- table 2 supplier -->
+					<div class="table-detail-wrap table-detail-2">
+						<h2 class="bill-detail-title">
+							<svg class="mo-inline-block" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<mask id="path-1-inside-1_516_900" fill="white">
+								<rect x="3" width="12" height="13" rx="1"/>
+								</mask>
+								<rect x="3" width="12" height="13" rx="1" fill="white" stroke="#1B2529" stroke-width="2.5" mask="url(#path-1-inside-1_516_900)"/>
+								<path d="M10.5 5L9 4.08884L7.5 5V1H10.5V5Z" stroke="#1B2529" stroke-width="1.25" stroke-miterlimit="10"/>
+								<rect x="2" y="10" width="3" height="5" fill="white"/>
+								<path d="M1 15.1799H8.20156C8.20156 15.1799 10.128 14.783 11.9388 13.857C13.7495 12.9309 15.8992 11.8395 15.8992 11.8395C15.8992 11.8395 16.7756 11.2856 16.1059 10.219C15.4362 9.15239 13.8983 10.1198 13.8983 10.1198L10.1115 11.699H5.95262" fill="white"/>
+								<path d="M1 15.1799H8.20156C8.20156 15.1799 10.128 14.783 11.9388 13.857C13.7495 12.9309 15.8992 11.8395 15.8992 11.8395C15.8992 11.8395 16.7756 11.2856 16.1059 10.219C15.4362 9.15239 13.8983 10.1198 13.8983 10.1198L10.1115 11.699H5.95262" stroke="#1B2529" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round"/>
+								<path d="M1 9.86353C1 9.86353 3.00089 9.63202 4.24938 9.16074C5.49788 8.68945 7.05229 7.58979 7.89564 8.16029C8.73899 8.73079 8.63977 9.65682 8.4496 10.0124C8.25944 10.3679 6.24201 11.7239 4.41475 12.2365" fill="white"/>
+								<path d="M1 9.86353C1 9.86353 3.00089 9.63202 4.24938 9.16074C5.49787 8.68945 7.05229 7.58979 7.89564 8.16029C8.73899 8.73079 8.63977 9.65682 8.4496 10.0124C8.25944 10.3679 6.24201 11.7239 4.41475 12.2365" stroke="#1B2529" stroke-width="1.25" stroke-miterlimit="10" stroke-linecap="round"/>
+							</svg>								
+							공급자
+							<a href="#" class="btn-toggle">
+								<svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path opacity="0.6" d="M1 7L7 1L13 7" stroke="#1B2529" stroke-linecap="round"/>
+								</svg>									
+							</a>
+						</h2>
+						<ul class="table-detail table-type-1 table-toggle-contents">
+									<li class="table-list">
+										<div class="list-name">
+											<p>사업자번호</p>
+										</div>
+										<div class="list-data">
+											<p class="">
+												${supplierInfo.businessNumber}
+											</p>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
+											<p>상호(법인명)</p>
+										</div>
+										<div class="list-data">
+											<p class="">
+												${supplierInfo.companyName}
+											</p>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
+											<p>대표자</p>
+										</div>
+										<div class="list-data">
+											<div class="stamp-wrap">
+												<p class="">
+													${supplierInfo.representative}
+												</p>
+												<img class="stamp-img" src="https://www.digitalworks.co.kr/coway/mailimg/stamp.png" alt="도장">
+											</div>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
+											<p>업태</p>
+										</div>
+										<div class="list-data">
+											<p class="">
+												${supplierInfo.businessType}
+											</p>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
+											<p>종목</p>
+										</div>
+										<div class="list-data">
+											<p>
+												${supplierInfo.items}
+											</p>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
+											<p>
+												사업장 주소
+											</p>
+										</div>
+										<div class="list-data">
+											<p>
+												${supplierInfo.address}
+											</p>
+										</div>
+									</li>
+									<li class="table-list border-bottom">
+										<div class="list-name">
+											<p>
+												고객센터 <br class="pc-br">안내 정보
+											</p>
+										</div>
+										<div class="list-data">
+											<ul>
+												${supplierInfo.contactInfo}
+											</ul>
+										</div>
+									</li>
+						</ul>
+					</div>
+		
+					<!-- table 3 summary -->
+					<div class="table-detail-wrap table-detail-3">
+						<h2 class="bill-detail-title">
+							<svg class="mo-inline-block" width="17" height="19" viewBox="0 0 17 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M3.82812 1H16.1059V16.0461C16.1059 17.1242 15.2285 18 14.1484 18H3.82812V1Z" stroke="#1B2529" stroke-width="1.25" stroke-miterlimit="10"/>
+								<path d="M11.2851 16.1941V14.2217H1V16.1941C1 17.1913 1.89198 17.9995 2.9927 17.9995H13.2778C12.1771 17.9995 11.2851 17.1913 11.2851 16.1941Z" fill="white" stroke="#1B2529" stroke-width="1.25" stroke-miterlimit="10"/>
+								<path d="M6.3125 4.1875H7.375" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M8.4375 4.1875H13.75" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M6.3125 7.375H7.375" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M8.4375 7.375H13.75" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M6.3125 10.5625H7.375" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M8.4375 10.5625H13.75" stroke="#1B2529" stroke-width="1.25"/>
+							</svg>															
+							청구대금 요약
+							<a href="#" class="btn-toggle">
+								<svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path opacity="0.6" d="M1 7L7 1L13 7" stroke="#1B2529" stroke-linecap="round"/>
+								</svg>									
+							</a>
+						</h2>
+						<table class="table-detail table-type-2 table-toggle-contents">
+							<tbody>
+								<tr class="pc-table-row">
+									<th>
+										<p>청구내역</p>
+									</th>
+									<th>
+										<p>발생 건수</p>
+									</th>
+									<th>
+										<p>금액</p>
+									</th>
+								</tr>
+								<#if billingSummary??>
+								<#assign totCnt = 0>
+								<#assign totAmt = 0>
+								<#list billingSummary as item>
+								<#assign totCnt = totCnt + (item.count?number)>
+								<#assign totAmt = totAmt + (item.amount?number)>
+									<td><p>${item.category}</p></td>
+									<td><p>${item.count}</p></td>
+									<td><p>${item.amount?number?string("#,##0")}</p></td>
+								</tr>
+								</#list>
+								</#if>
+								
+								<tr class="total-row">
+									<td>
+										<p class="pc-block">합계</p>
+										<p class="mo-block">청구 합계</p>
+									</td>
+									<td>
+										<p><span class="">${totCnt}</span>건</p>
+									</td>
+									<td>
+										<p class="total-amount">
+											<span class="">${totAmt}</span><span class="won">원</span>
+										</p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- option table 1 payment info -->
+					<div class="table-detail-wrap table-detail-option-1">
+						<h2 class="bill-detail-title">
+							<svg class="mo-inline-block" width="19" height="15" viewBox="0 0 19 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="0.625" y="0.625" width="17.75" height="13.75" rx="1.375" stroke="#1B2529" stroke-width="1.25"/>
+								<rect x="0.5" y="4.5" width="18" height="1" rx="0.5" stroke="#1B2529"/>
+								<path d="M11 10.5H15" stroke="#1B2529" stroke-width="1.25"/>
+							</svg>
+							결제정보
+							<a href="#" class="btn-toggle">
+								<svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path opacity="0.6" d="M1 7L7 1L13 7" stroke="#1B2529" stroke-linecap="round"/>
+								</svg>									
+							</a>
+						</h2>
+						<table class="table-detail table-type-4 table-toggle-contents">
+							<tbody>
+								<tr>
+									<th>
+										<p>${paymentInfo.bank}</p>
+									</th>
+									<td>
+										<p>
+											${paymentInfo.accountNumber}
+										</p>
+									</td>
+								</tr>
+								<tr>
+									<td colspan="2" class="payment-info-wrap">
+		
+											<p class="payment-info-para">
+												<svg width="15" height="22" viewBox="0 0 15 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<path opacity="0.7" d="M7.233 12.092L7.044 8.411L6.999 7.16H8.331L8.286 8.411L8.097 12.092H7.233ZM7.017 14.126V12.848H8.331V14.126H7.017Z" fill="#1B2529"/>
+													<circle opacity="0.8" cx="7.5" cy="10.5" r="7" stroke="#4D4D4D"/>
+												</svg>
+												결제안내 정보
+											</p>
+											<ul class="payment-info-ul">
+												${paymentInfo.instructions}
+											</ul>
+										</p>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					<!-- option table 2 advance payment info -->
+					<div class="table-detail-wrap table-detail-option-2">
+						<h2 class="bill-detail-title">
+							<svg class="mo-inline-block" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M7.42097 6.20557C10.9672 6.20557 13.8419 5.04026 13.8419 3.60278C13.8419 2.16531 10.9672 1 7.42097 1C3.87476 1 1 2.16531 1 3.60278C1 5.04026 3.87476 6.20557 7.42097 6.20557Z" stroke="#1B2529" stroke-width="1.25" stroke-miterlimit="10"/>
+								<path d="M13.8534 3.60254V7.14554C13.8534 8.57879 10.9754 9.74832 7.43243 9.74832C3.88944 9.74832 1 8.57879 1 7.14554V3.60254" stroke="#1B2529" stroke-width="1.25" stroke-miterlimit="10"/>
+								<path d="M13.8534 7.04297V10.586C13.8534 12.0192 10.9754 13.1888 7.43243 13.1888C3.88944 13.1888 1 12.0307 1 10.586V7.04297" stroke="#1B2529" stroke-width="1.25" stroke-miterlimit="10"/>
+								<path d="M13.8534 10.4941V14.0371C13.8534 15.4704 10.9754 16.6399 7.43243 16.6399C3.88944 16.6399 1 15.4704 1 14.0371V10.4941" stroke="#1B2529" stroke-width="1.25" stroke-miterlimit="10"/>
+								<circle cx="14" cy="14" r="5.375" fill="white" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M11 12.5L12.5 16L14 12.5L15.5 16L17 12.5" stroke="#1B2529" stroke-linecap="round" stroke-linejoin="round"/>
+								<path d="M10.5 14H17.5" stroke="#1B2529" stroke-linecap="round"/>
+							</svg>															
+							선납금 정보
+							<a href="#" class="btn-toggle">
+								<svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path opacity="0.6" d="M1 7L7 1L13 7" stroke="#1B2529" stroke-linecap="round"/>
+								</svg>									
+							</a>
+						</h2>
+						<ul class="table-detail table-type-5 table-toggle-contents">
+
+							<li class="table-list">
+								<div class="list-name">
+									<p>선납금</p>
+								</div>
+								<div class="list-data">
+									<p>
+										${prepaymentInfo.amountPaid?number?string("#,##0")} 원
+									</p>
+								</div>
+							</li>
+							<li class="table-list">
+								<div class="list-name">
+									<p>선납 잔여금</p>
+								</div>
+								<div class="list-data">
+									<p>
+										${prepaymentInfo.amountRemaining?number?string("#,##0")} 원
+									</p>
+								</div>
+							</li>
+							<li class="table-list">
+								<div class="list-name">
+									<p>선납 기간</p>
+								</div>
+								<div class="list-data">
+									<p>
+										${prepaymentInfo.remainingPeriod} 개월
+									</p>
+								</div>
+							</li>
+
+						</ul>
+					</div>
+					<!-- table 4 -->
+					<div class="table-detail-wrap table-detail-4">
+						<h2 class="bill-detail-title">
+							<svg class="mo-inline-block" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M9.69922 0.625L13.375 5.21973V16.375H0.625V0.625H9.69922Z" fill="white" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M9 0V5H13" stroke="#1B2529" stroke-width="1.25"/>
+								<circle cx="12.5" cy="12.5" r="4.875" fill="white" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M13.4678 14.7715C13.5029 14.7715 13.5352 14.7744 13.5645 14.7803C13.6406 14.792 13.6787 14.8652 13.6787 15H11.5166V14.7715C11.5928 14.7715 11.6602 14.7656 11.7188 14.7539C11.9238 14.7188 12.0264 14.5723 12.0264 14.3145V11.4492H11.5166V11.2207H13.1426V14.7715H13.4678ZM13.2217 10.0693C13.2217 10.1807 13.1924 10.2861 13.1338 10.3857C13.0107 10.6025 12.8203 10.7109 12.5625 10.7109C12.457 10.7109 12.3545 10.6846 12.2549 10.6318C12.0264 10.5146 11.9121 10.3271 11.9121 10.0693C11.9121 9.95801 11.9385 9.85254 11.9912 9.75293C12.1201 9.52441 12.3105 9.41016 12.5625 9.41016C12.6738 9.41016 12.7793 9.43945 12.8789 9.49805C13.1074 9.62109 13.2217 9.81152 13.2217 10.0693Z" fill="#1B2529"/>
+							</svg>
+							비고
+							<a href="#" class="btn-toggle">
+								<svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path opacity="0.6" d="M1 7L7 1L13 7" stroke="#1B2529" stroke-linecap="round"/>
+								</svg>									
+							</a>
+						</h2>
+						<div class="table-detail table-toggle-contents">
+							<p class="">${remarks}</p>
+						</div>
+					</div>
+					<!-- table 5 -->
+					<div class="table-detail-wrap table-detail-5">
+						<h2 class="bill-detail-title">
+							<svg class="mo-inline-block" width="15" height="18" viewBox="0 0 15 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<mask id="path-1-outside-1_516_339" maskUnits="userSpaceOnUse" x="9" y="7" width="4" height="7" fill="black">
+								<rect fill="white" x="9" y="7" width="4" height="7"/>
+								<path d="M10.656 12.994C10.404 12.974 10.162 12.916 9.93 12.82C9.702 12.72 9.498 12.574 9.318 12.382L9.792 11.806C9.908 11.926 10.042 12.026 10.194 12.106C10.35 12.186 10.504 12.24 10.656 12.268V11.098L10.344 10.978C10.24 10.93 10.136 10.874 10.032 10.81C9.928 10.742 9.834 10.664 9.75 10.576C9.666 10.484 9.598 10.38 9.546 10.264C9.494 10.144 9.468 10.006 9.468 9.85C9.468 9.698 9.496 9.556 9.552 9.424C9.608 9.288 9.688 9.168 9.792 9.064C9.896 8.96 10.02 8.874 10.164 8.806C10.312 8.738 10.476 8.692 10.656 8.668V8.038H11.214V8.662C11.406 8.69 11.592 8.744 11.772 8.824C11.952 8.9 12.116 9.012 12.264 9.16L11.814 9.682C11.638 9.518 11.438 9.412 11.214 9.364V10.528L11.55 10.654C11.674 10.71 11.79 10.77 11.898 10.834C12.006 10.894 12.098 10.966 12.174 11.05C12.254 11.134 12.316 11.23 12.36 11.338C12.408 11.446 12.432 11.576 12.432 11.728C12.432 11.9 12.402 12.056 12.342 12.196C12.286 12.336 12.204 12.458 12.096 12.562C11.988 12.666 11.858 12.752 11.706 12.82C11.558 12.888 11.394 12.938 11.214 12.97V13.612H10.656V12.994ZM10.23 9.82C10.23 9.916 10.27 10.008 10.35 10.096C10.43 10.18 10.532 10.244 10.656 10.288V9.37C10.532 9.402 10.43 9.458 10.35 9.538C10.27 9.618 10.23 9.712 10.23 9.82ZM11.67 11.788C11.67 11.668 11.63 11.578 11.55 11.518C11.47 11.458 11.358 11.396 11.214 11.332V12.244C11.274 12.228 11.332 12.21 11.388 12.19C11.444 12.166 11.492 12.138 11.532 12.106C11.576 12.07 11.61 12.026 11.634 11.974C11.658 11.922 11.67 11.86 11.67 11.788Z"/>
+								</mask>
+								<path d="M10.656 12.994C10.404 12.974 10.162 12.916 9.93 12.82C9.702 12.72 9.498 12.574 9.318 12.382L9.792 11.806C9.908 11.926 10.042 12.026 10.194 12.106C10.35 12.186 10.504 12.24 10.656 12.268V11.098L10.344 10.978C10.24 10.93 10.136 10.874 10.032 10.81C9.928 10.742 9.834 10.664 9.75 10.576C9.666 10.484 9.598 10.38 9.546 10.264C9.494 10.144 9.468 10.006 9.468 9.85C9.468 9.698 9.496 9.556 9.552 9.424C9.608 9.288 9.688 9.168 9.792 9.064C9.896 8.96 10.02 8.874 10.164 8.806C10.312 8.738 10.476 8.692 10.656 8.668V8.038H11.214V8.662C11.406 8.69 11.592 8.744 11.772 8.824C11.952 8.9 12.116 9.012 12.264 9.16L11.814 9.682C11.638 9.518 11.438 9.412 11.214 9.364V10.528L11.55 10.654C11.674 10.71 11.79 10.77 11.898 10.834C12.006 10.894 12.098 10.966 12.174 11.05C12.254 11.134 12.316 11.23 12.36 11.338C12.408 11.446 12.432 11.576 12.432 11.728C12.432 11.9 12.402 12.056 12.342 12.196C12.286 12.336 12.204 12.458 12.096 12.562C11.988 12.666 11.858 12.752 11.706 12.82C11.558 12.888 11.394 12.938 11.214 12.97V13.612H10.656V12.994ZM10.23 9.82C10.23 9.916 10.27 10.008 10.35 10.096C10.43 10.18 10.532 10.244 10.656 10.288V9.37C10.532 9.402 10.43 9.458 10.35 9.538C10.27 9.618 10.23 9.712 10.23 9.82ZM11.67 11.788C11.67 11.668 11.63 11.578 11.55 11.518C11.47 11.458 11.358 11.396 11.214 11.332V12.244C11.274 12.228 11.332 12.21 11.388 12.19C11.444 12.166 11.492 12.138 11.532 12.106C11.576 12.07 11.61 12.026 11.634 11.974C11.658 11.922 11.67 11.86 11.67 11.788Z" fill="#1B2529"/>
+								<path d="M10.656 12.994H10.756V12.9016L10.6639 12.8943L10.656 12.994ZM9.93 12.82L9.88982 12.9116L9.89176 12.9124L9.93 12.82ZM9.318 12.382L9.24078 12.3185L9.18496 12.3863L9.24505 12.4504L9.318 12.382ZM9.792 11.806L9.8639 11.7365L9.786 11.6559L9.71478 11.7425L9.792 11.806ZM10.194 12.106L10.1474 12.1945L10.1484 12.195L10.194 12.106ZM10.656 12.268L10.6379 12.3663L10.756 12.3881V12.268H10.656ZM10.656 11.098H10.756V11.0293L10.6919 11.0047L10.656 11.098ZM10.344 10.978L10.302 11.069L10.3081 11.0713L10.344 10.978ZM10.032 10.81L9.97725 10.8937L9.97959 10.8952L10.032 10.81ZM9.75 10.576L9.67613 10.6434L9.67766 10.645L9.75 10.576ZM9.546 10.264L9.45424 10.3038L9.45475 10.3049L9.546 10.264ZM9.552 9.424L9.64406 9.46306L9.64447 9.46208L9.552 9.424ZM9.792 9.064L9.86271 9.13471H9.86271L9.792 9.064ZM10.164 8.806L10.1222 8.71513L10.1213 8.71558L10.164 8.806ZM10.656 8.668L10.6692 8.76712L10.756 8.75555V8.668H10.656ZM10.656 8.038V7.938H10.556V8.038H10.656ZM11.214 8.038H11.314V7.938H11.214V8.038ZM11.214 8.662H11.114V8.74847L11.1996 8.76095L11.214 8.662ZM11.772 8.824L11.7314 8.9154L11.7331 8.91612L11.772 8.824ZM12.264 9.16L12.3397 9.22529L12.4004 9.15496L12.3347 9.08929L12.264 9.16ZM11.814 9.682L11.7458 9.75516L11.8219 9.82602L11.8897 9.74729L11.814 9.682ZM11.214 9.364L11.235 9.26622L11.114 9.2403V9.364H11.214ZM11.214 10.528H11.114V10.5973L11.1789 10.6216L11.214 10.528ZM11.55 10.654L11.5912 10.5627L11.5851 10.5604L11.55 10.654ZM11.898 10.834L11.847 10.9201L11.8494 10.9214L11.898 10.834ZM12.174 11.05L12.0998 11.1171L12.1016 11.119L12.174 11.05ZM12.36 11.338L12.2673 11.3757L12.2686 11.3786L12.36 11.338ZM12.342 12.196L12.2501 12.1566L12.2492 12.1589L12.342 12.196ZM12.096 12.562L12.0266 12.49L12.096 12.562ZM11.706 12.82L11.6652 12.7287L11.6643 12.7291L11.706 12.82ZM11.214 12.97L11.1965 12.8715L11.114 12.8862V12.97H11.214ZM11.214 13.612V13.712H11.314V13.612H11.214ZM10.656 13.612H10.556V13.712H10.656V13.612ZM10.35 10.096L10.276 10.1633L10.2776 10.165L10.35 10.096ZM10.656 10.288L10.6226 10.3822L10.756 10.4296V10.288H10.656ZM10.656 9.37H10.756V9.24092L10.631 9.27317L10.656 9.37ZM11.55 11.518L11.49 11.598L11.55 11.518ZM11.214 11.332L11.2546 11.2406L11.114 11.1781V11.332H11.214ZM11.214 12.244H11.114V12.3742L11.2398 12.3406L11.214 12.244ZM11.388 12.19L11.4217 12.2844L11.4274 12.2819L11.388 12.19ZM11.532 12.106L11.5945 12.1841L11.5953 12.1834L11.532 12.106ZM11.634 11.974L11.5432 11.9321L11.634 11.974ZM10.656 12.994L10.6639 12.8943C10.4223 12.8751 10.1905 12.8196 9.96824 12.7276L9.93 12.82L9.89176 12.9124C10.1335 13.0124 10.3857 13.0729 10.6481 13.0937L10.656 12.994ZM9.93 12.82L9.97017 12.7284C9.75525 12.6342 9.56224 12.4963 9.39095 12.3136L9.318 12.382L9.24505 12.4504C9.43376 12.6517 9.64875 12.8058 9.88983 12.9116L9.93 12.82ZM9.318 12.382L9.39522 12.4455L9.86922 11.8695L9.792 11.806L9.71478 11.7425L9.24078 12.3185L9.318 12.382ZM9.792 11.806L9.7201 11.8755C9.8437 12.0034 9.98631 12.1097 10.1474 12.1945L10.194 12.106L10.2406 12.0175C10.0977 11.9423 9.9723 11.8486 9.8639 11.7365L9.792 11.806ZM10.194 12.106L10.1484 12.195C10.3119 12.2788 10.4751 12.3364 10.6379 12.3663L10.656 12.268L10.6741 12.1697C10.5329 12.1436 10.3881 12.0932 10.2396 12.017L10.194 12.106ZM10.656 12.268H10.756V11.098H10.656H10.556V12.268H10.656ZM10.656 11.098L10.6919 11.0047L10.3799 10.8847L10.344 10.978L10.3081 11.0713L10.6201 11.1913L10.656 11.098ZM10.344 10.978L10.3859 10.8872C10.2857 10.841 10.1852 10.7869 10.0844 10.7248L10.032 10.81L9.97959 10.8952C10.0868 10.9611 10.1943 11.019 10.3021 11.0688L10.344 10.978ZM10.032 10.81L10.0867 10.7263C9.989 10.6624 9.90093 10.5893 9.82234 10.507L9.75 10.576L9.67766 10.645C9.76707 10.7387 9.867 10.8216 9.97728 10.8937L10.032 10.81ZM9.75 10.576L9.82385 10.5086C9.74717 10.4246 9.68499 10.3296 9.63725 10.2231L9.546 10.264L9.45475 10.3049C9.51101 10.4304 9.58483 10.5434 9.67615 10.6434L9.75 10.576ZM9.546 10.264L9.63776 10.2242C9.59214 10.119 9.568 9.99491 9.568 9.85H9.468H9.368C9.368 10.0171 9.39586 10.169 9.45424 10.3038L9.546 10.264ZM9.468 9.85H9.568C9.568 9.7106 9.59361 9.58197 9.64406 9.46305L9.552 9.424L9.45994 9.38494C9.39839 9.53003 9.368 9.6854 9.368 9.85H9.468ZM9.552 9.424L9.64447 9.46208C9.69544 9.33828 9.76805 9.22937 9.86271 9.13471L9.792 9.064L9.72129 8.99329C9.60795 9.10662 9.52056 9.23772 9.45953 9.38593L9.552 9.424ZM9.792 9.064L9.86271 9.13471C9.95793 9.03949 10.0722 8.95992 10.2067 8.89642L10.164 8.806L10.1213 8.71558C9.96776 8.78808 9.83407 8.88051 9.72129 8.99329L9.792 9.064ZM10.164 8.806L10.2057 8.89687C10.3437 8.83347 10.498 8.78996 10.6692 8.76712L10.656 8.668L10.6428 8.56888C10.454 8.59404 10.2803 8.64253 10.1223 8.71513L10.164 8.806ZM10.656 8.668H10.756V8.038H10.656H10.556V8.668H10.656ZM10.656 8.038V8.138H11.214V8.038V7.938H10.656V8.038ZM11.214 8.038H11.114V8.662H11.214H11.314V8.038H11.214ZM11.214 8.662L11.1996 8.76095C11.3824 8.78762 11.5596 8.83903 11.7314 8.91538L11.772 8.824L11.8126 8.73262C11.6244 8.64897 11.4296 8.59238 11.2284 8.56305L11.214 8.662ZM11.772 8.824L11.7331 8.91612C11.9004 8.98676 12.0538 9.09118 12.1933 9.23071L12.264 9.16L12.3347 9.08929C12.1782 8.93282 12.0036 8.81324 11.8109 8.73187L11.772 8.824ZM12.264 9.16L12.1883 9.09471L11.7383 9.61671L11.814 9.682L11.8897 9.74729L12.3397 9.22529L12.264 9.16ZM11.814 9.682L11.8822 9.60884C11.6936 9.43316 11.4775 9.3182 11.235 9.26622L11.214 9.364L11.193 9.46178C11.3985 9.5058 11.5824 9.60284 11.7458 9.75516L11.814 9.682ZM11.214 9.364H11.114V10.528H11.214H11.314V9.364H11.214ZM11.214 10.528L11.1789 10.6216L11.5149 10.7476L11.55 10.654L11.5851 10.5604L11.2491 10.4344L11.214 10.528ZM11.55 10.654L11.5088 10.7451C11.6298 10.7997 11.7424 10.8581 11.847 10.92L11.898 10.834L11.949 10.748C11.8376 10.6819 11.7182 10.6203 11.5912 10.5629L11.55 10.654ZM11.898 10.834L11.8494 10.9214C11.9487 10.9766 12.0318 11.0419 12.0998 11.1171L12.174 11.05L12.2482 10.9829C12.1642 10.8901 12.0633 10.8114 11.9466 10.7466L11.898 10.834ZM12.174 11.05L12.1016 11.119C12.1729 11.1939 12.2281 11.2792 12.2674 11.3757L12.36 11.338L12.4526 11.3003C12.4039 11.1807 12.3351 11.0741 12.2464 10.981L12.174 11.05ZM12.36 11.338L12.2686 11.3786C12.3096 11.4707 12.332 11.5861 12.332 11.728H12.432H12.532C12.532 11.5659 12.5064 11.4213 12.4514 11.2974L12.36 11.338ZM12.432 11.728H12.332C12.332 11.8882 12.3041 12.0306 12.2501 12.1566L12.342 12.196L12.4339 12.2354C12.4999 12.0814 12.532 11.9118 12.532 11.728H12.432ZM12.342 12.196L12.2492 12.1589C12.1984 12.2858 12.1244 12.3959 12.0266 12.49L12.096 12.562L12.1654 12.634C12.2836 12.5201 12.3736 12.3862 12.4348 12.2331L12.342 12.196ZM12.096 12.562L12.0266 12.49C11.9278 12.5851 11.8078 12.6649 11.6652 12.7287L11.706 12.82L11.7468 12.9113C11.9082 12.8391 12.0482 12.7469 12.1654 12.634L12.096 12.562ZM11.706 12.82L11.6643 12.7291C11.5249 12.7932 11.3691 12.8409 11.1965 12.8715L11.214 12.97L11.2315 13.0685C11.4189 13.0351 11.5911 12.9828 11.7478 12.9109L11.706 12.82ZM11.214 12.97H11.114V13.612H11.214H11.314V12.97H11.214ZM11.214 13.612V13.512H10.656V13.612V13.712H11.214V13.612ZM10.656 13.612H10.756V12.994H10.656H10.556V13.612H10.656ZM10.23 9.82H10.13C10.13 9.94645 10.1834 10.0615 10.276 10.1633L10.35 10.096L10.424 10.0287C10.3566 9.95455 10.33 9.88555 10.33 9.82H10.23ZM10.35 10.096L10.2776 10.165C10.3698 10.2618 10.4858 10.3337 10.6226 10.3822L10.656 10.288L10.6894 10.1938C10.5782 10.1543 10.4902 10.0982 10.4224 10.027L10.35 10.096ZM10.656 10.288H10.756V9.37H10.656H10.556V10.288H10.656ZM10.656 9.37L10.631 9.27317C10.492 9.30904 10.3735 9.37306 10.2793 9.46729L10.35 9.538L10.4207 9.60871C10.4865 9.54294 10.572 9.49496 10.681 9.46683L10.656 9.37ZM10.35 9.538L10.2793 9.46729C10.1815 9.56505 10.13 9.68411 10.13 9.82H10.23H10.33C10.33 9.73989 10.3585 9.67095 10.4207 9.60871L10.35 9.538ZM11.67 11.788H11.77C11.77 11.6436 11.7203 11.5208 11.61 11.438L11.55 11.518L11.49 11.598C11.5397 11.6352 11.57 11.6924 11.57 11.788H11.67ZM11.55 11.518L11.61 11.438C11.5216 11.3717 11.402 11.3061 11.2546 11.2406L11.214 11.332L11.1734 11.4234C11.314 11.4859 11.4184 11.5443 11.49 11.598L11.55 11.518ZM11.214 11.332H11.114V12.244H11.214H11.314V11.332H11.214ZM11.214 12.244L11.2398 12.3406C11.3023 12.3239 11.3629 12.3051 11.4216 12.2842L11.388 12.19L11.3544 12.0958C11.3011 12.1149 11.2457 12.1321 11.1882 12.1474L11.214 12.244ZM11.388 12.19L11.4274 12.2819C11.4902 12.255 11.5463 12.2227 11.5945 12.1841L11.532 12.106L11.4695 12.0279C11.4377 12.0533 11.3978 12.077 11.3486 12.0981L11.388 12.19ZM11.532 12.106L11.5953 12.1834C11.6511 12.1377 11.6945 12.0816 11.7248 12.0159L11.634 11.974L11.5432 11.9321C11.5255 11.9704 11.5009 12.0023 11.4687 12.0286L11.532 12.106ZM11.634 11.974L11.7248 12.0159C11.7562 11.9478 11.77 11.8709 11.77 11.788H11.67H11.57C11.57 11.8491 11.5598 11.8962 11.5432 11.9321L11.634 11.974Z" fill="#1B2529" mask="url(#path-1-outside-1_516_339)"/>
+								<path d="M14.375 0.625V16.5889L13.541 15.833L13.1191 15.4512L12.6992 15.835L11.2559 17.1543L9.79883 15.833L9.37891 15.4531L8.95898 15.833L7.5 17.1562L6.04102 15.833L5.61914 15.4512L5.19922 15.835L3.75586 17.1543L2.29883 15.833L1.87891 15.4531L1.45898 15.833L0.625 16.5889V0.625H14.375Z" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M11 4L3 4" stroke="#1B2529" stroke-width="1.25"/>
+								<path d="M9 7L3 7" stroke="#1B2529" stroke-width="1.25"/>
+							</svg>								
+							청구대금 상세 <span class="total">총 <span class="">1</span>건</span>
+							<a href="#" class="btn-toggle">
+								<svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path opacity="0.6" d="M1 7L7 1L13 7" stroke="#1B2529" stroke-linecap="round"/>
+								</svg>									
+							</a>
+						</h2>
+						<div class="table-toggle-contents">
+							<table class="table-detail table-type-3">
+								<tbody>
+									<tr class="pc-table-row">
+										<th>
+											<p>구분</p>
+										</th>
+										<th>
+											<p>주문번호</p>
+										</th>
+										<th>
+											<p>품목(제품군)</p>
+										</th>
+										<th>
+											<p>제품명(모델명)</p>
+										</th>
+										<th>
+											<p>계약일(설치일)</p>
+										</th>
+										<th>
+											<p>사용월</p>
+										</th>
+										<th>
+											<p>청구월</p>
+										</th>
+										<th>
+											<p>공급가액(원)</p>
+										</th>
+										<th>
+											<p>부가세(원)</p>
+										</th>
+										<th>
+											<p>합계(원)</p>
+										</th>
+									</tr>
+									<#if billingDetails??>
+									<#assign taxableAmountTotal = 0>
+									<#assign taxAmountTotal = 0>
+
+									<#list billingDetails as item>
+									<#assign taxableAmountTotal = taxableAmountTotal + (item.taxableAmount?number)>
+									<#assign taxAmountTotal = taxAmountTotal + (item.taxAmount?number)>
+									<tr>
+										<td>
+											<p>${item.category}</p> <!--category-->
+										</td>
+										<td>
+											<p>${item.orderNumber}</p> <!--orderNumber-->
+										</td>
+										<td>
+											<p>${item.itemGroup}</p> <!--itemGroup-->
+										</td>
+										<td>
+											<p>${item.modelName}</p> <!--modelName-->
+										</td>
+										<td>
+											<p>${item.contractDate}</p> <!--contractDate-->
+										</td>
+										<td>
+											<p>${item.usageMonth}</p> <!--usageMonth-->
+										</td>
+										<td>
+											<p>${item.billingMonth}</p> <!--billingMonth-->
+										</td>
+										<td>
+											<p>${item.taxableAmount?number?string("#,##0")}</p> <!--taxableAmount-->
+										</td>
+										<td>
+											<p>${item.taxAmount?number?string("#,##0")}</p> <!--taxAmount-->
+										</td>
+										<td>
+											<!-- 합계(원) -->
+											<!-- pc -->
+											<#assign celltotal = (item.taxableAmount?number) + (item.taxAmount?number)>
+											<p class="pc-block">
+											  ${celltotal?string("#,##0")}
+											  <span>원</span>
+											</p>
+											<!-- mo -->
+											<a href="#" class="total-popup-btn mo-block">
+												<p>${celltotal?string("#,##0")}<span>원</span>
+													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
+													</svg>
+												</p>
+											</a>
+										</td>
+									</tr>
+									</#list>
+									</#if>
+									<!-- 청구 합계 영역 PC -->
+									<tr class="total-row pc-table-row">
+										<td colspan="4">
+											<p>청구 합계</p>
+										</td>
+										<td colspan="9">
+											<p>
+												<span class="total-amount-detail">
+													<span>(공급가액 : </span>
+													<span class="">${taxableAmountTotal?string("#,##0")}</span>
+													<span>원, 부가세 : </span>
+													<span class="">${taxAmountTotal?string("#,##0")}</span>
+													<span>원)</span>
+												</span>
+												<#assign totAmount = (taxableAmountTotal) + (taxAmountTotal)>
+												<span class="total-amount">${totAmount?string("#,##0")}</span>
+												<span class="won">원</span>
+											</p>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<!-- 청구 합계 영역 MO -->
+							<table class="mo-table-total">
+								<tbody>
+									<tr class="total-row mo-table-row">
+										<td>
+											<p>청구 합계</p>
+										</td>
+										<td>
+											<p>
+												<span class="total-amount">${totAmount?string("#,##0")}<</span><span class="won">원</span>
+											</p>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<button class="btn-detail-more">
+								전체 보기
+								<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<rect y="4.5" width="10" height="1" fill="#1B2529"/>
+									<rect x="4.5" y="10" width="10" height="1" transform="rotate(-90 4.5 10)" fill="#1B2529"/>
+								</svg>
+							</button>
+						</div>
+
+					</div>
+				</section>
+			</div>
+		</div>
+
+		<!-- 청구서 상세 팝업 -->
+		<!-- popup-detail-wrap.active시 노출 -->
+		<div class="popup-detail-wrap">
+			<div class="popup-detail-inner">
+				<div class="popup-detail-header">
+					<h3>상세 내역</h3>
+					<button class="btn-close-popup-detail">
+						<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path opacity="0.8" d="M1.07107 15.2136L15.2132 1.07151M1.07107 1.07151L15.2132 15.2136" stroke="#202020" stroke-width="2" stroke-linecap="round"/>
+							</svg>							
+					</button>
+				</div>
+				<div class="popup-detail-content">
+					<div class="popup-detail-content-wrapper">
+						<table class="table-bill-detail">
+							<tbody>
+								<tr>
+									<th>구분</th>
+									<td>렌탈료</td>
+								</tr>
+								<tr>
+									<th>주문번호</th>
+									<td>20ABN2003948</td>
+								</tr>
+								<tr>
+									<th>품목(제품군)</th>
+									<td>정수기</td>
+								</tr>
+								<tr>
+									<th>제품명(모델명)</th>
+									<td>CPI-7400N</td>
+								</tr>
+								<tr>
+									<th>계약일(설치일)</th>
+									<td>2025.03.01</td>
+								</tr>
+								<tr>
+									<th>사용월</th>
+									<td>2025.03</td>
+								</tr>
+								<tr>
+									<th>청구월</th>
+									<td>2025.04</td>
+								</tr>
+								<tr>
+									<th>공급가액(원)</th>
+									<td>10,000</td>
+								</tr>
+								<tr>
+									<th>부가세(원)</th>
+									<td>1,000</td>
+								</tr>
+								<tr>
+									<th>합계(원)</th>
+									<td><span class="total-amount">11,000</span></td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="close-btn-wrap">
+							<button class="btn2-close-popup-detail">
+								닫기
+							</button>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+
+		
+		<footer class="footer">
+			<div class="inner">
+				<ul class="footer-ul pc-block">
+					<li>
+						<p>서울 : 구로구 디지털로26길 38, G-Tower 코웨이</p>
+					</li>
+					<li>
+						<p>본점 : 충남 공주시 유구읍 유구마곡사로 136-23</p>
+					</li>
+					<li>
+						<p>대표이사 : 서장원 &nbsp;|&nbsp; 사업자등록번호 : 307-81-06054</p>
+					</li>
+					<li>
+						<p>대표전화 : 1588-5200 &nbsp;|&nbsp; 통신판매번호 : 제2005-충남공주-0021</p>
+					</li>
+				</ul>
+				<ul class="footer-ul mo-block">
+					<li>
+						<p>서울 : 구로구 디지털로26길 38, G-Tower 코웨이</p>
+					</li>
+					<li>
+						<p>본점 : 충남 공주시 유구읍 유구마곡사로 136-23</p>
+					</li>
+					<li>
+						<p>대표전화 : 1588-5200</p>
+					</li>
+					<li>
+						<p>대표이사 : 서장원</p>
+					</li>
+					<li>
+						<p>사업자등록번호 : 307-81-06054</p>
+					</li>
+					<li>
+						<p>통신판매번호 : 제2005-충남공주-0021</p>
+					</li>
+				</ul>
+			</div>
+			<div class="coppy-right-wrap">
+				<div class="inner">
+					<p class="coppy-right-para">
+						COPYRIGHT COWAY CO.,LTD. ALL RIGHTS RESERVED.
+					</p>
+				</div>
+			</div>
+		</footer>
+	</div>
+
+  <script>
+		let savedInnerHtml = ''; // 전역에 저장 (한 번만)
+
+function textOverflow() {
+    const overflowText = document.querySelector('.company-name');
+    const resizeDom = document.querySelector('.bill-summary-wrap');
+
+    if (!overflowText || !resizeDom) return;
+
+    // 초기 텍스트 저장 (한 번만)
+    savedInnerHtml = overflowText.innerHTML;
+
+    window.addEventListener("resize", function() {
+        const width = resizeDom.getBoundingClientRect().width;
+
+        if (width <= 360) {
+            if (savedInnerHtml.length > 9) {
+                const slicedText = savedInnerHtml.slice(0, 8);
+                const ellipsis = "...";
+                overflowText.innerHTML = slicedText + ellipsis;
+            }
+        } else {
+            overflowText.innerHTML = savedInnerHtml;
+        }
+    });
+
+    // 페이지 로딩 시에도 체크 (뷰포트 360 이하인 경우에 대비)
+    const initWidth = resizeDom.getBoundingClientRect().width;
+    if (initWidth <= 360 && savedInnerHtml.length > 9) {
+        const slicedText = savedInnerHtml.slice(0, 7);
+        overflowText.innerHTML = slicedText + "...";
+    }
+}
+textOverflow();
+
+function popupCloseEvent(){
+
+    const btnClose = document.querySelectorAll('.btn-close');
+    btnClose.forEach((btn) => {
+        btn.addEventListener('click', function() {
+            const popup = btn.closest('.popup-wrap');
+            popup.classList.remove('active');
+        });
+    });
+
+}
+popupCloseEvent();
+
+
+function btnAllClickEvent() {
+
+    const table5 = document.querySelector('.table-detail-5');
+    const btnMore = document.querySelector('.btn-detail-more');
+
+    btnMore.addEventListener('click', btnMoreClickEvent);
+
+    function btnMoreClickEvent() {
+        const tableRows = table5.querySelectorAll('tbody tr');
+        tableRows.forEach((row, index) => {
+            if (index > 10) {
+                row.style.display = 'table-row';
+            }
+        });
+        btnMore.style.display = 'none';
+        const moTotal = document.querySelector('.mo-table-total');
+        moTotal.classList.add('active');
+    }
+
+    
+
+}
+btnAllClickEvent();
+
+/* 청구서 상세 popup */
+
+function popupDetailOpenEvent() {
+    const trigger = document.querySelectorAll('.total-popup-btn');
+
+    trigger.forEach((btn) => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const popup = document.querySelector('.popup-detail-wrap');
+            popup.classList.add('active');
+        });
+    });
+}
+popupDetailOpenEvent();
+
+function popupDetailCloseEvent(){
+    const btnClose = document.querySelector('.btn-close-popup-detail');
+    const btnClose2 = document.querySelector('.btn2-close-popup-detail');
+
+    btnClose.addEventListener('click', function() {
+        const popup = btnClose.closest('.popup-detail-wrap');
+        popup.classList.remove('active');
+    });
+
+    btnClose2.addEventListener('click', function() {
+        const popup = btnClose.closest('.popup-detail-wrap');
+        popup.classList.remove('active');
+    });
+}
+popupDetailCloseEvent();
+
+/* mobile toggle btn */ 
+
+function btnToggleClickEvent(){
+    const btns = document.querySelectorAll('.btn-toggle');
+    btns.forEach((btn)=>{
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+            toggleContents(btn);
+            btn.classList.toggle('rotated');
+        });
+    })
+    
+}
+
+btnToggleClickEvent();
+
+function toggleContents(btn){
+    const wrapConatainer = btn.closest('.table-detail-wrap');
+    const toggleContents = wrapConatainer.querySelector('.table-toggle-contents');
+    toggleContents.classList.toggle('closed');
+}
+
+
+	</script>
+
+<script>
+  // 폼 제출 이벤트
+  document.getElementById('bizNumForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const val = document.getElementById('bizNumInput').value.trim();
+
+    if (!val) {
+      // 입력값 없을 때
+      document.querySelector('.popup-2').classList.add('active');
+    }
+    else if (val === '1111111111') {
+      // 정확히 1111111111 입력 시
+      document.querySelector('.popup-password-container').classList.add('closed');
+      document.querySelector('.bill_container').classList.add('active');
+    }
+    else {
+      // 그 외 숫자 입력 시
+      document.querySelector('.popup-1').classList.add('active');
+    }
+  });
+
+  // 팝업 닫기 버튼
+  document.querySelectorAll('.popup-wrap .btn-close').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      this.closest('.popup-wrap').classList.remove('active');
+    });
+  });
+</script>
+</body>
+</html>

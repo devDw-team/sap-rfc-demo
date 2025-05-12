@@ -25,19 +25,15 @@ public class InvoiceService {
     public Map<String, Object> getInvoiceData(InvoiceSearchRequest request) {
         Map<String, Object> result = new HashMap<>();
 
+        // zgrpno 값 로그 출력
+        Long zgrpno = request.getZgrpno();
+        System.out.println("조회 요청된 zgrpno: [" + zgrpno + "]");
+
         // 고객 정보 조회
-        List<SapCustomerInfo> customerInfoList = customerInfoRepository.findByOrderNoAndStcd2AndKunnr(
-            request.getOrderNo(), 
-            request.getStcd2(), 
-            request.getKunnr()
-        );
+        List<SapCustomerInfo> customerInfoList = customerInfoRepository.findByZgrpno(zgrpno);
 
         // 청구 정보 조회
-        List<SapBillInfo> billInfoList = billInfoRepository.findByOrderNoAndStcd2AndKunnr(
-            request.getOrderNo(),
-            request.getStcd2(),
-            request.getKunnr()
-        );
+        List<SapBillInfo> billInfoList = billInfoRepository.findByZgrpno(zgrpno);
 
         // customerInfo는 첫 번째 데이터만 사용 (단일 객체로 변환)
         Map<String, Object> customerInfo = new HashMap<>();

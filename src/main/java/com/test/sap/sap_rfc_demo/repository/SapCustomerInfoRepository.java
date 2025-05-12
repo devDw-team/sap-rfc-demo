@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SapCustomerInfoRepository extends JpaRepository<SapCustomerInfo, Integer> {
-    List<SapCustomerInfo> findByOrderNoAndStcd2AndKunnr(String orderNo, String stcd2, String kunnr);
+    List<SapCustomerInfo> findByZgrpno(Long zgrpno);
 } 

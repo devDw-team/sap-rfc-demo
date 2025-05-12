@@ -20,19 +20,12 @@
                     <div class="card-body">
                         <form id="searchForm">
                             <div class="mb-3">
-                                <label for="orderNo" class="form-label">주문번호</label>
-                                <input type="text" class="form-control" id="orderNo" name="orderNo" maxlength="12">
-                            </div>
-                            <div class="mb-3">
-                                <label for="stcd2" class="form-label">사업자번호</label>
-                                <input type="text" class="form-control" id="stcd2" name="stcd2" maxlength="11">
-                            </div>
-                            <div class="mb-3">
-                                <label for="kunnr" class="form-label">묶음번호</label>
-                                <input type="text" class="form-control" id="kunnr" name="kunnr" maxlength="10">
+                                <label for="zgrpno" class="form-label">묶음번호</label>
+                                <input type="text" class="form-control" id="zgrpno" name="zgrpno" maxlength="20">
                             </div>
                             <div class="text-center">
                                 <button type="button" class="btn btn-primary" id="searchBtn">검색하기</button>
+                                <button type="button" class="btn btn-secondary ms-2" id="billSearchBtn">청구서 검색</button>
                             </div>
                         </form>
                     </div>
@@ -42,12 +35,21 @@
                     <div class="alert alert-info">
                         <pre id="resultContent"></pre>
                     </div>
-                    <!-- 엑셀 파일 생성 버튼 영역 -->
-                    <div class="text-center mt-3">
-                        <button type="button" class="btn btn-success" id="excelBtn">
-                            <i class="bi bi-file-excel me-2"></i>엑셀파일 생성
-                        </button>
+                </div>
+                <!-- 청구서 JSON 표시 영역 -->
+                <div id="billJsonResult" class="mt-4" style="display: none;">
+                    <div class="alert alert-warning">
+                        <pre id="billJsonContent"></pre>
                     </div>
+                </div>
+                <!-- 파일 생성 버튼 영역: 처음에는 숨김 -->
+                <div class="text-center mt-3" id="fileBtnArea" style="display: none;">
+                    <button type="button" class="btn btn-success" id="excelBtn">
+                        <i class="bi bi-file-excel me-2"></i>엑셀파일 생성
+                    </button>
+                    <button type="button" class="btn btn-primary ms-2" id="htmlBtn">
+                        <i class="bi bi-file-earmark-html me-2"></i>HTML 파일 생성
+                    </button>
                 </div>
             </div>
         </div>
@@ -65,9 +67,7 @@
 
             $('#searchBtn').click(function() {
                 var params = {
-                    orderNo: $('#orderNo').val(),
-                    stcd2: $('#stcd2').val(),
-                    kunnr: $('#kunnr').val()
+                    zgrpno: $('#zgrpno').val().trim()
                 };
 
                 $.ajax({
@@ -78,6 +78,7 @@
                         searchResultData = response; // 검색 결과 저장
                         $('#searchResult').show();
                         $('#resultContent').text(JSON.stringify(response, null, 2));
+                        $('#fileBtnArea').show();
                     },
                     error: function(xhr, status, error) {
                         alert('데이터 조회 중 오류가 발생했습니다.');
@@ -112,6 +113,47 @@
                     error: function(xhr, status, error) {
                         alert('엑셀 파일 생성 중 오류가 발생했습니다.');
                         console.error(error);
+                    }
+                });
+            });
+
+            // HTML 파일 생성 버튼 클릭 이벤트
+            $('#htmlBtn').click(function() {
+                if (!searchResultData) {
+                    alert('먼저 데이터를 조회하거나 청구서 검색을 해주세요.');
+                    return;
+                }
+                $.ajax({
+                    url: '/api/invoice/generate_html',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(searchResultData),
+                    success: function(response) {
+                        alert('HTML 파일이 성공적으로 생성되었습니다!\n' + response);
+                    },
+                    error: function(xhr, status, error) {
+                        alert('HTML 파일 생성 중 오류가 발생했습니다.');
+                        console.error(error);
+                    }
+                });
+            });
+
+            $('#billSearchBtn').click(function() {
+                $.ajax({
+                    url: '/json/coway-bill-info.json',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        searchResultData = response; // HTML 파일 생성 버튼에서 사용할 데이터로 저장
+                        $('#billJsonResult').show();
+                        $('#billJsonContent').text(JSON.stringify(response, null, 2));
+                        $('#fileBtnArea').show();
+                    },
+                    error: function(xhr, status, error) {
+                        alert('청구서 JSON 파일을 불러오는 중 오류가 발생했습니다.');
+                        console.error(error);
+                        $('#billJsonResult').hide();
+                        searchResultData = null;
                     }
                 });
             });
