@@ -30,14 +30,22 @@ document.getElementById('bundleForm').addEventListener('submit', function(e) {
         alert('묶음번호를 입력하세요.');
         return;
     }
-    fetch('/api/bundle-info', {
+    // 파일 생성 API 호출
+    fetch('/api/bundle-info/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ zgrpno })
     })
     .then(res => res.json())
     .then(data => {
-        document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+        if (data.error) {
+            document.getElementById('result').textContent = '파일 생성 오류: ' + data.error;
+        } else {
+            let html = '';
+            if (data.html) html += `<a href="${data.html}" download>HTML 다운로드</a><br>`;
+            if (data.excel) html += `<a href="${data.excel}" download>Excel 다운로드</a>`;
+            document.getElementById('result').innerHTML = html;
+        }
     })
     .catch(err => {
         document.getElementById('result').textContent = '에러: ' + err;

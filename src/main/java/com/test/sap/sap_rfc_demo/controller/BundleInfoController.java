@@ -24,4 +24,12 @@ public class BundleInfoController {
         String zgrpno = req.get("zgrpno");
         return bundleInfoService.getBundleInfo(zgrpno);
     }
+
+    @PostMapping("/api/bundle-info/generate")
+    @ResponseBody
+    public Map<String, String> generateFiles(@RequestBody Map<String, String> req) {
+        String zgrpno = req.get("zgrpno");
+        Map<String, Object> data = bundleInfoService.getBundleInfo(zgrpno);
+        return bundleInfoService.generateFiles(data);
+    }
 } 

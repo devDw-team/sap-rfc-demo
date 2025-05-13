@@ -28,12 +28,12 @@ public class BundleInfoRepository {
 
     // 2. 청구 정보(여러 건)
     public List<Map<String, Object>> findBills(String zgrpno) {
-        String sql = "SELECT ORDER_NO, VTEXT, GOODS_CD, INST_DT, USE_DUTY_MONTH, OWNER_DATE, USE_MONTH, RECP_YM, FIX_SUPPLY_VALUE, FIX_VAT, FIX_BILL_AMT, SUPPLY_VALUE, VAT, BILL_AMT, PAY_COM_TX, PAY_NO, INST_JUSO, GOODS_SN, DEPT_CD_TX, DEPT_TELNR, ZBIGO " +
+        String sql = "SELECT RECP_TP_TX, ORDER_NO, VTEXT, GOODS_CD, INST_DT, USE_DUTY_MONTH, OWNER_DATE, USE_MONTH, RECP_YM, FIX_SUPPLY_VALUE, FIX_VAT, FIX_BILL_AMT, SUPPLY_VALUE, VAT, BILL_AMT, PAY_COM_TX, PAY_NO, INST_JUSO, GOODS_SN, DEPT_CD_TX, DEPT_TELNR, ZBIGO " +
                 "FROM z_re_b2b_bill_info WHERE ZGRPNO = :zgrpno";
         List<Object[]> rows = em.createNativeQuery(sql)
                 .setParameter("zgrpno", zgrpno)
                 .getResultList();
-        String[] keys = {"ORDER_NO", "VTEXT", "GOODS_CD", "INST_DT", "USE_DUTY_MONTH", "OWNER_DATE", "USE_MONTH", "RECP_YM", "FIX_SUPPLY_VALUE", "FIX_VAT", "FIX_BILL_AMT", "SUPPLY_VALUE", "VAT", "BILL_AMT", "PAY_COM_TX", "PAY_NO", "INST_JUSO", "GOODS_SN", "DEPT_CD_TX", "DEPT_TELNR", "ZBIGO"};
+        String[] keys = {"RECP_TP_TX", "ORDER_NO", "VTEXT", "GOODS_CD", "INST_DT", "USE_DUTY_MONTH", "OWNER_DATE", "USE_MONTH", "RECP_YM", "FIX_SUPPLY_VALUE", "FIX_VAT", "FIX_BILL_AMT", "SUPPLY_VALUE", "VAT", "BILL_AMT", "PAY_COM_TX", "PAY_NO", "INST_JUSO", "GOODS_SN", "DEPT_CD_TX", "DEPT_TELNR", "ZBIGO"};
         List<Map<String, Object>> result = new ArrayList<>();
         for (Object[] row : rows) {
             Map<String, Object> map = new LinkedHashMap<>();
