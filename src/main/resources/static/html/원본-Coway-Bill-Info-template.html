@@ -442,7 +442,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 					</p>
 					<!--
 					<form class="popup-password-form">
-						<input class="input-number" type="number" maxlength="10" placeholder="'-'없이 사업자번호 입력" autofocus oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+						<input class="input-number" type="number" maxlength="10" placeholder="‘-’없이 사업자번호 입력" autofocus oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
 						<button class="btn-submit" type="submit">확인</button>
 					</form>
 					//-->
@@ -454,7 +454,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 						class="input-number"
 						type="number"
 						maxlength="10"
-						placeholder="'-'없이 사업자번호 입력"
+						placeholder="‘-’없이 사업자번호 입력"
 						autofocus
 						oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
 					  >
@@ -498,11 +498,8 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 				<section class="bill-title-wrap">
 					<img class="logo-img" src="https://www.digitalworks.co.kr/coway/mailimg/logo.png" alt="코웨이 로고">
 					<h1 class="bill-title">코웨이(주) <br class="mo-br">
-						${C_RECP_YM}
-						<!--
 						<span class="year">2025</span>년
 						<span class="month">04</span>월
-						-->
 						대금 청구서
 					</h1>
 					<p class="bill-date">
@@ -516,12 +513,12 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 				<section class="bill-summary-wrap">
 					<div class="bill-summary-inner">
 						<p class="summary-para">
-							안녕하세요 <span class="company-name">${CUST_NM}</span> 고객님. <br>
+							안녕하세요 <span class="company-name">${buyerInfo.companyName}</span> 고객님. <br>
 							코웨이(주) 제품을<br class="mo-br"> 이용해 주셔서 감사합니다.
 						</p>
 						<p class="summary-para-2">
-							<span class="month">${C_RECP_YM}</span>월 납부하실 금액은<br class="mo-br"> <span class="total-amount">${TOTAL_AMOUNT}</span>원이고, <br>
-							납부기한은<br class="mo-br"> <span class="">${C_DUE_DATE}</span> 입니다.
+							<span class="month">{month}</span>월 납부하실 금액은<br class="mo-br"> <span class="total-amount">564,000</span>원이고, <br>
+							납부기한은<br class="mo-br"> <span class="">2025.04.30</span> 입니다.
 						</p>
 						<!-- bill download btn -->
 						<button class="download-btn">
@@ -575,7 +572,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="">
-										${STCD2}
+										${buyerInfo.businessNumber}
 									</p>
 								</div>
 							</li>
@@ -585,7 +582,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="">
-										${CUST_NM}
+										${buyerInfo.companyName}
 									</p>
 								</div>
 							</li>
@@ -595,7 +592,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="">
-										${J_1KFREPRE}
+										${buyerInfo.representative}
 									</p>
 								</div>
 							</li>
@@ -605,7 +602,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="">
-										${J_1KFTBUS}
+										${buyerInfo.businessType}
 									</p>
 								</div>
 							</li>
@@ -615,7 +612,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="line-height">
-										${J_1KFTIND}
+										${buyerInfo.items}
 									</p>
 								</div>
 							</li>
@@ -650,7 +647,9 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 											<p>사업자번호</p>
 										</div>
 										<div class="list-data">
-											<p class="">307-81-06054</p>
+											<p class="">
+												${supplierInfo.businessNumber}
+											</p>
 										</div>
 									</li>
 									<li class="table-list">
@@ -658,7 +657,9 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 											<p>상호(법인명)</p>
 										</div>
 										<div class="list-data">
-											<p class="">코웨이(주)</p>
+											<p class="">
+												${supplierInfo.companyName}
+											</p>
 										</div>
 									</li>
 									<li class="table-list">
@@ -667,7 +668,9 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 										</div>
 										<div class="list-data">
 											<div class="stamp-wrap">
-												<p class="">서장원</p>
+												<p class="">
+													${supplierInfo.representative}
+												</p>
 												<img class="stamp-img" src="https://www.digitalworks.co.kr/coway/mailimg/stamp.png" alt="도장">
 											</div>
 										</div>
@@ -677,7 +680,9 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 											<p>업태</p>
 										</div>
 										<div class="list-data">
-											<p class="">제조업,도소매,서비스업</p>
+											<p class="">
+												${supplierInfo.businessType}
+											</p>
 										</div>
 									</li>
 									<li class="table-list">
@@ -685,7 +690,9 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 											<p>종목</p>
 										</div>
 										<div class="list-data">
-											<p>정수기,청정기,비데 등</p>
+											<p>
+												${supplierInfo.items}
+											</p>
 										</div>
 									</li>
 									<li class="table-list">
@@ -695,7 +702,9 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 											</p>
 										</div>
 										<div class="list-data">
-											<p>충청남도 공주시 유구읍 유구마곡사로 136-23</p>
+											<p>
+												${supplierInfo.address}
+											</p>
 										</div>
 									</li>
 									<li class="table-list border-bottom">
@@ -706,21 +715,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 										</div>
 										<div class="list-data">
 											<ul>
-												<li>
-													<p>
-														콜센터 : 1588-5200
-													</p>
-												</li>
-												<li>
-													<p>
-														법인전용 콜센터 : 02-2163-4343
-													</p>
-												</li>
-												<li>
-													<p>
-														홈페이지 : https://www.coway.com
-													</p>
-												</li>
+												${supplierInfo.contactInfo}
 											</ul>
 										</div>
 									</li>
@@ -766,9 +761,9 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								<#list billingSummary as item>
 								<#assign totCnt = totCnt + (item.count?number)>
 								<#assign totAmt = totAmt + (item.amount?number)>
-									<td><p>${C_RECP_TP_TX}</p></td>
-									<td><p>${SUMMARY_CNT}</p></td>
-									<td><p>${SUMMARY_AMOUNT?number?string("#,##0")}</p></td>
+									<td><p>${item.category}</p></td>
+									<td><p>${item.count}</p></td>
+									<td><p>${item.amount?number?string("#,##0")}</p></td>
 								</tr>
 								</#list>
 								</#if>
@@ -809,11 +804,11 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 							<tbody>
 								<tr>
 									<th>
-										<p>${PAY_COM_TX}</p>
+										<p>${paymentInfo.bank}</p>
 									</th>
 									<td>
 										<p>
-											${PAY_NO}
+											${paymentInfo.accountNumber}
 										</p>
 									</td>
 								</tr>
@@ -828,18 +823,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 												결제안내 정보
 											</p>
 											<ul class="payment-info-ul">
-												<li>
-													<p>고객이 제공한 결제 정보에 의해 정기납기일에 회사는 청구 대급을 받습니다.</p>
-												</li>
-												<li>
-													<p>자동이체 고객의 경우 고객의 귀책사유로 정기 납기일 자동이체를 받을 수 없는 경우, 회사는 정기날기일 이후 언제든지 자동이체로 미결제 렌탈료를 지급 받을 수 있습니다.</p>
-												</li>
-												<li>
-													<p>결제정보 변경은 콜센터 1588-5200에서 가능합니다.</p>
-												</li>
-												<li>
-													<p>연체이자는 고객님이 입금하는 일자 기준으로 변경됩니다.</p>
-												</li>
+												${paymentInfo.instructions}
 											</ul>
 										</p>
 									</td>
@@ -874,7 +858,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p>
-										${PRE_AMT?number?string("#,##0")} 원
+										${prepaymentInfo.amountPaid?number?string("#,##0")} 원
 									</p>
 								</div>
 							</li>
@@ -884,7 +868,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p>
-										${REMAIN_AMT?number?string("#,##0")} 원
+										${prepaymentInfo.amountRemaining?number?string("#,##0")} 원
 									</p>
 								</div>
 							</li>
@@ -894,7 +878,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p>
-										${PRE_MONTH} 개월
+										${prepaymentInfo.remainingPeriod} 개월
 									</p>
 								</div>
 							</li>
@@ -918,7 +902,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 							</a>
 						</h2>
 						<div class="table-detail table-toggle-contents">
-							<p class="">${J_JBIGO}</p>
+							<p class="">${remarks}</p>
 						</div>
 					</div>
 					<!-- table 5 -->
@@ -982,42 +966,45 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 									<#assign taxAmountTotal = 0>
 
 									<#list billingDetails as item>
-									<#assign taxableAmountTotal = taxableAmountTotal + (SUPPLY_VALUE?number)>
-									<#assign taxAmountTotal = taxAmountTotal + (VAT?number)>
+									<#assign taxableAmountTotal = taxableAmountTotal + (item.taxableAmount?number)>
+									<#assign taxAmountTotal = taxAmountTotal + (item.taxAmount?number)>
 									<tr>
 										<td>
-											<p>${RECP_TP_TX}</p>
+											<p>${item.category}</p> <!--category-->
 										</td>
 										<td>
-											<p>${ORDER_NO}</p>
+											<p>${item.orderNumber}</p> <!--orderNumber-->
 										</td>
 										<td>
-											<p>${GOODS_CD}</p>
+											<p>${item.itemGroup}</p> <!--itemGroup-->
 										</td>
 										<td>
-											<p>${VTEXT}</p>
+											<p>${item.modelName}</p> <!--modelName-->
 										</td>
 										<td>
-											<p>${INST_DT}</p>
+											<p>${item.contractDate}</p> <!--contractDate-->
 										</td>
 										<td>
-											<p>${USE_MONTH}</p>
+											<p>${item.usageMonth}</p> <!--usageMonth-->
 										</td>
 										<td>
-											<p>${RECP_YM}</p>
+											<p>${item.billingMonth}</p> <!--billingMonth-->
 										</td>
 										<td>
-											<p>${SUPPLY_VALUE?number?string("#,##0")}</p>
+											<p>${item.taxableAmount?number?string("#,##0")}</p> <!--taxableAmount-->
 										</td>
 										<td>
-											<p>${VAT?number?string("#,##0")}</p>
+											<p>${item.taxAmount?number?string("#,##0")}</p> <!--taxAmount-->
 										</td>
 										<td>
-											<#assign celltotal = (SUPPLY_VALUE?number) + (VAT?number)>
+											<!-- 합계(원) -->
+											<!-- pc -->
+											<#assign celltotal = (item.taxableAmount?number) + (item.taxAmount?number)>
 											<p class="pc-block">
 											  ${celltotal?string("#,##0")}
 											  <span>원</span>
 											</p>
+											<!-- mo -->
 											<a href="#" class="total-popup-btn mo-block">
 												<p>${celltotal?string("#,##0")}<span>원</span>
 													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">

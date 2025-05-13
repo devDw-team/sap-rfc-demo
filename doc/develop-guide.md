@@ -318,7 +318,7 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
       CREATE TABLE `Z_RE_B2B_CUST_INFO` (
         `SEQ`         INT               NOT NULL AUTO_INCREMENT,
         `ORDER_NO`    VARCHAR(12)       NOT NULL COMMENT '고객주문번호',
-        `STCD2`       VARCHAR(11)       DEFAULT NULL COMMENT 'buyerInfo.businessNumber 세금 번호2',
+        `STCD2`       VARCHAR(11)       DEFAULT NULL COMMENT 'buyerInfo.businessNumber 사업자번호',
         `KUNNR`       VARCHAR(10)       DEFAULT NULL COMMENT '고객 번호',
         `CUST_NM`     VARCHAR(40)       DEFAULT NULL COMMENT 'buyerInfo.companyName 고객명',
         `FXDAY`       SMALLINT UNSIGNED DEFAULT NULL COMMENT '발행일 (NUMC2)',
@@ -350,7 +350,7 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
       CREATE TABLE `Z_RE_B2B_BILL_INFO` (
         `SEQ`         	  INT               NOT NULL AUTO_INCREMENT,
         `ORDER_NO`          VARCHAR(12)       NOT NULL COMMENT '고객주문번호',
-        `STCD2`             VARCHAR(11)       DEFAULT NULL COMMENT '세금 번호 2',
+        `STCD2`             VARCHAR(11)       DEFAULT NULL COMMENT '사업자번호',
         `KUNNR`             VARCHAR(10)       DEFAULT NULL COMMENT '고객 번호',
         `ZGRPNO`            BIGINT UNSIGNED   DEFAULT NULL COMMENT '묶음번호',
         `SEL_KUN`           VARCHAR(1)        DEFAULT NULL COMMENT '대표고객',
@@ -531,3 +531,51 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
 3. Repository 레벨
    - DEBUG: 쿼리 실행
    - ERROR: DB 작업 실패
+
+## 15. 청구서 정보 조회 쿼리 (HTML, Excel 템플릿 파일에 매핑하기 위한 조회 쿼리)
+```sql
+    select STCD2, 
+        CUST_NM, 
+        J_1KFREPRE, 
+        J_1KFTBUS, 
+        J_1KFTIND, 
+        PAY_COM_TX, 
+        PAY_NO, 
+        PRE_AMT, 
+        REMAIN_AMT, 
+        PRE_MONTH 
+    from z_re_b2b_cust_info 
+    where ZGRPNO='536263'; -- 1 row return , 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.
+
+    select ORDER_NO,
+        VTEXT,
+        GOODS_CD,
+        INST_DT,
+        USE_DUTY_MONTH,
+        OWNER_DATE,
+        USE_MONTH,
+        RECP_YM,
+        FIX_SUPPLY_VALUE,
+        FIX_VAT,
+        FIX_BILL_AMT,
+        SUPPLY_VALUE,
+        VAT,
+        BILL_AMT,
+        PAY_COM_TX,
+        PAY_NO,
+        INST_JUSO,
+        GOODS_SN,
+        DEPT_CD_TX,
+        DEPT_TELNR,
+        ZBIGO
+    from z_re_b2b_bill_info where ZGRPNO='536263'; -- 다중 rows return, 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.
+
+    select RECP_YM as C_RECP_YM, DUE_DATE as C_DUE_DATE, sum(SUPPLY_VALUE)+sum(vat) as TOTAL_AMOUNT 
+    from z_re_b2b_bill_info where ZGRPNO='536263' group by RECP_YM, DUE_DATE; -- 1 row return , 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.
+
+    select RECP_TP as C_RECP_TP, RECP_TP_TX as C_RECP_TP_TX, count(recp_tp) as SUMMARY_CNT, sum(SUPPLY_VALUE)+sum(vat) as SUMMARY_AMOUNT 
+    from z_re_b2b_bill_info where ZGRPNO='536263' group by RECP_TP, RECP_TP_TX; -- 다중 rows return , 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.
+
+    select b.ZBIGO as J_JBIGO
+    from z_re_b2b_cust_info a, z_re_b2b_bill_info b 
+    where a.ORDER_NO = b.ORDER_NO and b.ZGRPNO='536263'; -- 1 row return , 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.

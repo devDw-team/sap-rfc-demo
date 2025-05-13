@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>묶음번호 청구서 정보 조회</title>
+    <style>
+        body { font-family: 'Spoqa Han Sans Neo', sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        label { font-weight: bold; }
+        input[type="text"] { width: 200px; padding: 8px; margin-right: 10px; }
+        button { padding: 8px 16px; }
+        pre { background: #f4f4f4; padding: 16px; border-radius: 6px; margin-top: 24px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>묶음번호로 청구서 정보 조회</h2>
+    <form id="bundleForm" onsubmit="return false;">
+        <label for="zgrpno">묶음번호(ZGRPNO):</label>
+        <input type="text" id="zgrpno" name="zgrpno" maxlength="10" required>
+        <button type="submit">파일생성</button>
+    </form>
+    <pre id="result"></pre>
+</div>
+<script>
+document.getElementById('bundleForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const zgrpno = document.getElementById('zgrpno').value.trim();
+    if (!zgrpno) {
+        alert('묶음번호를 입력하세요.');
+        return;
+    }
+    fetch('/api/bundle-info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zgrpno })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+    })
+    .catch(err => {
+        document.getElementById('result').textContent = '에러: ' + err;
+    });
+});
+</script>
+</body>
+</html> 
