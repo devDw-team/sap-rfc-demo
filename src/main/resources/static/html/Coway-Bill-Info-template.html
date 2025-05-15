@@ -498,18 +498,14 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 				<section class="bill-title-wrap">
 					<img class="logo-img" src="https://www.digitalworks.co.kr/coway/mailimg/logo.png" alt="코웨이 로고">
 					<h1 class="bill-title">코웨이(주) <br class="mo-br">
-						${C_RECP_YM}
-						<!--
-						<span class="year">2025</span>년
-						<span class="month">04</span>월
-						-->
-						대금 청구서
+						<span class="year">${C_RECP_YEAR}</span>년
+						<span class="month">${C_RECP_MONTH}</span>월
 					</h1>
 					<p class="bill-date">
 						<span>청구서 발송일</span>
 						<svg width="2" height="14" viewBox="0 0 2 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.8" d="M1 0V14" stroke="white"/></svg>
 						<!-- 날짜 -->
-						<span class="date">2025.4.1</span>
+						<span class="date">${SEND_DATE}</span>
 					</p>
 				</section>
 				<!-- bill summary -->
@@ -520,20 +516,20 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 							코웨이(주) 제품을<br class="mo-br"> 이용해 주셔서 감사합니다.
 						</p>
 						<p class="summary-para-2">
-							<span class="month">${C_RECP_YM}</span>월 납부하실 금액은<br class="mo-br"> <span class="total-amount">${TOTAL_AMOUNT}</span>원이고, <br>
-							납부기한은<br class="mo-br"> <span class="">${C_DUE_DATE}</span> 입니다.
+							<span class="month">${C_RECP_MONTH}</span>월 납부하실 금액은<br class="mo-br"> <span class="total-amount">${TOTAL_AMOUNT_COMMA}</span>원이고, <br>
+							납부기한은<br class="mo-br"> <span class="">${C_DUE_DATE_DOT}</span> 입니다.
 						</p>
 						<!-- bill download btn -->
-						<button class="download-btn">
+						<a class="download-btn" href="/excel/download/${FILE_NAME}.xlsx" download>
 							<div class="download-btn-inner">
 								<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path d="M1 9V14H14V9" stroke="white" stroke-width="1.25"/>
 									<path d="M7.5 0V10" stroke="white" stroke-width="1.25"/>
 									<path d="M11 7L7.5 10L4 7" stroke="white" stroke-width="1.25"/>
-									</svg>
+								</svg>
 								<p>청구 상세내역 파일 다운로드</p>
 							</div>
-						</button>
+						</a>
 						<!-- print btn -->
 						<button class="print-btn pc-inline-block">
 							<div class="print-btn-inner">
@@ -780,7 +776,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 									</td>
 									<td>
 										<p class="total-amount">
-											<span class="">${totAmt}</span><span class="won">원</span>
+											<span class="">${totAmt_COMMA}</span><span class="won">원</span>
 										</p>
 									</td>
 								</tr>
@@ -1029,13 +1025,12 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 											<p>
 												<span class="total-amount-detail">
 													<span>(공급가액 : </span>
-													<span class="">${taxableAmountTotal?string("#,##0")}</span>
+													<span class="">${taxableAmountTotal_COMMA}</span>
 													<span>원, 부가세 : </span>
-													<span class="">${taxAmountTotal?string("#,##0")}</span>
+													<span class="">${taxAmountTotal_COMMA}</span>
 													<span>원)</span>
 												</span>
-												<#assign totAmount = (taxableAmountTotal) + (taxAmountTotal)>
-												<span class="total-amount">${totAmount?string("#,##0")}</span>
+												<span class="total-amount">${totAmount_COMMA}</span>
 												<span class="won">원</span>
 											</p>
 										</td>
@@ -1051,12 +1046,13 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 										</td>
 										<td>
 											<p>
-												<span class="total-amount">${totAmount?string("#,##0")}<</span><span class="won">원</span>
+												<span class="total-amount">${totAmount_COMMA}</span><span class="won">원</span>
 											</p>
 										</td>
 									</tr>
 								</tbody>
 							</table>
+							<#if SHOW_DETAIL_MORE_BTN>
 							<button class="btn-detail-more">
 								전체 보기
 								<svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1064,6 +1060,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 									<rect x="4.5" y="10" width="10" height="1" transform="rotate(-90 4.5 10)" fill="#1B2529"/>
 								</svg>
 							</button>
+							</#if>
 						</div>
 
 					</div>
@@ -1343,6 +1340,19 @@ function toggleContents(btn){
       this.closest('.popup-wrap').classList.remove('active');
     });
   });
+</script>
+
+<script>
+// 인쇄하기 버튼 클릭 시 브라우저 인쇄 다이얼로그 실행
+function printBtnEvent() {
+    const printBtn = document.querySelector('.print-btn');
+    if (printBtn) {
+        printBtn.addEventListener('click', function() {
+            window.print();
+        });
+    }
+}
+printBtnEvent();
 </script>
 </body>
 </html>
