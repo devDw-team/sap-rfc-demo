@@ -35,7 +35,7 @@ public class SapApiController {
     }
 
     @GetMapping("/customer-info")
-    public ResponseEntity<?> getCustomerInfo(@RequestParam(defaultValue = "20250423") String erdat) {
+    public ResponseEntity<?> getCustomerInfo(@RequestParam(defaultValue = "20240101") String erdat) {
         try {
             Map<String, Object> result = sapService.getCustomerInfo(erdat);
             logger.debug("SAP Response: {}", result);  // 응답 데이터 로깅

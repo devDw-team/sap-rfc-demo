@@ -17,6 +17,8 @@ public class ExcelTemplateUtil {
     private CellStyle boldCenterStyle;
     private CellStyle moneyBottomBorderStyle;
     private CellStyle centerBottomBorderStyle;
+    private CellStyle boldCenterBottomBorderStyle;
+    private CellStyle boldMoneyBottomBorderStyle;
 
     /**
      * 템플릿 기반 엑셀 생성 (customer, bills, bill_summary, bill_type_summary, remarks 구조)
@@ -42,6 +44,8 @@ public class ExcelTemplateUtil {
             this.boldCenterStyle = createBoldCenterStyle(workbook);
             this.moneyBottomBorderStyle = createMoneyBottomBorderStyle(workbook);
             this.centerBottomBorderStyle = createCenterAlignedBottomBorderStyle(workbook);
+            this.boldCenterBottomBorderStyle = createBoldCenterBottomBorderStyle(workbook);
+            this.boldMoneyBottomBorderStyle = createBoldMoneyBottomBorderStyle(workbook);
             Sheet sheet = workbook.getSheetAt(0);
 
             // 1. customer, bill_summary, remarks 등 단일 row 플레이스홀더 치환
@@ -56,7 +60,19 @@ public class ExcelTemplateUtil {
             replacePlaceholder(sheet, "{J_1KFTIND}", String.valueOf(customer.get("J_1KFTIND")));
             // bill_summary
             if (billSummary != null) {
-                replacePlaceholder(sheet, "{C_RECP_YM}", String.valueOf(billSummary.get("C_RECP_YM")));
+                // {C_RECP_YN} 치환 추가
+                String cRecpYm = String.valueOf(billSummary.get("C_RECP_YM"));
+                System.out.println("cRecpYm : " + cRecpYm);
+                if (cRecpYm != null && cRecpYm.length() == 6) {
+                    String yearPart = cRecpYm.substring(0, 4);
+                    String monthPart = cRecpYm.substring(4, 6);
+                    String formatted = yearPart + "년 " + monthPart + "월";
+                    System.out.println("formatted : " + formatted);
+                    replacePlaceholder(sheet, "{C_RECP_YM}", formatted);
+                } else {
+                    replacePlaceholder(sheet, "{C_RECP_YM}", "");
+                    System.out.println("cRecpYm is null or length is not 6");
+                }
                 // {C_DUE_DATE} 변환 및 치환
                 String cDueDate = String.valueOf(billSummary.get("C_DUE_DATE"));
                 if (cDueDate != null && cDueDate.length() == 10) {
@@ -66,16 +82,7 @@ public class ExcelTemplateUtil {
                     replacePlaceholder(sheet, "{C_DUE_DATE}", cDueDate != null ? cDueDate : "");
                 }
                 replacePlaceholder(sheet, "{TOTAL_AMOUNT}", String.valueOf(billSummary.get("TOTAL_AMOUNT")));
-                // {C_RECP_YN} 치환 추가
-                String cRecpYm = String.valueOf(billSummary.get("C_RECP_YM"));
-                if (cRecpYm != null && cRecpYm.length() == 6) {
-                    String yearPart = cRecpYm.substring(0, 4);
-                    String monthPart = cRecpYm.substring(4, 6);
-                    String formatted = yearPart + "년 " + monthPart + "월";
-                    replacePlaceholder(sheet, "{C_RECP_YN}", formatted);
-                } else {
-                    replacePlaceholder(sheet, "{C_RECP_YN}", "");
-                }
+
             }
             // remarks
             if (remarks != null) {
@@ -97,33 +104,38 @@ public class ExcelTemplateUtil {
             // 2. bills 반복 row (28행부터)
             List<Map<String, Object>> bills = (List<Map<String, Object>>) data.get("bills");
             int startRow = 27; // 0-based
-            double totalSupplyValue = 0, totalVat = 0, totalBillAmt = 0;
+            double totalSupplyValue = 0, totalVat = 0, totalBillAmt = 0, totalFixSupplyValue = 0, totalFixVat = 0, totalFixBillAmt = 0;
             for (int i = 0; i < bills.size(); i++) {
                 Map<String, Object> bill = bills.get(i);
                 Row row = sheet.getRow(startRow + i);
                 if (row == null) row = sheet.createRow(startRow + i);
-                setCellValueWithStyle(row, 1, String.valueOf(bill.getOrDefault("ORDER_NO", "")), centerStyle);
-                setCellValueWithStyle(row, 2, String.valueOf(bill.getOrDefault("GOODS_CD", "")), centerStyle);
-                setCellValueWithStyle(row, 3, String.valueOf(bill.getOrDefault("VTEXT", "")), centerStyle);
-                setCellValueWithStyle(row, 4, String.valueOf(bill.getOrDefault("INST_DT", "")), centerStyle);
-                setCellValueWithStyle(row, 5, String.valueOf(bill.getOrDefault("USE_DUTY_MONTH", "")), centerStyle);
-                setCellValueWithStyle(row, 6, String.valueOf(bill.getOrDefault("OWNER_DATE", "")), centerStyle);
-                setCellValueWithStyle(row, 7, String.valueOf(bill.getOrDefault("USE_MONTH", "")), centerStyle);
-                setCellValueWithStyle(row, 8, String.valueOf(bill.getOrDefault("RECP_YM", "")), centerStyle);
+                row.setHeightInPoints(33.75f); // 45px
+                setCellValueWithStyle(row, 1, String.valueOf(bill.getOrDefault("ORDER_NO", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 2, String.valueOf(bill.getOrDefault("GOODS_CD", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 3, String.valueOf(bill.getOrDefault("VTEXT", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 4, formatDateString(String.valueOf(bill.getOrDefault("INST_DT", ""))), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 5, formatDateString(String.valueOf(bill.getOrDefault("USE_DUTY_MONTH", ""))), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 6, formatDateString(String.valueOf(bill.getOrDefault("OWNER_DATE", ""))), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 7, formatYearMonthString(String.valueOf(bill.getOrDefault("USE_MONTH", ""))), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 8, formatYearMonthString(String.valueOf(bill.getOrDefault("RECP_YM", ""))), centerBottomBorderStyle);
+                // 금액 셀: 하단 테두리 스타일 적용
                 double fixSupply = parseDoubleValue(bill.get("FIX_SUPPLY_VALUE"));
                 double fixVat = parseDoubleValue(bill.get("FIX_VAT"));
                 double fixBillAmt = parseDoubleValue(bill.get("FIX_BILL_AMT"));
                 double supply = parseDoubleValue(bill.get("SUPPLY_VALUE"));
                 double vat = parseDoubleValue(bill.get("VAT"));
                 double billAmt = parseDoubleValue(bill.get("BILL_AMT"));
-                setMoneyCellValueWithStyle(row, 9, fixSupply, moneyStyle);
-                setMoneyCellValueWithStyle(row, 10, fixVat, moneyStyle);
-                setMoneyCellValueWithStyle(row, 11, fixBillAmt, moneyStyle);
-                setMoneyCellValueWithStyle(row, 12, supply, moneyStyle);
-                setMoneyCellValueWithStyle(row, 13, vat, moneyStyle);
-                setMoneyCellValueWithStyle(row, 14, billAmt, moneyStyle);
-                double rowTotal = fixSupply + fixVat + fixBillAmt + supply + vat + billAmt;
-                setMoneyCellValueWithStyle(row, 15, rowTotal, moneyStyle);
+                setMoneyCellValueWithStyle(row, 9, fixSupply, moneyBottomBorderStyle);
+                setMoneyCellValueWithStyle(row, 10, fixVat, moneyBottomBorderStyle);
+                setMoneyCellValueWithStyle(row, 11, fixBillAmt, moneyBottomBorderStyle);
+                setMoneyCellValueWithStyle(row, 12, supply, moneyBottomBorderStyle);
+                setMoneyCellValueWithStyle(row, 13, vat, moneyBottomBorderStyle);
+                setMoneyCellValueWithStyle(row, 14, billAmt, moneyBottomBorderStyle);
+                double rowTotal = supply + vat;
+                setMoneyCellValueWithStyle(row, 15, rowTotal, moneyBottomBorderStyle);
+                totalFixSupplyValue += fixSupply;
+                totalFixVat += fixVat;
+                totalFixBillAmt += fixBillAmt;
                 totalSupplyValue += supply;
                 totalVat += vat;
                 totalBillAmt += billAmt;
@@ -131,15 +143,16 @@ public class ExcelTemplateUtil {
             // 합계 행
             Row totalRow = sheet.getRow(startRow + bills.size());
             if (totalRow == null) totalRow = sheet.createRow(startRow + bills.size());
-            setCellValueWithStyle(totalRow, 1, "합계", boldCenterStyle);
-            for (int col = 1; col <= 8; col++) setCellValueWithStyle(totalRow, col, "", centerBottomBorderStyle);
-            setMoneyCellValueWithStyle(totalRow, 9, 0, moneyBottomBorderStyle); // FIX_SUPPLY_VALUE 합계 필요시 수정
-            setMoneyCellValueWithStyle(totalRow, 10, 0, moneyBottomBorderStyle); // FIX_VAT 합계 필요시 수정
-            setMoneyCellValueWithStyle(totalRow, 11, 0, moneyBottomBorderStyle); // FIX_BILL_AMT 합계 필요시 수정
-            setMoneyCellValueWithStyle(totalRow, 12, totalSupplyValue, moneyBottomBorderStyle);
-            setMoneyCellValueWithStyle(totalRow, 13, totalVat, moneyBottomBorderStyle);
-            setMoneyCellValueWithStyle(totalRow, 14, totalBillAmt, moneyBottomBorderStyle);
-            setMoneyCellValueWithStyle(totalRow, 15, totalSupplyValue + totalVat + totalBillAmt, moneyBottomBorderStyle);
+            totalRow.setHeightInPoints(37.5f); // 50px
+            setCellValueWithStyle(totalRow, 1, "합계", boldCenterBottomBorderStyle);
+            for (int col = 2; col <= 8; col++) setCellValueWithStyle(totalRow, col, "", boldCenterBottomBorderStyle);
+            setMoneyCellValueWithStyle(totalRow, 9, totalFixSupplyValue, boldMoneyBottomBorderStyle); // FIX_SUPPLY_VALUE 합계 필요시 수정
+            setMoneyCellValueWithStyle(totalRow, 10, totalFixVat, boldMoneyBottomBorderStyle); // FIX_VAT 합계 필요시 수정
+            setMoneyCellValueWithStyle(totalRow, 11, totalFixBillAmt, boldMoneyBottomBorderStyle); // FIX_BILL_AMT 합계 필요시 수정
+            setMoneyCellValueWithStyle(totalRow, 12, totalSupplyValue, boldMoneyBottomBorderStyle);
+            setMoneyCellValueWithStyle(totalRow, 13, totalVat, boldMoneyBottomBorderStyle);
+            setMoneyCellValueWithStyle(totalRow, 14, totalBillAmt, boldMoneyBottomBorderStyle);
+            setMoneyCellValueWithStyle(totalRow, 15, totalSupplyValue + totalVat , boldMoneyBottomBorderStyle);
 
             // 3. bill_type_summary 반복 row (예: 50행부터, 실제 템플릿 구조에 맞게 조정)
             /*
@@ -234,5 +247,37 @@ public class ExcelTemplateUtil {
         Cell cell = row.createCell(column);
         cell.setCellValue(value);
         cell.setCellStyle(style);
+    }
+
+    // 날짜 포맷 변환 함수 추가
+    private String formatDateString(String date) {
+        if (date != null && date.length() == 10 && date.contains("-")) {
+            return date.replace("-", ".");
+        }
+        return date;
+    }
+
+    // "YYYYMM" -> "YYYY.MM" 변환 함수 추가
+    private String formatYearMonthString(String yyyymm) {
+        if (yyyymm != null && yyyymm.length() == 6) {
+            return yyyymm.substring(0, 4) + "." + yyyymm.substring(4, 6);
+        }
+        return yyyymm;
+    }
+
+    // Bold + 하단 테두리 스타일 생성 함수 추가
+    private CellStyle createBoldCenterBottomBorderStyle(Workbook workbook) {
+        CellStyle style = createCenterAlignedBottomBorderStyle(workbook);
+        Font boldFont = workbook.createFont();
+        boldFont.setBold(true);
+        style.setFont(boldFont);
+        return style;
+    }
+    private CellStyle createBoldMoneyBottomBorderStyle(Workbook workbook) {
+        CellStyle style = createMoneyBottomBorderStyle(workbook);
+        Font boldFont = workbook.createFont();
+        boldFont.setBold(true);
+        style.setFont(boldFont);
+        return style;
     }
 } 
