@@ -25,32 +25,7 @@ public class HtmlTemplateUtil {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
             data.put("SEND_DATE", today.format(formatter));
         }
-        // 0-2. C_RECP_YM(예: 202501) 값이 있으면 연도/월 분리해서 Map에 자동 추가
-        if (data.containsKey("C_RECP_YM")) {
-            Object ymObj = data.get("C_RECP_YM");
-            if (ymObj != null) {
-                String ym = ymObj.toString();
-                if (ym.length() == 6 && ym.matches("\\d{6}")) {
-                    // 앞 4자리: 연도, 뒤 2자리: 월
-                    String year = ym.substring(0, 4);
-                    String month = ym.substring(4, 6);
-                    data.put("C_RECP_YEAR", year);
-                    data.put("C_RECP_MONTH", month);
-                }
-            }
-        }
-        // 0-3. TOTAL_AMOUNT 값이 있으면 3자리마다 콤마가 들어간 문자열을 TOTAL_AMOUNT_COMMA로 Map에 자동 추가
-        if (data.containsKey("TOTAL_AMOUNT")) {
-            Object amtObj = data.get("TOTAL_AMOUNT");
-            if (amtObj != null) {
-                try {
-                    long amt = Long.parseLong(amtObj.toString().replaceAll(",", ""));
-                    data.put("TOTAL_AMOUNT_COMMA", String.format("%,d", amt));
-                } catch (Exception e) {
-                    data.put("TOTAL_AMOUNT_COMMA", amtObj.toString());
-                }
-            }
-        }
+
         // 0-4. 금액 관련 필드 자동 콤마 포맷 (Map 1-depth)
         String[] moneyKeys = {"TOTAL_AMOUNT", "SUMMARY_AMOUNT", "PRE_AMT", "REMAIN_AMT", "SUPPLY_VALUE", "VAT", "CELL_TOTAL", "taxableAmountTotal", "taxAmountTotal", "totAmount"};
         for (String key : moneyKeys) {
@@ -66,6 +41,34 @@ public class HtmlTemplateUtil {
                 }
             }
         }
+        // 하위 Map(1-depth)에도 금액 필드 콤마 포맷 추가
+        for (Object v : data.values()) {
+            if (v instanceof Map) {
+                Map<String, Object> subMap = (Map<String, Object>) v;
+                for (String key : moneyKeys) {
+                    if (subMap.containsKey(key)) {
+                        Object amtObj = subMap.get(key);
+                        if (amtObj != null) {
+                            try {
+                                long amt = Long.parseLong(amtObj.toString().replaceAll(",", ""));
+                                subMap.put(key + "_COMMA", String.format("%,d", amt));
+                            } catch (Exception e) {
+                                subMap.put(key + "_COMMA", amtObj.toString());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // 템플릿 파일 읽기 직전, data Map 로그 출력
+        System.out.println("==== HtmlTemplateUtil data Map ====");
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+        System.out.println("===================================");
+        // 1. 템플릿 파일 읽기
+        String html = Files.readString(new File(templatePath).toPath(), StandardCharsets.UTF_8);
+
         // 0-5. bills, bill_type_summary 등 List<Map> 내부 금액 필드도 자동 콤마 포맷
         String[] listKeys = {"bills", "bill_type_summary"};
         for (String listKey : listKeys) {
@@ -86,40 +89,38 @@ public class HtmlTemplateUtil {
                             }
                         }
                     }
-                }
-            }
-        }
-        // 0-6. C_DUE_DATE 값이 yyyy-mm-dd 형식이면 yyyy.mm.dd로 변환해서 C_DUE_DATE_DOT에 추가
-        if (data.containsKey("C_DUE_DATE")) {
-            Object dueObj = data.get("C_DUE_DATE");
-            if (dueObj != null) {
-                String due = dueObj.toString();
-                // yyyy-mm-dd 형식인지 체크
-                if (due.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                    // LocalDate로 파싱 후 yyyy.MM.dd로 포맷
-                    try {
-                        java.time.LocalDate date = java.time.LocalDate.parse(due);
-                        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd");
-                        data.put("C_DUE_DATE_DOT", date.format(fmt));
-                    } catch (Exception e) {
-                        // 파싱 실패 시 단순 치환
-                        data.put("C_DUE_DATE_DOT", due.replaceAll("-", "."));
+                    // 날짜/월 포맷 변환 추가
+                    // 1. INST_DT_DOT
+                    if (row.containsKey("INST_DT")) {
+                        String instDt = String.valueOf(row.get("INST_DT"));
+                        if (instDt.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                            row.put("INST_DT_DOT", instDt.replace("-", "."));
+                        } else {
+                            row.put("INST_DT_DOT", instDt);
+                        }
                     }
-                } else {
-                    // 형식이 다르면 원본 그대로
-                    data.put("C_DUE_DATE_DOT", due);
+                    // 2. USE_MONTH_DOT
+                    if (row.containsKey("USE_MONTH")) {
+                        String useMonth = String.valueOf(row.get("USE_MONTH"));
+                        if (useMonth.matches("\\d{6}")) {
+                            row.put("USE_MONTH_DOT", useMonth.substring(0, 4) + "." + useMonth.substring(4, 6));
+                        } else {
+                            row.put("USE_MONTH_DOT", useMonth);
+                        }
+                    }
+                    // 3. RECP_YM_DOT
+                    if (row.containsKey("RECP_YM")) {
+                        String recpYm = String.valueOf(row.get("RECP_YM"));
+                        if (recpYm.matches("\\d{6}")) {
+                            row.put("RECP_YM_DOT", recpYm.substring(0, 4) + "." + recpYm.substring(4, 6));
+                        } else {
+                            row.put("RECP_YM_DOT", recpYm);
+                        }
+                    }
                 }
             }
         }
-        // 0-7. FILE_NAME 키가 없으면 fileName 파라미터에서 확장자 없는 부분을 FILE_NAME으로 Map에 추가
-        if (!data.containsKey("FILE_NAME")) {
-            String onlyName = fileName;
-            int dotIdx = fileName.lastIndexOf('.');
-            if (dotIdx > 0) {
-                onlyName = fileName.substring(0, dotIdx);
-            }
-            data.put("FILE_NAME", onlyName);
-        }
+
         // 0-8. bill_type_summary의 SUMMARY_CNT, SUMMARY_AMOUNT 총합을 totCnt, totAmt로 Map에 추가
         if (data.containsKey("bill_type_summary") && data.get("bill_type_summary") instanceof java.util.List) {
             @SuppressWarnings("unchecked")
@@ -149,6 +150,8 @@ public class HtmlTemplateUtil {
         if (data.containsKey("bills") && data.get("bills") instanceof java.util.List) {
             @SuppressWarnings("unchecked")
             java.util.List<Map<String, Object>> bills = (java.util.List<Map<String, Object>>) data.get("bills");
+            // row 개수 추가
+            data.put("TOT_ROW_CNT", bills.size());
             long taxableAmountTotal = 0L;
             long taxAmountTotal = 0L;
             for (Map<String, Object> bill : bills) {
@@ -180,8 +183,93 @@ public class HtmlTemplateUtil {
             java.util.List<Map<String, Object>> bills = (java.util.List<Map<String, Object>>) data.get("bills");
             data.put("SHOW_DETAIL_MORE_BTN", bills.size() >= 11); // 11개 이상이면 true, 아니면 false
         }
-        // 1. 템플릿 파일 읽기
-        String html = Files.readString(new File(templatePath).toPath(), StandardCharsets.UTF_8);
+        // bill_summary에서 값 추출해서 최상위에 넣기
+        if (data.containsKey("bill_summary") && data.get("bill_summary") instanceof Map) {
+            Map<String, Object> billSummary = (Map<String, Object>) data.get("bill_summary");
+            if (billSummary.containsKey("C_RECP_YM")) {
+                data.put("C_RECP_YM", billSummary.get("C_RECP_YM"));
+            }
+            if (billSummary.containsKey("C_DUE_DATE")) {
+                data.put("C_DUE_DATE", billSummary.get("C_DUE_DATE"));
+            }
+            if (billSummary.containsKey("TOTAL_AMOUNT")) {
+                data.put("TOTAL_AMOUNT", billSummary.get("TOTAL_AMOUNT"));
+            }
+        }
+        // 반드시 bill_summary에서 값을 꺼낸 후 C_RECP_YM을 기준으로 파생값 생성
+        if (data.containsKey("C_RECP_YM")) {
+            String ym = data.get("C_RECP_YM").toString();
+            if (ym.length() == 6 && ym.matches("\\d{6}")) {
+                data.put("C_RECP_YEAR", ym.substring(0, 4));
+                data.put("C_RECP_MONTH", ym.substring(4, 6));
+            }
+        }
+
+        // C_RECP_YEAR, C_RECP_MONTH가 없으면 C_RECP_YM에서 파싱해서 보장
+        if ((!data.containsKey("C_RECP_YEAR") || !data.containsKey("C_RECP_MONTH")) && data.containsKey("C_RECP_YM")) {
+            String ym = data.get("C_RECP_YM").toString();
+            if (ym.length() == 6 && ym.matches("\\d{6}")) {
+                data.put("C_RECP_YEAR", ym.substring(0, 4));
+                data.put("C_RECP_MONTH", ym.substring(4, 6));
+            }
+        }
+
+        // PRE_AMT_COMMA, REMAIN_AMT_COMMA 보장
+        if (!data.containsKey("PRE_AMT_COMMA") && data.containsKey("PRE_AMT")) {
+            Object amtObj = data.get("PRE_AMT");
+            if (amtObj != null) {
+                data.put("PRE_AMT_COMMA", String.format("%,d", Long.parseLong(amtObj.toString())));
+            }
+        }
+        if (!data.containsKey("REMAIN_AMT_COMMA") && data.containsKey("REMAIN_AMT")) {
+            Object amtObj = data.get("REMAIN_AMT");
+            if (amtObj != null) {
+                data.put("REMAIN_AMT_COMMA", String.format("%,d", Long.parseLong(amtObj.toString())));
+            }
+        }
+
+
+        // TOTAL_AMOUNT_COMMA 보장
+        if (!data.containsKey("TOTAL_AMOUNT_COMMA") && data.containsKey("TOTAL_AMOUNT")) {
+            Object amtObj = data.get("TOTAL_AMOUNT");
+            if (amtObj != null) {
+                try {
+                    long amt = Long.parseLong(amtObj.toString().replaceAll(",", ""));
+                    data.put("TOTAL_AMOUNT_COMMA", String.format("%,d", amt));
+                } catch (Exception e) {
+                    data.put("TOTAL_AMOUNT_COMMA", amtObj.toString());
+                }
+            }
+        }
+
+        // C_DUE_DATE_DOT 보장
+        if (!data.containsKey("C_DUE_DATE_DOT") && data.containsKey("C_DUE_DATE")) {
+            Object dueObj = data.get("C_DUE_DATE");
+            if (dueObj != null) {
+                String due = dueObj.toString();
+                if (due.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                    try {
+                        java.time.LocalDate date = java.time.LocalDate.parse(due);
+                        java.time.format.DateTimeFormatter fmt = java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd");
+                        data.put("C_DUE_DATE_DOT", date.format(fmt));
+                    } catch (Exception e) {
+                        data.put("C_DUE_DATE_DOT", due.replaceAll("-", "."));
+                    }
+                } else {
+                    data.put("C_DUE_DATE_DOT", due);
+                }
+            }
+        }
+
+        
+        // 파일명 동적 생성
+        String year = data.getOrDefault("C_RECP_YEAR", "").toString();
+        String month = data.getOrDefault("C_RECP_MONTH", "").toString();
+        String dynamicFileName = String.format("코웨이(주) %s년 %s월 대금청구서", year, month);
+        // 0-7. FILE_NAME 키가 없으면 동적 파일명을 FILE_NAME으로 Map에 추가
+        if (!data.containsKey("FILE_NAME")) {
+            data.put("FILE_NAME", dynamicFileName);
+        }
 
         // 1.5. bills 반복 구간 치환
         if (data.containsKey("bills") && data.get("bills") instanceof java.util.List) {
@@ -247,8 +335,9 @@ public class HtmlTemplateUtil {
         // 3. 저장 디렉토리 생성
         File dir = new File(outputDir);
         if (!dir.exists()) dir.mkdirs();
-        String outPath = outputDir + File.separator + fileName + ".html";
+        String outPath = outputDir + File.separator + dynamicFileName + ".html";
         Files.writeString(new File(outPath).toPath(), replaced, StandardCharsets.UTF_8);
+
         return outPath;
     }
 

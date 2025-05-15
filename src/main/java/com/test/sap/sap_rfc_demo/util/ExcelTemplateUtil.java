@@ -57,8 +57,25 @@ public class ExcelTemplateUtil {
             // bill_summary
             if (billSummary != null) {
                 replacePlaceholder(sheet, "{C_RECP_YM}", String.valueOf(billSummary.get("C_RECP_YM")));
-                replacePlaceholder(sheet, "{C_DUE_DATE}", String.valueOf(billSummary.get("C_DUE_DATE")));
+                // {C_DUE_DATE} 변환 및 치환
+                String cDueDate = String.valueOf(billSummary.get("C_DUE_DATE"));
+                if (cDueDate != null && cDueDate.length() == 10) {
+                    String formattedDueDate = cDueDate.replace("-", ".");
+                    replacePlaceholder(sheet, "{C_DUE_DATE}", formattedDueDate);
+                } else {
+                    replacePlaceholder(sheet, "{C_DUE_DATE}", cDueDate != null ? cDueDate : "");
+                }
                 replacePlaceholder(sheet, "{TOTAL_AMOUNT}", String.valueOf(billSummary.get("TOTAL_AMOUNT")));
+                // {C_RECP_YN} 치환 추가
+                String cRecpYm = String.valueOf(billSummary.get("C_RECP_YM"));
+                if (cRecpYm != null && cRecpYm.length() == 6) {
+                    String yearPart = cRecpYm.substring(0, 4);
+                    String monthPart = cRecpYm.substring(4, 6);
+                    String formatted = yearPart + "년 " + monthPart + "월";
+                    replacePlaceholder(sheet, "{C_RECP_YN}", formatted);
+                } else {
+                    replacePlaceholder(sheet, "{C_RECP_YN}", "");
+                }
             }
             // remarks
             if (remarks != null) {
@@ -69,10 +86,11 @@ public class ExcelTemplateUtil {
             replacePlaceholder(sheet, "{MM}", month);
 
             // 파일명 안전화
-            String rawCustNm = String.valueOf(customer.get("CUST_NM"));
-            String cRecpYm = billSummary != null ? String.valueOf(billSummary.get("C_RECP_YM")) : month;
-            String safeCustNm = rawCustNm.replaceAll("[\\/:*?\"<>|]", "_").trim();
-            String fileName = String.format("%s %s 대금청구서.xlsx", safeCustNm, cRecpYm);
+            // String rawCustNm = String.valueOf(customer.get("CUST_NM"));
+            // String cRecpYm = billSummary != null ? String.valueOf(billSummary.get("C_RECP_YM")) : month;
+            // String safeCustNm = rawCustNm.replaceAll("[\\/:*?\"<>|]", "_").trim();
+            // String fileName = String.format("%s %s 대금청구서.xlsx", safeCustNm, cRecpYm);
+            String fileName = "코웨이 청구 상세내역.xlsx";
             String outPath = DOWNLOAD_PATH + fileName;
             FileOutputStream fileOut = new FileOutputStream(outPath);
 
