@@ -593,3 +593,52 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
           (select right(RECP_YM, 2) from z_re_b2b_bill_info where ZGRPNO='639610' group by RECP_YM) as C_RECP_MONTH
     from z_re_b2b_cust_info
     where ZGRPNO='639610';
+```
+
+# 17. 청구서 안내 메일 수동 발송 프로세스 (묶음번호 입력)
+
+## 17.1 기능 개요
+- 웹 화면(/send-bill-mail-form)에서 사용자가 묶음번호(ZGRPNO)를 입력하면,
+  1) 해당 묶음번호로 청구서 HTML/엑셀 파일을 생성하고
+  2) 안내 메일을 자동으로 발송하는 기능
+- 파일 생성 및 메일 발송 결과는 화면에 메시지로 안내됨
+
+## 17.2 주요 화면 및 동작 흐름
+1. **/send-bill-mail-form**
+   - 묶음번호(ZGRPNO) 입력 폼과 '청구서 안내 메일 발송' 버튼 제공
+   - 사용자가 묶음번호 입력 후 버튼 클릭 시, `/send-bill-mail`로 POST 요청
+
+2. **/send-bill-mail (POST)**
+   - 컨트롤러(`SendMailController`)에서 `BundleMailService.sendBillMailByZgrpno(zgrpno)` 호출
+   - 아래 순서로 처리됨:
+     1. DB에서 안내 메일 정보(수신자, 연도, 월 등) 조회
+     2. `/api/bundle-info/generate` API 호출로 청구서 HTML/엑셀 파일 생성
+     3. 생성된 파일명/경로 확보 및 메일 템플릿 치환
+     4. EmailService를 통해 외부 메일 API로 안내 메일 발송
+     5. 결과 메시지 화면에 표시
+
+## 17.3 주요 파일 및 역할
+- **src/main/resources/templates/sendMailForm.html**
+  - 묶음번호 입력 폼 및 결과 메시지 표시용 Thymeleaf 템플릿
+- **src/main/java/com/test/sap/sap_rfc_demo/controller/SendMailController.java**
+  - 폼 화면 제공 및 메일 발송 요청 처리 컨트롤러
+- **src/main/java/com/test/sap/sap_rfc_demo/service/BundleMailService.java**
+  - DB 조회, 파일 생성, 메일 템플릿 치환, EmailService 호출 등 전체 프로세스 담당 서비스
+- **src/main/java/com/test/sap/sap_rfc_demo/service/BundleInfoService.java**
+  - `/api/bundle-info/generate`에서 호출, 청구서 HTML/엑셀 파일 생성 및 파일명/경로 반환
+- **src/main/java/com/test/sap/sap_rfc_demo/dto/EmailSendRequest.java**
+  - 메일 발송 요청 DTO (수신자, 제목, 본문, 첨부파일명/경로 등 포함)
+- **src/main/java/com/test/sap/sap_rfc_demo/service/EmailService.java**
+  - 외부 메일 API 연동 및 실제 메일 발송 담당
+- **src/main/resources/static/mail/webmail.html**
+  - 안내 메일 본문 템플릿(HTML)
+
+## 17.4 파일명 예시 및 설명
+- **htmlFileName**: `코웨이(주) 2025년 01월 대금청구서.html` (실제 청구서 HTML 파일명)
+- **htmlFilePath**: `http://www.digitalworks.co.kr/coway/사업자번호.html` (메일 첨부/링크용 실제 접근 경로)
+- **excel**: `/static/excel/download/코웨이(주) 2025년 01월 대금청구서.xlsx` (엑셀 파일 상대경로)
+
+## 17.5 참고 사항
+- 파일명/경로 생성 규칙 및 메일 본문 치환 규칙은 BundleInfoService, BundleMailService 소스 참고
+- 메일 발송 결과 및 오류는 화면 메시지와 서버 로그에서 확인 가능
+- 실제 메일 발송은 외부 API 연동 결과에 따라 성공/실패가 결정됨
