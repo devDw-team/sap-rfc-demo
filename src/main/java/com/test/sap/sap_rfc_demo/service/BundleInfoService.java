@@ -29,10 +29,12 @@ public class BundleInfoService {
         try {
             // 1. 사업자명, 청구월 추출
             String custNm = (String) ((Map)data.get("customer")).get("CUST_NM");
+            String custNo = (String) ((Map)data.get("customer")).get("STCD2");
             String cRecpYm = (String) ((Map)data.get("bill_summary")).get("C_RECP_YM");
-            String fileBase = custNm + " " + cRecpYm + " 대금청구서";
-            // 파일명에서 특수문자/공백 처리
-            fileBase = fileBase.replaceAll("[\\\\/:*?\"<>|]", "_");
+            String year = cRecpYm != null && cRecpYm.length() >= 6 ? cRecpYm.substring(0, 4) : "";
+            String month = cRecpYm != null && cRecpYm.length() >= 6 ? cRecpYm.substring(4, 6) : "";
+            String fileBase = "코웨이(주) " + year + "년 " + month + "월 대금청구서";
+            fileBase = fileBase.replaceAll("[\\/:*?\"<>|]", "_");
 
             // 2. HTML 생성
             String htmlPath = HtmlTemplateUtil.generateHtml(
@@ -41,11 +43,18 @@ public class BundleInfoService {
                 fileBase,
                 data
             );
-            result.put("html", htmlPath.replace("src/main/resources/static", ""));
+            String htmlFileName = fileBase + ".html";
+            String htmlRealFileName = custNo + ".html";
+            //String htmlFilePath = htmlPath.replace("src/main/resources/static", "");
+            String htmlFilePath = "http://www.digitalworks.co.kr/coway/" + htmlRealFileName;
+            result.put("htmlFileName", htmlFileName);
+            result.put("htmlFilePath", htmlFilePath);
 
-            // 3. Excel 생성
+            // 3. Excel 생성 (필요시)
             String excelPath = new ExcelTemplateUtil().generateExcelFromTemplate(data);
-            result.put("excel", excelPath != null ? excelPath.replace("src/main/resources/static", "") : null);
+            if (excelPath != null) {
+                result.put("excel", excelPath.replace("src/main/resources/static", ""));
+            }
         } catch (Exception e) {
             result.put("error", e.getMessage());
         }
