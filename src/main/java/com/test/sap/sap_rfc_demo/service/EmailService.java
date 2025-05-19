@@ -1,6 +1,8 @@
 package com.test.sap.sap_rfc_demo.service;
 
 import com.test.sap.sap_rfc_demo.dto.EmailSendRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,8 @@ import java.util.Map;
 
 @Service
 public class EmailService {
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
+
     @Value("${email.api.url}")
     private String apiUrl;
 
@@ -36,6 +40,8 @@ public class EmailService {
         body.put("LEGACYID", "B2B0014");
         body.put("SENDTYPE", "R");
 
+        //log.info("[EmailService] 메일 발송 요청: {}", body);
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(java.util.Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -46,9 +52,10 @@ public class EmailService {
 
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(apiUrl, entity, String.class);
+            log.info("[EmailService] 메일 발송 응답: {}", response.getBody());
             return response.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("[EmailService] 메일 발송 중 예외 발생", e);
             return false;
         }
     }

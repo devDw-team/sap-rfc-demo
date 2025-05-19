@@ -579,3 +579,17 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
     select b.ZBIGO as J_JBIGO
     from z_re_b2b_cust_info a, z_re_b2b_bill_info b 
     where a.ORDER_NO = b.ORDER_NO and b.ZGRPNO='536263'; -- 1 row return , 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.
+
+## 16. 청구서 안내 메일 정보 조회 쿼리 (메일 템플릿 HTML 파일에 매핑하기 위한 조회 쿼리)
+```sql
+    select STCD2,
+          CUST_NM,
+          J_1KFREPRE,
+          J_1KFTBUS,
+          J_1KFTIND,
+          EMAIL ,
+          EMAIL2 ,
+          (select left(RECP_YM, 4) from z_re_b2b_bill_info where ZGRPNO='639610' group by RECP_YM) as C_RECP_YEAR,
+          (select right(RECP_YM, 2) from z_re_b2b_bill_info where ZGRPNO='639610' group by RECP_YM) as C_RECP_MONTH
+    from z_re_b2b_cust_info
+    where ZGRPNO='639610';

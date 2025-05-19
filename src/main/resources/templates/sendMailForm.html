@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>청구서 안내 메일 발송</title>
+</head>
+<body>
+    <h2>청구서 안내 메일 발송</h2>
+    <form th:action="@{/send-bill-mail}" method="post">
+        <label for="zgrpno">묶음번호(ZGRPNO):</label>
+        <input type="text" id="zgrpno" name="zgrpno" required>
+        <button type="submit">청구서 안내 메일 발송</button>
+    </form>
+    <div th:if="${message}" style="margin-top:20px; color:green;">
+        <p th:text="${message}"></p>
+    </div>
+</body>
+</html> 
