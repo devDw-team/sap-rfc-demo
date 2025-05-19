@@ -111,8 +111,8 @@ public class ExcelTemplateUtil {
                 if (row == null) row = sheet.createRow(startRow + i);
                 row.setHeightInPoints(33.75f); // 45px
                 setCellValueWithStyle(row, 1, String.valueOf(bill.getOrDefault("ORDER_NO", "")), centerBottomBorderStyle);
-                setCellValueWithStyle(row, 2, String.valueOf(bill.getOrDefault("GOODS_CD", "")), centerBottomBorderStyle);
-                setCellValueWithStyle(row, 3, String.valueOf(bill.getOrDefault("VTEXT", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 2, String.valueOf(bill.getOrDefault("VTEXT", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 3, String.valueOf(bill.getOrDefault("GOODS_TX", "")), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 4, formatDateString(String.valueOf(bill.getOrDefault("INST_DT", ""))), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 5, formatDateString(String.valueOf(bill.getOrDefault("USE_DUTY_MONTH", ""))), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 6, formatDateString(String.valueOf(bill.getOrDefault("OWNER_DATE", ""))), centerBottomBorderStyle);

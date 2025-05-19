@@ -33,6 +33,8 @@ public class EmailService {
         body.put("CONTENTS", req.getContents());
         body.put("FROMNAME", req.getFromName());
         body.put("FROMADDRESS", req.getFromAddress());
+        body.put("ATTNAME1", req.getAttName1());
+        body.put("ATTPATH1", req.getAttPath1());
         body.put("AUTOTYPE", "CWB2B");
         body.put("AUTOTYPEDESC", "코웨이 B2B 청구서 메일");
         body.put("DEPTCODE_OP", "20034444");

@@ -26,7 +26,7 @@ public class BatchSchedulerConfig {
         this.customerInfoJob = customerInfoJob;
     }
 
-    @Scheduled(cron = "0 40 16 * * ?")  // 매일 15:30에 실행
+    @Scheduled(cron = "0 00 09 * * ?")  // 매일 09:00에 실행
     public void runJob() {
         try {
             JobParameters jobParameters = new JobParametersBuilder()

@@ -71,6 +71,8 @@ public class BundleMailService {
         emailReq.setContents(templateHtml);
         emailReq.setFromName("Coway");
         emailReq.setFromAddress("noreply@coway.com");
+        emailReq.setAttName1(htmlFileName);
+        emailReq.setAttPath1(htmlFilePath);
         //log.info("[BundleMailService] EmailService 메일 발송 요청: {}", emailReq);
         boolean result = emailService.sendEmail(emailReq);
         log.info("[BundleMailService] EmailService 메일 발송 결과: {}", result);
