@@ -36,6 +36,15 @@ public class BundleInfoService {
             String fileBase = "코웨이(주) " + year + "년 " + month + "월 대금청구서";
             fileBase = fileBase.replaceAll("[\\/:*?\"<>|]", "_");
 
+            // 3. Excel 생성 (필요시)
+            String excelPath = new ExcelTemplateUtil().generateExcelFromTemplate(data);
+            if (excelPath != null) {
+                result.put("excel", excelPath.replace("src/main/resources/static", ""));
+
+                // data Map에도 추가
+                data.put("excelDownloadUrl", "http://www.digitalworks.co.kr/coway/" + custNo+".xlsx");
+            }
+
             // 2. HTML 생성
             String htmlPath = HtmlTemplateUtil.generateHtml(
                 "src/main/resources/static/html/Coway-Bill-Info-template.html",
@@ -50,11 +59,6 @@ public class BundleInfoService {
             result.put("htmlFileName", htmlFileName);
             result.put("htmlFilePath", htmlFilePath);
 
-            // 3. Excel 생성 (필요시)
-            String excelPath = new ExcelTemplateUtil().generateExcelFromTemplate(data);
-            if (excelPath != null) {
-                result.put("excel", excelPath.replace("src/main/resources/static", ""));
-            }
         } catch (Exception e) {
             result.put("error", e.getMessage());
         }
