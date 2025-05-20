@@ -47,7 +47,7 @@ public class BundleInfoService {
 
             // 2. HTML 생성
             String htmlPath = HtmlTemplateUtil.generateHtml(
-                "src/main/resources/static/html/Coway-Bill-Info-template.html",
+                "src/main/resources/static/html/bill-template.html",
                 "src/main/resources/static/html/download",
                 fileBase,
                 data

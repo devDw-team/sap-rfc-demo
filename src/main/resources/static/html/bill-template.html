@@ -991,37 +991,37 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 			<div class="inner">
 				<!-- bill title -->
 				<section class="bill-title-wrap">
-					<img class="logo-img" src="images/logo.png" alt="코웨이 로고">
+					<img class="logo-img" src="https://www.digitalworks.co.kr/coway/b2bimages/logo.png" alt="코웨이 로고">
 					<h1 class="bill-title">코웨이(주) <br class="mo-br">
-						<span class="year">2025</span>년
+						<span class="year">${C_RECP_YEAR}</span>년
 						<!-- 월은 한자리 숫자인 경우에는 0제외하고 노출 -->
-						<span class="month">01</span>월
+						<span class="month">${C_RECP_MONTH}</span>월
 						대금 청구서
 					</h1>
 					<p class="bill-date">
 						<span>청구서 발송일</span>
 						<svg width="2" height="14" viewBox="0 0 2 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path opacity="0.8" d="M1 0V14" stroke="white"/></svg>
 						<!-- 날짜 -->
-						<span class="date">2025.05.20</span>
+						<span class="date">${SEND_DATE}</span>
 					</p>
 				</section>
 				<!-- bill summary -->
 				<section class="bill-summary-wrap">
 					<div class="bill-summary-inner">
 						<p class="summary-para">
-							안녕하세요 <span class="company-name">롯데쇼핑(주)롯데마트사업본부</span> 고객님. <br>
+							안녕하세요 <span class="company-name">${CUST_NM}</span> 고객님. <br>
 							코웨이(주) 제품을<br class="mo-br"> 이용해 주셔서 감사합니다.
 						</p>
 						<p class="summary-para-2">
 							<!-- 월/일 한자리 숫자인 경우에는 0제외하고 노출 -->
-							<span class="month">01</span>월 납부하실 금액은<br class="mo-br"> <span class="total-amount">546,700</span>원이고, <br>
+							<span class="month">${C_RECP_MONTH}</span>월 납부하실 금액은<br class="mo-br"> <span class="total-amount">${TOTAL_AMOUNT_COMMA}</span>원이고, <br>
 							납부기한은<br class="mo-br"> <span class="">
 							<!-- 월/일 한자리 숫자인 경우에는 0제외하고 노출 -->
-								2025.01.31
+								${C_DUE_DATE_DOT}
 							</span> 입니다.
 						</p>
 						<!-- bill download btn -->
-						<a href="http://www.digitalworks.co.kr/coway/2158513569.xlsx" class="download-btn">
+						<a href="${excelDownloadUrl}" class="download-btn">
 						  <div class="download-btn-inner">
 							<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 							  <path d="M1 9V14H14V9" stroke="white" stroke-width="1.25"/>
@@ -1072,7 +1072,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="">
-										2158513569
+										${STCD2}
 									</p>
 								</div>
 							</li>
@@ -1082,7 +1082,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="">
-										롯데쇼핑(주)롯데마트사업본부
+										${CUST_NM}
 									</p>
 								</div>
 							</li>
@@ -1092,7 +1092,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="">
-										강희태외1
+										${J_1KFREPRE}
 									</p>
 								</div>
 							</li>
@@ -1102,7 +1102,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="">
-										도.소매서비스
+										${J_1KFTBUS}
 									</p>
 								</div>
 							</li>
@@ -1112,7 +1112,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p class="line-height">
-										대형점용역
+										${J_1KFTIND}
 									</p>
 								</div>
 							</li>
@@ -1270,13 +1270,13 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 									</th>
 								</tr>
 								<tbody>
-									
+									<!--BILL_TYPE_LOOP_START-->
 									<tr>
-										<td><p>렌탈료</p></td>
-										<td><p>33</p></td>
-										<td><p>546,700</p></td>
+										<td><p>${C_RECP_TP_TX}</p></td>
+										<td><p>${SUMMARY_CNT}</p></td>
+										<td><p>${SUMMARY_AMOUNT_COMMA}</p></td>
 									</tr>
-									
+									<!--BILL_TYPE_LOOP_END-->
 								</tbody>
 								<tr class="total-row">
 									<td>
@@ -1284,11 +1284,11 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 										<p class="mo-block">청구 합계</p>
 									</td>
 									<td>
-										<p><span class="">33</span>건</p>
+										<p><span class="">${totCnt}</span>건</p>
 									</td>
 									<td>
 										<p class="total-amount">
-											<span class="">546,700</span><span class="won">원</span>
+											<span class="">${totAmt_COMMA}</span><span class="won">원</span>
 										</p>
 									</td>
 								</tr>
@@ -1314,11 +1314,11 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 							<tbody>
 								<tr>
 									<th>
-										<p></p>
+										<p>${PAY_COM_TX}</p>
 									</th>
 									<td>
 										<p class="account-number">
-											
+											${PAY_NO}
 										</p>
 									</td>
 								</tr>
@@ -1379,7 +1379,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p>
-										0원
+										${PRE_AMT_COMMA}원
 									</p>
 								</div>
 							</li>
@@ -1389,7 +1389,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p>
-										0원
+										${REMAIN_AMT_COMMA}원
 									</p>
 								</div>
 							</li>
@@ -1399,7 +1399,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p>
-										0개월
+										${PRE_MONTH}개월
 									</p>
 								</div>
 							</li>
@@ -1424,7 +1424,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 						</h2>
 						<div class="table-detail table-toggle-contents">
 							<p class="">
-								
+								${J_JBIGO}
 							</p>
 						</div>
 					</div>
@@ -1442,7 +1442,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								<path d="M11 4L3 4" stroke="#1B2529" stroke-width="1.25"/>
 								<path d="M9 7L3 7" stroke="#1B2529" stroke-width="1.25"/>
 							</svg>								
-							청구대금 상세 <span class="total">총 33건</span>
+							청구대금 상세 <span class="total">총 ${TOT_ROW_CNT}건</span>
 							<a href="#" class="btn-toggle">
 								<svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path opacity="0.6" d="M1 7L7 1L13 7" stroke="#1B2529" stroke-linecap="round"/>
@@ -1485,42 +1485,42 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 										</th>
 									</tr>
 									<tbody>
-									
+									<!--BILLS_LOOP_START-->
 									<tr class="bill-detail-row">
 										<td>
-											<p>렌탈료</p>
+											<p>${RECP_TP_TX}</p>
 										</td>
 										<td>
-											<p>20ABN2008662</p>
+											<p>${ORDER_NO}</p>
 										</td>
 										<td>
-											<p>비데</p>
+											<p>${VTEXT}</p>
 										</td>
 										<td>
-											<p>BA36-A</p>
+											<p>${GOODS_TX}</p>
 										</td>
 										<td>
-											<p>2020.12.08</p>
+											<p>${INST_DT_DOT}</p>
 										</td>
 										<td>
-											<p>2024.12</p>
+											<p>${USE_MONTH_DOT}</p>
 										</td>
 										<td>
-											<p>2025.01</p>
+											<p>${RECP_YM_DOT}</p>
 										</td>
 										<td>
-											<p>14,000</p>
+											<p>${SUPPLY_VALUE_COMMA}</p>
 										</td>
 										<td>
-											<p>1,400</p>
+											<p>${VAT_COMMA}</p>
 										</td>
 										<td>
 											<p class="pc-block">
-											  15,400
+											  ${CELL_TOTAL}
 											  <span></span>
 											</p>
 											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
+												<p>${CELL_TOTAL}<span></span>
 													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
 														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
 													</svg>
@@ -1528,1383 +1528,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 											</a>
 										</td>
 									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008663</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008664</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008665</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008666</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008667</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008668</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008669</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008670</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008671</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008672</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008673</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008674</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008675</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008676</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008677</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008678</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008679</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008680</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008681</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008682</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008683</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008684</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008685</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008686</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008687</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008688</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008689</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008690</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008691</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.08</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2008780</p>
-										</td>
-										<td>
-											<p>비데</p>
-										</td>
-										<td>
-											<p>BA36-A</p>
-										</td>
-										<td>
-											<p>2020.12.14</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>14,000</p>
-										</td>
-										<td>
-											<p>1,400</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  15,400
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>15,400<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2300550</p>
-										</td>
-										<td>
-											<p>청정기</p>
-										</td>
-										<td>
-											<p>AP-3018B</p>
-										</td>
-										<td>
-											<p>2023.01.16</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>31,500</p>
-										</td>
-										<td>
-											<p>3,150</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  34,650
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>34,650<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
-									<tr class="bill-detail-row">
-										<td>
-											<p>렌탈료</p>
-										</td>
-										<td>
-											<p>20ABN2300551</p>
-										</td>
-										<td>
-											<p>청정기</p>
-										</td>
-										<td>
-											<p>AP-3018B</p>
-										</td>
-										<td>
-											<p>2023.01.16</p>
-										</td>
-										<td>
-											<p>2024.12</p>
-										</td>
-										<td>
-											<p>2025.01</p>
-										</td>
-										<td>
-											<p>31,500</p>
-										</td>
-										<td>
-											<p>3,150</p>
-										</td>
-										<td>
-											<p class="pc-block">
-											  34,650
-											  <span></span>
-											</p>
-											<a href="#" class="total-popup-btn mo-block">
-												<p>34,650<span></span>
-													<svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-														<path d="M1 1L5 5L1 9" stroke="#1B2529"/>
-													</svg>
-												</p>
-											</a>
-										</td>
-									</tr>
-									
+									<!--BILLS_LOOP_END-->
 									</tbody>
 
 									<!-- 청구 합계 영역 PC -->
@@ -2916,12 +1540,12 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 											<p>
 												<span class="total-amount-detail">
 													<span>(공급가액 : </span>
-													<span class="">497,000</span>
+													<span class="">${taxableAmountTotal_COMMA}</span>
 													<span>원, 부가세 : </span>
-													<span class="">49,700</span>
+													<span class="">${taxAmountTotal_COMMA}</span>
 													<span>원)</span>
 												</span>
-												<span class="total-amount">546,700</span>
+												<span class="total-amount">${totAmount_COMMA}</span>
 												<span class="won">원</span>
 											</p>
 										</td>
@@ -2937,7 +1561,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 										</td>
 										<td>
 											<p>
-												<span class="total-amount">546,700</span><span class="won">원</span>
+												<span class="total-amount">${totAmount_COMMA}</span><span class="won">원</span>
 											</p>
 										</td>
 									</tr>
@@ -3230,7 +1854,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 				const inputSubmitBtn = document.querySelector('.btn-submit');
 				
 				// 서버에서 내려온 사업자번호(STCD2)를 JS 변수로 할당
-				const validNumber = "2158513569"; // 실제 비밀번호
+				const validNumber = "${STCD2}"; // 실제 비밀번호
 				let realValue = '';
 
 

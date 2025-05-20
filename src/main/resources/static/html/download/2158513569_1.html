@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,13 +14,11 @@
 	<meta property="og:site_name" content="coway" />
 	<meta property="og:description" content="coway" />
 
-	<style>
+  <style>
 @import url("https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css");
 /* reset css */
 /*http://meyerweb.com/eric/tools/css/ reset/v2.0|20110126License:none(publicdomain)*/html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline;}/*HTML5display-roleresetforolderbrowsers*/article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block;}body{line-height:1;}ol,ul{list-style:none;}blockquote,q{quotes:none;}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none;}table{border-collapse:collapse;border-spacing:0;} h1,h2,h3,h4,h5,h6,p {vertical-align: middle;}img{display: block; vertical-align: middle;} input {padding: 0; margin: 0;}
 
-
-/* common */
 html, body {width: 100%; height: 100%;}
 body {font-family: 'Spoqa Han Sans Neo', 'sans-serif'; font-size: 14px; color: #1B2529; line-height: 1.2; word-break:keep-all;}
 
@@ -41,228 +39,12 @@ section, div {box-sizing: border-box;}
 .pc-table-row {display: table-row;}
 .mo-table-row {display: none !important;}
 
-/* mobile no script popup */
-.noscript-container {
-	max-width: 750px;
-	margin: 0 auto;
-	background-color: #F3F4F5;
-	display: none;
-	position: relative;
-  z-index: 2;
-}
-
-.noscript-container.active {display: block;}
-
-section .inner {
-	padding: 0 24px;
-	box-sizing: border-box;
-}
-
-.top-section {
-	border-top: 7px solid #00A8E3;
-	padding-bottom: clamp(30px, 8.33vw, 50px);
-	/*30px*/
-	background-color: #fff;
-	border-bottom: 1px solid #EEEEEE;
-}
-
-.top-section .logo-m {
-	width: 92px;
-	margin-top: clamp(28px, 5.6vw, 40px);
-}
-
-/*28px*/
-.top-section h2 {
-	margin-top: 20px;
-	font-weight: 700;
-	font-size: 20px;
-	line-height: 32px;
-}
-
-.top-section p {
-	margin-top: 20px;
-	line-height: 22px;
-}
-
-.top-section p strong {
-	font-weight: bold;
-}
-
-.guid-section {
-	margin-top: 10px;
-	background-color: #fff;
-}
-
-.guid-section .inner {
-	padding-bottom: 24px;
-}
-
-.guid-section h3 {
-	padding: clamp(30px, 8.33vw, 50px) 0 12px;
-	/*padding-top: 30px*/
-	font-weight: 700;
-	font-size: 16px;
-	line-height: 24px;
-	border-bottom: 1px solid #1B2529;
-	margin-bottom: 14px;
-}
-
-.guide-contents+.guide-contents {
-	margin-top: 30px;
-}
-
-.guide-contents h4 {
-	font-size: 15px;
-	line-height: 19px;
-	font-weight: bold;
-	color: #fff;
-	border-radius: 4px 4px 0 0;
-	background: linear-gradient(270deg, #00A7E1 0%, #1CCEEB 100%);
-	padding: 12px 11px;
-	text-align: center;
-}
-
-.guide-contents .app-icon {
-	width: 67px;
-}
-
-.app-download {
-	border: 1px solid #EBEBEB;
-	border-top: none;
-}
-
-.app-download .inner {
-	padding: 0 14px 20px;
-	font-size: 0;
-}
-
-.app-title {
-	display: flex
-}
-
-.app-icon-wrap {
-	padding: 21px 16px 15px 8px;
-}
-
-.app-text-wrap {
-	flex: 1;
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
-}
-
-.app-text-wrap p {
-	font-size: 14px;
-	line-height: 18px;
-}
-
-.btns-wrap {
-	display: flex;
-	gap: 0 5px;
-}
-
-.app-download .btn {
-	display: inline-block;
-	width: 49.18%;
-	text-align: center;
-	padding: 9px 0 9px;
-	color: #1B2529;
-	text-decoration: none;
-	border: 1px solid #E5E9EB;
-	border-radius: 3px;
-}
-
-.app-download .btn.btn2 {
-	background-color: #000;
-}
-
-.app-download .btn svg {
-	vertical-align: middle;
-	margin-top: -2px;
-}
-
-.app-download .btn p {
-	font-size: 14px;
-	line-height: 18px;
-}
-
-.app-download .btn.btn2 p {
-	color: #fff;
-}
-
-.steps-wrap {
-	padding: clamp(28px, 8vw, 48px) 14px clamp(40px, 10vw, 60px);
-	/*padding-top: 28px; padding-bottom: 40px;*/
-	background-color: #F6F6F6;
-}
-
-.steps-wrap .inner {
-	margin: 0 auto;
-	display: flex;
-	gap: clamp(28px, 8vw, 48px) 8px;
-	/* gap 28px 8px*/
-	flex-wrap: wrap;
-	padding: 0;
-	justify-content: center;
-}
-
-.step-box {
-	flex: 0 0 48.36%;
-}
-
-.step-box.flex-100 {
-	flex: 0 0 100%;
-}
-
-.step-box.flex-100 .step-img-wrap {
-	font-size: 0;
-}
-
-.step-box.flex-100 .step-img-wrap img {
-	width: 48.36%;
-	display: inline-block;
-}
-
-.step-box.flex-100 .step-img-wrap img:first-child {
-	margin-right: 8px;
-}
-
-.step-box p {
-	font-size: 14px;
-	line-height: 18px;
-	text-align: center;
-	font-weight: bold;
-	letter-spacing: -.08em;
-}
-
-.step-box p span {
-	display: block;
-	color: #00A8E3;
-}
-
-.step-box p span+span {
-	display: block;
-	margin-top: 6px;
-	color: #1B2529;
-}
-
-.step-box img {
-	width: 100%;
-	margin-top: 7px;
-}
-
-.step-box.flex-100 img {
-	width: 48.36%;
-	margin: 7px auto 0;
-}
-
-
 
 /* popup input */
 .popup-password-container {width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 1; display: flex; align-items: center; justify-content: center; background-color: #fff;}
 .popup-password-container.closed {display: none;}
 .popup-password-inner {width: 650px; display: block; margin: 0 auto;}
-.popup-password-header {background-image: url("https://www.digitalworks.co.kr/coway/b2bimages/password_input_header_bg.png"); background-size: cover; background-position: 50% 0; padding: 38px 48px 27px;}
+.popup-password-header {background-image: url("https://www.digitalworks.co.kr/coway/mailimg/password_input_header_bg.png"); background-size: cover; background-position: 50% 0; padding: 38px 48px 27px;}
 .popup-password-header .popup-password-title { font-weight: 700; font-size: 30px; line-height: 39px; letter-spacing: 0; color: #FFF; margin-top: 12px;}
 .popup-password-content {padding: 44px 46px 60px;  border: 2px solid #EBEBEB; border-radius: 0 0 6px 6px; border-top: none;}
 .popup-password-para{font-size: 18px; line-height: 32px; letter-spacing: -.03em;}
@@ -270,7 +52,8 @@ section .inner {
 
 /* form */
 .popup-password-form {font-size: 0; margin-top: 24px;}
-.input-number {width: 458px; margin-right: 6px; box-sizing: border-box; border: none; background-image: url("https://www.digitalworks.co.kr/coway/b2bimages/input_number_bg.jpg"); background-size: cover; background-position: 50% 0; font-size: 18px; padding: 14px 0; text-align: left; font-weight: 700; font-family: 'Spoqa Han Sans Neo', 'sans-serif'; padding-right: 10px; padding-left: 48px;}
+.input-number {width: 458px; margin-right: 6px; box-sizing: border-box; border: none; background-image: url("https://www.digitalworks.co.kr/coway/mailimg/input_number_bg.jpg"); background-size: cover; background-position: 50% 0;
+    font-size: 18px; padding: 14px 0; text-align: left; font-weight: 700; font-family: 'Spoqa Han Sans Neo', 'sans-serif'; padding-right: 10px; padding-left: 48px;}
 .input-number:focus {outline: none;}
 .input-number::placeholder {color: #BEC8CC; font-weight: normal; text-align: left;}
 input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0;}
@@ -288,7 +71,7 @@ input[type=number] {-moz-appearance:textfield;}
 .popup-detail-wrap {display: none;}
 
 /* bill title top */
-.bill-title-wrap {position: relative; background-image: url("https://www.digitalworks.co.kr/coway/b2bimages/top_bg.jpg"); background-size: cover; background-position: 50% 0; padding: 50px 48px 36px;}
+.bill-title-wrap {position: relative; background-image: url("https://www.digitalworks.co.kr/coway/mailimg/top_bg.jpg"); background-size: cover; background-position: 50% 0; padding: 50px 48px 36px;}
 .logo-img {}
 .bill-title {margin-top: 15px; font-weight: 700; font-size: 32px; line-height: 37px; letter-spacing: -.02em; color: #FFFFFF;}
 .bill-date {color: #FFF; font-size: 14px; font-weight: 400; line-height: 1; letter-spacing: -0.42px; position: absolute; bottom: 46px; right: 48px;}
@@ -360,7 +143,7 @@ ul.table-detail .table-list {display: flex; flex-wrap: wrap;}
 .table-type-2 tr th:nth-of-type(3), .table-type-2 tr td:nth-of-type(3) {text-align: center; width: 21.064%;}
 .table-type-2 tr td:nth-of-type(3) {text-align: right; padding-right: 20px;}
 .table-type-2 tr th p {color: #fff; font-weight: 700; font-size: 14px; line-height: 18px; letter-spacing: -.03em;}
-.table-type-2 tr td p {font-weight: 500; font-size: 14px; line-height: 100%; letter-spacing: -.03em;}
+.table-type-2 tr td p {font-weight: 400; font-size: 14px; line-height: 100%; letter-spacing: -.03em;}
 .table-type-2 tr td:nth-of-type(2) p {color: #636363;}
 .table-type-2 .total-row td {background-color: #F8F8F8;}
 .table-type-2 .total-row td:nth-of-type(1) p { font-weight: 700; font-size: 15px; line-height: 19px; letter-spacing: -3%; }
@@ -372,7 +155,7 @@ ul.table-detail .table-list {display: flex; flex-wrap: wrap;}
 .table-detail-4 .table-detail p {font-size: 14px; line-height: 22px; letter-spacing: -3%;}
 
 /* table 5 */
-.table-detail-5 .bill-detail-title .total {display: inline-block; font-size: 14px; line-height: 26px; color: rgba(27, 37, 41, .5); font-weight: 400; vertical-align: top; margin-left: 8px; margin-top: 2px;}
+.table-detail-5 .bill-detail-title .total { font-size: 14px; line-height: 18px; color: rgba(27, 37, 41, .5); font-weight: 300; margin-left: 4px;}
 .table-type-3 tr th, .table-type-3 tr td {padding: 18px 0; text-align: center;}
 .table-type-3 tr th:nth-of-type(1) {width: 10.879%;}
 .table-type-3 tr th:nth-of-type(2) {width: 13.888%;}
@@ -391,7 +174,7 @@ ul.table-detail .table-list {display: flex; flex-wrap: wrap;}
 .table-type-3 .total-row td:nth-of-type(2) {padding-right: 20px;}
 .table-type-3 .total-row td p {color: #fff; text-align: right;}
 .table-type-3 .total-row td:nth-of-type(1) p {text-align: left; padding-left: 20px; font-size: 15px; line-height: 19px; font-weight: 700;}
-.table-type-3 .total-row td:nth-of-type(2) p .total-amount-detail {color: rgba(255, 255, 255, .8); font-size: 14px; margin-right: 5px; font-weight: 500;}
+.table-type-3 .total-row td:nth-of-type(2) p .total-amount-detail {color: rgba(255, 255, 255, .8); font-size: 14px; margin-right: 5px;}
 .table-type-3 .total-row td:nth-of-type(2) p .total-amount {font-size: 20px; line-height: 25px; font-weight: 700;}
 .table-type-3 .total-row td:nth-of-type(2) p .won {font-size: 16px; font-weight: 500;}
 
@@ -405,11 +188,10 @@ ul.table-detail .table-list {display: flex; flex-wrap: wrap;}
 {display: table-row;}
 
 /* option table 1 */
-.table-type-4 tr:last-child {border-bottom: none;}
 .table-type-4 tr th {padding: 16px 0; padding-left: 20px; width: 11.342%;}
 .table-type-4 tr th p {font-weight: 700; font-size: 14px; line-height: 1; letter-spacing: 0; text-align: center; }
 .table-type-4 tr td {padding: 16px 0; padding-left: 16px; width: 88.65%;}
-.table-type-4 tr td p {font-size: 14px; line-height: 1; letter-spacing: 0; opacity: .8; font-weight: 400;}
+.table-type-4 tr td p {font-size: 14px; line-height: 1; letter-spacing: 0; opacity: .8; font-weight: 300;}
 .table-type-4 tr td.payment-info-wrap {padding-left: 20px; padding-right: 20px;}
 .table-type-4 tr td.payment-info-wrap .payment-info-para {font-weight: 400; font-size: 14px; line-height: 22px; letter-spacing: 0; }
 .table-type-4 tr td.payment-info-wrap .payment-info-para svg {vertical-align: middle;}
@@ -455,14 +237,13 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
     .popup-password-inner {width: 100%;}
     .popup-password-header {background-image: none; padding: 0;}
     .logo-m {width: 92px; margin-top: 28px;}
-    .popup-password-header .popup-password-title {color: #1B2529; font-weight: 700; font-size: 20px; line-height: 32px; letter-spacing: 0; margin-top: 19px;}
+    .popup-password-header .popup-password-title {color: #1B2529; font-weight: 700; font-size: 20px; line-height: 32px; letter-spacing: 0; }
     .popup-password-para { font-size: 15px; line-height: 22px; letter-spacing: 0; margin-top: 20px;}
     .popup-password-content {padding: 0; border: none;}
     .business-number-para {margin-top: 40px; font-weight: 700; font-size: 14px; line-height: 24px; letter-spacing: 0; }
-    .popup-password-form {margin-top: 6px;}
-    .input-number {font-size: 16px; line-height: 24px; padding: 15px 16px; width: 100%; text-align: left; background-image: none; background-color: #F2F4F5; margin-right: 0; border-radius: 4px;}
-    .input-number::placeholder {font-weight: 400; font-size: 16px; line-height: 24px; letter-spacing: 0; color: #BEC8CC;}
-    .btn-submit {width: 100%; padding: 13px 0; margin-top: 30px;}
+    .input-number {padding-left: 16px; padding-right: 16px; width: 100%; text-align: left; background-image: none; background-color: #F2F4F5; margin-right: 0; border-radius: 4px;}
+    .input-number::placeholder {font-weight: 400; font-size: 16px; line-height: 24px; letter-spacing: 0; color: #BEC8CC; padding-left: 16px;}
+    .btn-submit {width: 100%; margin-top: 30px;}
 
     /* popup 1,2 */
     .popup-wrap {background-color: rgba(27, 37, 41, 0.8);}
@@ -609,13 +390,13 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
     /* 청구서 상세 popup */
     .popup-detail-wrap {width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 2; display: none; align-items: center; justify-content: center; background-color: rgba(0,0,0,.3);}
     .popup-detail-wrap.active {display: flex;}
-    .popup-detail-wrap .popup-detail-inner {width: 100%; height: 100%; background-color: #fff; text-align: center;}
+    .popup-detail-wrap .popup-detail-inner {width: 320px; background-color: #fff; text-align: center;}
     .popup-detail-header {padding: 17px 0 0; position: relative;}
-    .popup-detail-header h3 {font-weight: 700; font-size: 18px; line-height: 26px; text-align: center; margin-bottom: 17px; }
+    .popup-detail-header h3 {font-weight: 700; font-size: 18px; line-height: 26px; text-align: center; margin-bottom: 29px; }
     .popup-detail-header .btn-close-popup-detail {position: absolute; top: 20px; right: 20px; width: 24px; height: 24px; cursor: pointer; padding:0; margin:0; border: none; background-color: transparent;}
-    .popup-detail-header::after {content:''; position: relative; display: block; width: calc(100% - 48px); height: 1px; margin: 0 auto; background-color: #000;}
-    .popup-detail-content {padding: 0 24px; height: calc(100% - 73px); overflow-y: scroll;}
-    .popup-detail-content-wrapper {width: 100%; height: 483px;}
+    .popup-detail-header::after {content:''; position: relative; display: block; width: 272px; height: 1px; margin: 0 auto; background-color: #000;}
+    .popup-detail-content {padding: 0 24px 70px;}
+    .popup-detail-content-wrapper {width: 100%; height: 483px; overflow-x: scroll;}
     .popup-detail-content .table-bill-detail {width: 100%; text-align: left;}
     .popup-detail-content .table-bill-detail .total-amount {font-size: 14px; line-height: 22px; font-weight: bold; color: #00A8E3;}
     .popup-detail-content tr th, .popup-detail-content tr td { font-size: 14px; line-height: 22px; padding: 8px 0;}
@@ -624,8 +405,8 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
     .popup-detail-content tr:last-child th, .popup-detail-content tr:last-child td {padding-bottom: 18px;}
     .popup-detail-content tr td {width: 56.98%; color: #565656;}
 
-    .close-btn-wrap::before {content:''; position: relative; display: block; width: 100%; height: 1px; margin: 0 auto; background-color: #BBBEBF;}
-    .close-btn-wrap button {padding:0; margin:0; border: none; background-color: #1C252A; border-radius: 4px; width: 100%; color: #fff; margin-top: 30px; font-weight: 700; font-size: 16px; line-height: 24px; color: #fff; padding: 14px 0;}
+    .close-btn-wrap::before {content:''; position: relative; display: block; width: 272px; height: 1px; margin: 0 auto; background-color: #BBBEBF;}
+    .close-btn-wrap button {padding:0; margin:0; border: none; background-color: #1C252A; border-radius: 4px; width: 272px; color: #fff; margin-top: 30px; font-weight: 700; font-size: 16px; line-height: 24px; color: #fff; padding: 14px 0;}
 
     footer {margin-top: 0;}
     footer .inner {width: 100%; margin: 0 auto;}
@@ -638,298 +419,15 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 	</style>
 </head>
 <body>
-	<!-- mobile no script popup -->
-	<div class="noscript-container active">
-
-		<section class="top-section">
-			<div class="inner">
-				<!-- header -->
-				<div class="header-wrap">
-					<img class="mo-block logo-m" src="https://www.digitalworks.co.kr/coway/b2bimages/logo_mo.png" alt="코웨이 로고">
-
-					<h2>
-						청구서 파일을 열 수 없습니다.
-					</h2>
-					<p>
-						보안파일(HTML)이 실행되지 않는<br>
-						앱 또는 브라우저를 이용하고 계십니다.<br><br>
-
-						사용 중이신 모바일 기기(안드로이드, 아이폰)<br> 에 맞는
-						가이드를 확인하신 후 <strong>전용 뷰어 앱<br> (VestMail)</strong>을
-						다운로드 받으시길 바랍니다.<br><br>
-
-						전용 뷰어 앱(VestMail)을 사용하시면<br>
-						보안파일(HTML)을 열람하실 수 있습니다.
-					</p>
-				</div>
-			</div>
-		</section>
-
-		<section class="guid-section">
-			<div class="inner">
-				<h3>
-					보안파일(HTML) 열람 가이드
-				</h3>
-				<div class="guide-contents aos">
-					<h4>
-						안드로이드
-					</h4>
-					<div class="app-download">
-						<div class="inner">
-							<div class="app-title">
-								<div class="app-icon-wrap">
-									<img class="app-icon" src="https://www.digitalworks.co.kr/coway/b2bimages/vestmail_icon.png" alt="VestMail 아이콘">
-								</div>
-								<div class="app-text-wrap">
-									<p>
-										전용 뷰어 앱
-									<p><strong>VestMail</strong></p>
-								</div>
-							</div>
-							<div class="btns-wrap">
-								<a href="https://www.yettiesoft.com/m/product/vestmail/info/android_info.html"
-									target="_blank" class="btn btn1" title="안드로이드 vestMail 어플 가이드 링크">
-									<p>
-										<svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-											xmlns="http://www.w3.org/2000/svg">
-											<path d="M6.68036 1.93945H0.703125V12.9821H11.5432V7.10622" stroke="#1B2529"
-												stroke-width="1.40351" />
-											<path d="M8.32031 0.744141H12.6185V5.04232" stroke="#1B2529"
-												stroke-width="1.40351" />
-											<path d="M12.6127 0.744763L6.09375 7.26367" stroke="#1B2529"
-												stroke-width="1.40351" />
-										</svg>
-										가이드
-									</p>
-								</a>
-								<a href="https://play.google.com/store/apps/details?id=com.yettiesoft.vestmail"
-									target="_blank" class="btn btn2" title="안드로이드 vestMail 어플 다운로드 링크">
-									<p>
-										<svg width="13" height="14" viewBox="0 0 13 14" fill="none"
-											xmlns="http://www.w3.org/2000/svg">
-											<g clip-path="url(#clip0_516_1806)">
-												<rect width="12.2141" height="13.7271" transform="translate(0 0.175781)"
-													fill="black" />
-												<path
-													d="M5.70257 6.72995L0.0546875 12.7609C0.229857 13.4174 0.824371 13.8977 1.53036 13.8977C1.81169 13.8977 2.0771 13.823 2.30535 13.6842L2.32127 13.6735L8.68045 9.98559L5.70257 6.72461V6.72995Z"
-													fill="#EA4335" />
-												<path
-													d="M11.4224 5.70413H11.4171L8.67278 4.09766L5.57812 6.86762L8.6834 9.98983L11.4171 8.40471C11.8948 8.14319 12.2186 7.63616 12.2186 7.05442C12.2186 6.47267 11.9001 5.96565 11.4224 5.70947V5.70413Z"
-													fill="#FBBC04" />
-												<path
-													d="M0.0530816 1.31836C0.0212326 1.44645 0 1.57454 0 1.71331V12.3662C0 12.505 0.0159245 12.633 0.0530816 12.7611L5.89737 6.88497L0.0530816 1.31836Z"
-													fill="#4285F4" />
-												<path
-													d="M5.74503 7.03931L8.66983 4.09856L2.31596 0.394603C2.08771 0.255838 1.817 0.175781 1.52505 0.175781C0.824371 0.175781 0.224549 0.661459 0.0546875 1.31259L5.74503 7.03931Z"
-													fill="#34A853" />
-											</g>
-											<defs>
-												<clipPath id="clip0_516_1806">
-													<rect width="12.2141" height="13.7271" fill="white"
-														transform="translate(0 0.175781)" />
-												</clipPath>
-											</defs>
-										</svg>
-										Google Play
-									</p>
-								</a>
-							</div>
-						</div>
-					</div>
-					<div class="steps-wrap">
-
-						<div class="inner">
-							<!-- step 1 -->
-							<div class="step-box">
-								<p>
-									<span class="num">01</span>
-									<span>
-										전용 뷰어 앱 <br>
-										(VestMail) 설치
-									</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/aos_1.png" alt="구글 플레이 스토어에서 베스트메일 페이지">
-							</div>
-
-							<!-- step 2 -->
-							<div class="step-box">
-								<p>
-									<span class="num">02</span>
-									<span>메일 본문 내<br> HTML 파일 클릭</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/aos_2.png" alt="메일 본문에서 대금청구서 html 다운 부분 확대 사진">
-							</div>
-
-							<!-- step 3 -->
-							<div class="step-box">
-								<p>
-									<span class="num">03</span>
-									<span>우측 상단 ‘메뉴’<br>클릭</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/aos_3.png" alt="우측 상단 메뉴 버튼 확대 사진">
-							</div>
-
-							<!-- step 4 -->
-							<div class="step-box">
-								<p>
-									<span class="num">04</span>
-									<span>‘연결 프로그램’<br> 클릭</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/aos_4.png" alt="연결 프로그램 부분 확대 사진">
-							</div>
-
-							<!-- step 5 -->
-							<div class="step-box">
-								<p>
-									<span class="num">05</span>
-									<span>전용 뷰어 앱(VestMail) 선택 <br>또는 조회 가능 앱 선택</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/aos_5.png" alt="연결 프로그램 확대 사진">
-							</div>
-
-							<!-- step 6 -->
-							<div class="step-box">
-								<p>
-									<span class="num">06</span>
-									<span>청구서 보안 파일(HTML) 열람 <br> <br></span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/aos_6.png" alt="청구서 열람 화면">
-							</div>
-
-						</div>
-					</div>
-				</div>
-				<div class="guide-contents ios">
-					<h4>
-						아이폰
-					</h4>
-					<div class="app-download">
-						<div class="inner">
-							<div class="app-title">
-								<div class="app-icon-wrap">
-									<img class="app-icon" src="https://www.digitalworks.co.kr/coway/b2bimages/vestmail_icon.png" alt="">
-								</div>
-								<div class="app-text-wrap">
-									<p>
-										전용 뷰어 앱
-									<p><strong>VestMail</strong></p>
-								</div>
-							</div>
-							<div class="btns-wrap">
-								<a href="https://www.yettiesoft.com/m/product/vestmail/info/iphone_info.html"
-									target="_blank" class="btn btn1" title="아이폰 vestMail 어플 가이드 링크">
-									<p>
-										<svg width="14" height="14" viewBox="0 0 14 14" fill="none"
-											xmlns="http://www.w3.org/2000/svg">
-											<path d="M6.68036 1.93945H0.703125V12.9821H11.5432V7.10622" stroke="#1B2529"
-												stroke-width="1.40351" />
-											<path d="M8.32031 0.744141H12.6185V5.04232" stroke="#1B2529"
-												stroke-width="1.40351" />
-											<path d="M12.6127 0.744763L6.09375 7.26367" stroke="#1B2529"
-												stroke-width="1.40351" />
-										</svg>
-										가이드
-									</p>
-								</a>
-								<a href="https://apps.apple.com/kr/app/vestmail/id733722078" target="_blank"
-									class="btn btn2" title="아이폰 vestMail 어플 다운로드 링크">
-									<p>
-										<svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
-											<path d="M11.2508 9.14275C11.259 8.5077 11.4276 7.88504 11.7408 7.3327C12.0541 6.78036 12.5019 6.31629 13.0426 5.98367C12.6991 5.49281 12.246 5.08884 11.7192 4.80387C11.1924 4.51889 10.6065 4.36075 10.008 4.34201C8.7312 4.2079 7.49343 5.10654 6.8428 5.10654C6.17959 5.10654 5.17786 4.35533 4.09915 4.37754C3.40142 4.40009 2.72142 4.60313 2.12541 4.96686C1.52941 5.33059 1.03772 5.8426 0.698261 6.45302C-0.772178 9.00065 0.32464 12.7448 1.73322 14.8041C2.43797 15.8125 3.26161 16.9389 4.33935 16.899C5.39397 16.8552 5.78785 16.226 7.06087 16.226C8.32207 16.226 8.6916 16.899 9.79121 16.8736C10.9229 16.8552 11.6359 15.8607 12.3159 14.8428C12.8223 14.1243 13.2119 13.3302 13.4704 12.4899C12.8129 12.2116 12.2519 11.7458 11.8572 11.1506C11.4625 10.5554 11.2516 9.85709 11.2508 9.14275Z" fill="white"/>
-											<path d="M9.17157 2.98786C9.7886 2.24664 10.0926 1.29392 10.019 0.332031C9.0763 0.431108 8.20553 0.881954 7.58016 1.59474C7.2744 1.94295 7.04022 2.34805 6.89101 2.78689C6.7418 3.22572 6.68048 3.68968 6.71057 4.15224C7.18207 4.1571 7.64854 4.05483 8.07482 3.85314C8.50111 3.65145 8.8761 3.3556 9.17157 2.98786Z" fill="white"/>
-										</svg>
-										App Store
-									</p>
-								</a>
-							</div>
-						</div>
-					</div>
-					<div class="steps-wrap">
-
-						<div class="inner">
-							<!-- step 1 -->
-							<div class="step-box">
-								<p>
-									<span class="num">01</span>
-									<span>
-										브라우저에서 HTML <br>
-										파일 다운로드
-									</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/ios_1.png"
-									alt="메일함에서 대금청구서 다운로드 버튼 부분 확대 사진 | 다운로드 가능 iOS 브라우저 : Safari, Chrome, Microsoft Edge, Whale, Aloha, Brave">
-							</div>
-
-							<!-- step 2 -->
-							<div class="step-box">
-								<p>
-									<span class="num">02</span>
-									<span>메일 본문 내<br> HTML 파일 클릭</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/ios_2.png" alt="메일 본문 내 HTML 파일 클릭 후 다운로드 버튼 확대 사진">
-							</div>
-
-							<!-- step 3 -->
-							<div class="step-box flex-100">
-								<p>
-									<span class="num">03</span>
-									<span>전용 뷰어 앱(VestMail) 다운로드 및 실행</span>
-								</p>
-								<div class="step-img-wrap">
-									<img src="https://www.digitalworks.co.kr/coway/b2bimages/ios_3_1.png" alt="앱스토어 베스트메일 받기 버튼 누르는 사진">
-									<img src="https://www.digitalworks.co.kr/coway/b2bimages/ios_3_2.png" alt="앱스토어 베스트메일 열기 버튼 누르는 사진">
-								</div>
-							</div>
-
-							<!-- step 4 -->
-							<div class="step-box">
-								<p>
-									<span class="num">04</span>
-									<span>
-										우측 상단 <br>
-										‘파일 열기’ 클릭
-									</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/ios_4.png" alt="베스트메일 우측 상단 파일열기 버튼 클릭 사진">
-							</div>
-
-							<!-- step 5 -->
-							<div class="step-box">
-								<p>
-									<span class="num">05</span>
-									<span>
-										청구서 보안 파일 <br>
-										(HTML) 선택
-									</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/ios_5.png" alt="청구서 보안 파일 선택 사진">
-							</div>
-
-							<!-- step 6 -->
-							<div class="step-box flex-100">
-								<p>
-									<span class="num">06</span>
-									<span>청구서 보안 파일(HTML) 열람</span>
-								</p>
-								<img src="https://www.digitalworks.co.kr/coway/b2bimages/ios_6.png" alt="열람된 청구서 사진">
-							</div>
-
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-
-	</div>
 
 	<!-- password input popup -->
 	<!-- popup-password-container.closed일 때 닫힘 -->
-	<div class="popup-password-container closed">
+	<div class="popup-password-container">
 		<div class="popup-password-wrap">
 			<div class="popup-password-inner">
 				<div class="popup-password-header">
-					<img class="pc-block" src="https://www.digitalworks.co.kr/coway/b2bimages/logo.png" alt="코웨이 로고">
-					<img class="mo-block logo-m" src="https://www.digitalworks.co.kr/coway/b2bimages/logo_mo.png" alt="코웨이 로고">
+					<img class="pc-block" src="https://www.digitalworks.co.kr/coway/mailimg/logo.png" alt="코웨이 로고">
+					<img class="mo-block logo-m" src="https://www.digitalworks.co.kr/coway/mailimg/logo_mo.png" alt="코웨이 로고">
 					<p class="popup-password-title">
 						보안메일 비밀번호 입력
 					</p>
@@ -942,18 +440,25 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 					<p class="mo-block business-number-para">
 						사업자 번호
 					</p>
+					<!--
 					<form class="popup-password-form">
-							<input
-									class="input-number"
-									type="text"
-									inputmode="numeric"
-									maxlength="10"
-									placeholder="‘-’없이 사업자번호 입력"
-									autofocus
-									pattern="[0-9]*"
-							>
-							<input type="hidden" name="biznumber" class="real-biznumber">
-							<button class="btn-submit" type="submit">확인</button>
+						<input class="input-number" type="number" maxlength="10" placeholder="'-'없이 사업자번호 입력" autofocus oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);">
+						<button class="btn-submit" type="submit">확인</button>
+					</form>
+					//-->
+					<!-- (1) 기존) <form class="popup-password-form"> -->
+					<form id="bizNumForm" class="popup-password-form">
+					  <!-- (2) 기존) <input class="input-number" type="number" …> -->
+					  <input
+						id="bizNumInput"
+						class="input-number"
+						type="number"
+						maxlength="10"
+						placeholder="'-'없이 사업자번호 입력"
+						autofocus
+						oninput="if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+					  >
+					  <button class="btn-submit" type="submit">확인</button>
 					</form>
 				</div>
 			</div>
@@ -991,11 +496,10 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 			<div class="inner">
 				<!-- bill title -->
 				<section class="bill-title-wrap">
-					<img class="logo-img" src="images/logo.png" alt="코웨이 로고">
+					<img class="logo-img" src="https://www.digitalworks.co.kr/coway/mailimg/logo.png" alt="코웨이 로고">
 					<h1 class="bill-title">코웨이(주) <br class="mo-br">
 						<span class="year">2025</span>년
-						<!-- 월은 한자리 숫자인 경우에는 0제외하고 노출 -->
-						<span class="month">01</span>월
+						<span class="month">01</span>월 
 						대금 청구서
 					</h1>
 					<p class="bill-date">
@@ -1013,23 +517,19 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 							코웨이(주) 제품을<br class="mo-br"> 이용해 주셔서 감사합니다.
 						</p>
 						<p class="summary-para-2">
-							<!-- 월/일 한자리 숫자인 경우에는 0제외하고 노출 -->
 							<span class="month">01</span>월 납부하실 금액은<br class="mo-br"> <span class="total-amount">546,700</span>원이고, <br>
-							납부기한은<br class="mo-br"> <span class="">
-							<!-- 월/일 한자리 숫자인 경우에는 0제외하고 노출 -->
-								2025.01.31
-							</span> 입니다.
+							납부기한은<br class="mo-br"> <span class="">2025.01.31</span> 입니다.
 						</p>
 						<!-- bill download btn -->
-						<a href="http://www.digitalworks.co.kr/coway/2158513569.xlsx" class="download-btn">
-						  <div class="download-btn-inner">
-							<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-							  <path d="M1 9V14H14V9" stroke="white" stroke-width="1.25"/>
-							  <path d="M7.5 0V10" stroke="white" stroke-width="1.25"/>
-							  <path d="M11 7L7.5 10L4 7" stroke="white" stroke-width="1.25"/>
-							  </svg>
-							<p>청구 상세내역 파일 다운로드</p>
-						  </div>
+						<a class="download-btn" href="http://www.digitalworks.co.kr/coway/2158513569.xlsx" download>
+							<div class="download-btn-inner">
+								<svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M1 9V14H14V9" stroke="white" stroke-width="1.25"/>
+									<path d="M7.5 0V10" stroke="white" stroke-width="1.25"/>
+									<path d="M11 7L7.5 10L4 7" stroke="white" stroke-width="1.25"/>
+								</svg>
+								<p>청구 상세내역 파일 다운로드</p>
+							</div>
 						</a>
 						<!-- print btn -->
 						<button class="print-btn pc-inline-block">
@@ -1065,7 +565,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</svg>									
 							</a>
 						</h2>
-						<ul class="table-detail table-type-1 table-toggle-contents" role="table">
+						<ul class="table-detail table-type-1 table-toggle-contents">
 							<li class="table-list">
 								<div class="list-name">
 									<p>사업자번호</p>
@@ -1141,98 +641,86 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</svg>									
 							</a>
 						</h2>
-						<ul class="table-detail table-type-1 table-toggle-contents" role="table">
-							<li class="table-list">
-								<div class="list-name">
-									<p>사업자번호</p>
-								</div>
-								<div class="list-data">
-									<p class="">
-										307-81-06054
-									</p>
-								</div>
-							</li>
-							<li class="table-list">
-								<div class="list-name">
-									<p>상호(법인명)</p>
-								</div>
-								<div class="list-data">
-									<p class="">
-										코웨이(주)
-									</p>
-								</div>
-							</li>
-							<li class="table-list">
-								<div class="list-name">
-									<p>대표자</p>
-								</div>
-								<div class="list-data">
-									<div class="stamp-wrap">
-										<p class="">
-											서장원
-										</p>
-										<img class="stamp-img" src="images/stamp.png" alt="도장">
-									</div>
-								</div>
-							</li>
-							<li class="table-list">
-								<div class="list-name">
-									<p>업태</p>
-								</div>
-								<div class="list-data">
-									<p class="">
-										제조업, 도소매, 서비스업
-									</p>
-								</div>
-							</li>
-							<li class="table-list">
-								<div class="list-name">
-									<p>종목</p>
-								</div>
-								<div class="list-data">
-									<p>
-										정수기, 청정기, 비데 등
-									</p>
-								</div>
-							</li>
-							<li class="table-list">
-								<div class="list-name">
-									<p>
-										사업장 주소
-									</p>
-								</div>
-								<div class="list-data">
-									<p>
-										충청남도 공주시 유구읍 유구마곡사로 136-23
-									</p>
-								</div>
-							</li>
-							<li class="table-list border-bottom">
-								<div class="list-name">
-									<p>
-										고객센터 <br class="pc-br">안내 정보
-									</p>
-								</div>
-								<div class="list-data">
-									<ul>
-										<li>
+						<ul class="table-detail table-type-1 table-toggle-contents">
+									<li class="table-list">
+										<div class="list-name">
+											<p>사업자번호</p>
+										</div>
+										<div class="list-data">
+											<p class="">307-81-06054</p>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
+											<p>상호(법인명)</p>
+										</div>
+										<div class="list-data">
+											<p class="">코웨이(주)</p>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
+											<p>대표자</p>
+										</div>
+										<div class="list-data">
+											<div class="stamp-wrap">
+												<p class="">서장원</p>
+												<img class="stamp-img" src="https://www.digitalworks.co.kr/coway/mailimg/stamp.png" alt="도장">
+											</div>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
+											<p>업태</p>
+										</div>
+										<div class="list-data">
+											<p class="">제조업,도소매,서비스업</p>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
+											<p>종목</p>
+										</div>
+										<div class="list-data">
+											<p>정수기,청정기,비데 등</p>
+										</div>
+									</li>
+									<li class="table-list">
+										<div class="list-name">
 											<p>
-												콜센터 : 1588-5200
+												사업장 주소
 											</p>
-										</li>
-										<li>
+										</div>
+										<div class="list-data">
+											<p>충청남도 공주시 유구읍 유구마곡사로 136-23</p>
+										</div>
+									</li>
+									<li class="table-list border-bottom">
+										<div class="list-name">
 											<p>
-												법인전용 콜센터 : 02-2163-4343
+												고객센터 <br class="pc-br">안내 정보
 											</p>
-										</li>
-										<li>
-											<p>
-												홈페이지 : https://www.coway.com
-											</p>
-										</li>
-									</ul>
-								</div>
-							</li>
+										</div>
+										<div class="list-data">
+											<ul>
+												<li>
+													<p>
+														콜센터 : 1588-5200
+													</p>
+												</li>
+												<li>
+													<p>
+														법인전용 콜센터 : 02-2163-4343
+													</p>
+												</li>
+												<li>
+													<p>
+														홈페이지 : https://www.coway.com
+													</p>
+												</li>
+											</ul>
+										</div>
+									</li>
 						</ul>
 					</div>
 		
@@ -1268,16 +756,17 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 									<th>
 										<p>금액</p>
 									</th>
-								</tr>
-								<tbody>
-									
-									<tr>
-										<td><p>렌탈료</p></td>
-										<td><p>33</p></td>
-										<td><p>546,700</p></td>
-									</tr>
-									
-								</tbody>
+									<tbody>
+										
+										<tr>
+											<td><p>렌탈료</p></td>
+											<td><p>33</p></td>
+											<td><p>546,700</p></td>
+										</tr>
+										
+									</tbody>
+
+								
 								<tr class="total-row">
 									<td>
 										<p class="pc-block">합계</p>
@@ -1317,7 +806,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 										<p></p>
 									</th>
 									<td>
-										<p class="account-number">
+										<p>
 											
 										</p>
 									</td>
@@ -1371,7 +860,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</svg>									
 							</a>
 						</h2>
-						<ul class="table-detail table-type-5 table-toggle-contents" role="table">
+						<ul class="table-detail table-type-5 table-toggle-contents">
 
 							<li class="table-list">
 								<div class="list-name">
@@ -1379,7 +868,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p>
-										0원
+										0 원
 									</p>
 								</div>
 							</li>
@@ -1389,7 +878,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p>
-										0원
+										0 원
 									</p>
 								</div>
 							</li>
@@ -1399,7 +888,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								</div>
 								<div class="list-data">
 									<p>
-										0개월
+										0 개월
 									</p>
 								</div>
 							</li>
@@ -1423,9 +912,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 							</a>
 						</h2>
 						<div class="table-detail table-toggle-contents">
-							<p class="">
-								
-							</p>
+							<p class=""></p>
 						</div>
 					</div>
 					<!-- table 5 -->
@@ -1442,7 +929,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 								<path d="M11 4L3 4" stroke="#1B2529" stroke-width="1.25"/>
 								<path d="M9 7L3 7" stroke="#1B2529" stroke-width="1.25"/>
 							</svg>								
-							청구대금 상세 <span class="total">총 33건</span>
+							청구대금 상세 <span class="total">총 <span class="">33</span>건</span>
 							<a href="#" class="btn-toggle">
 								<svg width="14" height="8" viewBox="0 0 14 8" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<path opacity="0.6" d="M1 7L7 1L13 7" stroke="#1B2529" stroke-linecap="round"/>
@@ -1485,7 +972,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 										</th>
 									</tr>
 									<tbody>
-									
+										
 									<tr class="bill-detail-row">
 										<td>
 											<p>렌탈료</p>
@@ -2904,11 +2391,10 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 											</a>
 										</td>
 									</tr>
-									
+										
 									</tbody>
-
 									<!-- 청구 합계 영역 PC -->
-									<tr class="total-row pc-table-row">
+									<tr class="total-row pc-table-row" id="pc-total-row">
 										<td colspan="4">
 											<p>청구 합계</p>
 										</td>
@@ -3074,285 +2560,198 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 		</footer>
 	</div>
 
-	<script>
-	/* noscript popup */
-	const noScriptContainer = document.querySelector('.noscript-container');
-	const bizInput = document.querySelector('.popup-password-container');
-
-	function moIndexHiding() {
-		if (bizInput) bizInput.classList.remove('closed');
-		if (noScriptContainer) noScriptContainer.classList.remove('active');
-	}
-
-	function mainOnLoad() {
-		if (window.addEventListener) {
-			window.addEventListener("load", moIndexHiding, false);
-		} else if (window.attachEvent) {
-			window.attachEvent("onload", moIndexHiding);
-		} else {
-			window.onload = moIndexHiding; 
-		}
-	}
-
-	mainOnLoad(); 
-
-
+  <script>
 		let savedInnerHtml = ''; // 전역에 저장 (한 번만)
 
-		function textOverflow() {
-				const overflowText = document.querySelector('.company-name');
-				const resizeDom = document.querySelector('.bill-summary-wrap');
+function textOverflow() {
+    const overflowText = document.querySelector('.company-name');
+    const resizeDom = document.querySelector('.bill-summary-wrap');
 
-				if (!overflowText || !resizeDom) return;
+    if (!overflowText || !resizeDom) return;
 
-				// 초기 텍스트 저장 (한 번만)
-				savedInnerHtml = overflowText.innerHTML;
+    // 초기 텍스트 저장 (한 번만)
+    savedInnerHtml = overflowText.innerHTML;
 
-				window.addEventListener("resize", function() {
-						const width = resizeDom.getBoundingClientRect().width;
+    window.addEventListener("resize", function() {
+        const width = resizeDom.getBoundingClientRect().width;
 
-						if (width <= 360) {
-								if (savedInnerHtml.length > 9) {
-										const slicedText = savedInnerHtml.slice(0, 8);
-										const ellipsis = "...";
-										overflowText.innerHTML = slicedText + ellipsis;
-								}
-						} else {
-								overflowText.innerHTML = savedInnerHtml;
-						}
-				});
+        if (width <= 360) {
+            if (savedInnerHtml.length > 9) {
+                const slicedText = savedInnerHtml.slice(0, 8);
+                const ellipsis = "...";
+                overflowText.innerHTML = slicedText + ellipsis;
+            }
+        } else {
+            overflowText.innerHTML = savedInnerHtml;
+        }
+    });
 
-				// 페이지 로딩 시에도 체크 (뷰포트 360 이하인 경우에 대비)
-				const initWidth = resizeDom.getBoundingClientRect().width;
-				if (initWidth <= 360 && savedInnerHtml.length > 9) {
-						const slicedText = savedInnerHtml.slice(0, 7);
-						overflowText.innerHTML = slicedText + "...";
-				}
-		}
-		textOverflow();
+    // 페이지 로딩 시에도 체크 (뷰포트 360 이하인 경우에 대비)
+    const initWidth = resizeDom.getBoundingClientRect().width;
+    if (initWidth <= 360 && savedInnerHtml.length > 9) {
+        const slicedText = savedInnerHtml.slice(0, 7);
+        overflowText.innerHTML = slicedText + "...";
+    }
+}
+textOverflow();
 
-		function popupCloseEvent(){
+function popupCloseEvent(){
 
-				const btnClose = document.querySelectorAll('.btn-close');
-				btnClose.forEach((btn) => {
-						btn.addEventListener('click', function() {
-								const popup = btn.closest('.popup-wrap');
-								popup.classList.remove('active');
-						});
-				});
+    const btnClose = document.querySelectorAll('.btn-close');
+    btnClose.forEach((btn) => {
+        btn.addEventListener('click', function() {
+            const popup = btn.closest('.popup-wrap');
+            popup.classList.remove('active');
+        });
+    });
 
-		}
-		popupCloseEvent();
-
-
-		function btnAllClickEvent() {
-
-				const table5 = document.querySelector('.table-detail-5');
-				const btnMore = document.querySelector('.btn-detail-more');
-
-				btnMore.addEventListener('click', btnMoreClickEvent);
-
-				function btnMoreClickEvent() {
-						const tableRows = table5.querySelectorAll('tbody tr');
-						tableRows.forEach((row, index) => {
-								if (index > 10) {
-										row.style.display = 'table-row';
-								}
-						});
-						btnMore.style.display = 'none';
-						const moTotal = document.querySelector('.mo-table-total');
-						moTotal.classList.add('active');
-				}
-
-				
-
-		}
-		btnAllClickEvent();
-
-		/* 청구서 상세 popup */
-
-		function popupDetailOpenEvent() {
-				const trigger = document.querySelectorAll('.total-popup-btn');
-
-				trigger.forEach((btn) => {
-						btn.addEventListener('click', function(e) {
-								e.preventDefault();
-								const popup = document.querySelector('.popup-detail-wrap');
-								popup.classList.add('active');
-						});
-				});
-		}
-		popupDetailOpenEvent();
-
-		function popupDetailCloseEvent(){
-				const btnClose = document.querySelector('.btn-close-popup-detail');
-				const btnClose2 = document.querySelector('.btn2-close-popup-detail');
-
-				btnClose.addEventListener('click', function() {
-						const popup = btnClose.closest('.popup-detail-wrap');
-						popup.classList.remove('active');
-				});
-
-				btnClose2.addEventListener('click', function() {
-						const popup = btnClose.closest('.popup-detail-wrap');
-						popup.classList.remove('active');
-				});
-		}
-		popupDetailCloseEvent();
-
-		/* mobile toggle btn */ 
-		function btnToggleClickEvent(){
-				const btns = document.querySelectorAll('.btn-toggle');
-				btns.forEach((btn)=>{
-						btn.addEventListener('click', function(e){
-								e.preventDefault();
-								toggleContents(btn);
-								btn.classList.toggle('rotated');
-						});
-				})
-				
-		}
-		btnToggleClickEvent();
-
-		function toggleContents(btn){
-				const wrapConatainer = btn.closest('.table-detail-wrap');
-				const toggleContents = wrapConatainer.querySelector('.table-toggle-contents');
-				toggleContents.classList.toggle('closed');
-		}
-
-		document.addEventListener('DOMContentLoaded', function () {
-				const inputWrap = document.querySelector('.popup-password-container');
-				const input = document.querySelector('.input-number');
-				const hiddenInput = document.querySelector('.real-biznumber');
-				const resultBox = document.querySelector('.bill_container');
-				const popup1 = document.querySelector('.popup-1'); // 비밀번호 틀림 or 입력 안함
-				const popup2 = document.querySelector('.popup-2'); // 비밀번호 10자리 미만
-				const inputSubmitBtn = document.querySelector('.btn-submit');
-				
-				// 서버에서 내려온 사업자번호(STCD2)를 JS 변수로 할당
-				const validNumber = "2158513569"; // 실제 비밀번호
-				let realValue = '';
+}
+popupCloseEvent();
 
 
-				input.addEventListener('beforeinput', function (e) {
-				const inputType = e.inputType;
-				const selStart = input.selectionStart;
-				const selEnd = input.selectionEnd;
+function btnAllClickEvent() {
 
-				if (inputType.startsWith('delete')) {
-						if (selStart !== null && selEnd !== null && selStart !== selEnd) {
-						// 일부 선택 후 삭제
-						realValue = realValue.slice(0, selStart) + realValue.slice(selEnd);
-						} else if (inputType === 'deleteContentBackward' && selStart > 0) {
-						realValue = realValue.slice(0, selStart - 1) + realValue.slice(selStart);
-						} else if (inputType === 'deleteContentForward' && selStart < realValue.length) {
-						realValue = realValue.slice(0, selStart) + realValue.slice(selStart + 1);
-						}
-				} else if (/\d/.test(e.data)) {
-						const digit = e.data.replace(/\D/g, '');
-						if (selStart !== null && selEnd !== null) {
-						const nextValue = realValue.slice(0, selStart) + digit + realValue.slice(selEnd);
-						if (nextValue.length <= 10) {
-								realValue = nextValue;
-						}
-						}
-				}
+    const table5 = document.querySelector('.table-detail-5');
+    const btnMore = document.querySelector('.btn-detail-more');
 
-				});
+    btnMore.addEventListener('click', btnMoreClickEvent);
 
-				input.addEventListener('input', function () {
-						input.value = '●'.repeat(realValue.length); //한글 차단
-				});    
+    function btnMoreClickEvent() {
+        const tableRows = table5.querySelectorAll('tbody tr');
+        tableRows.forEach((row, index) => {
+            if (index > 10) {
+                row.style.display = 'table-row';
+            }
+        });
+        btnMore.style.display = 'none';
+        const moTotal = document.querySelector('.mo-table-total');
+        moTotal.classList.add('active');
+    }
 
-		input.addEventListener('paste', function (e) {
-				e.preventDefault();
+    
 
-				const pasted = (e.clipboardData || window.clipboardData).getData('text');
-				const numbersOnly = pasted.replace(/\D/g, '');
-				const isAllSelected = input.selectionStart === 0 && input.selectionEnd === input.value.length;
+}
+btnAllClickEvent();
 
-				if (isAllSelected) {
-						realValue = numbersOnly.slice(0, 10);
-						} else {
-						const spaceLeft = 10 - realValue.length;
-						realValue += numbersOnly.slice(0, spaceLeft);
-						}
+/* 청구서 상세 popup */
 
-						input.value = '●'.repeat(realValue.length);
-						validate();
-				});
+function popupDetailOpenEvent() {
+    const trigger = document.querySelectorAll('.total-popup-btn');
 
-				function validate() {
-						if (realValue.length === 10 && realValue === validNumber) {
-						hiddenInput.value = realValue;
-						resultBox.classList.add('active');
-						inputWrap.classList.add('closed');
-						} else {
-						resultBox.classList.remove('active');
-						}
-				}    
+    trigger.forEach((btn) => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const popup = document.querySelector('.popup-detail-wrap');
+            popup.classList.add('active');
+        });
+    });
+}
+popupDetailOpenEvent();
 
-				// 확인 버튼 클릭 시 유효성 검사 및 처리
-				inputSubmitBtn.addEventListener('click', function (e) {
-						e.preventDefault();
+function popupDetailCloseEvent(){
+    const btnClose = document.querySelector('.btn-close-popup-detail');
+    const btnClose2 = document.querySelector('.btn2-close-popup-detail');
 
-						popup1.classList.remove('active');
-						popup2.classList.remove('active');
-						hiddenInput.value = realValue;
+    btnClose.addEventListener('click', function() {
+        const popup = btnClose.closest('.popup-detail-wrap');
+        popup.classList.remove('active');
+    });
 
-						// 입력된 인풋 번호 확인
-						// console.log('Submitted hidden biznumber value:', hiddenInput.value);
+    btnClose2.addEventListener('click', function() {
+        const popup = btnClose.closest('.popup-detail-wrap');
+        popup.classList.remove('active');
+    });
+}
+popupDetailCloseEvent();
 
-						if(realValue.length === 0) {
-								popup2.classList.add('active'); // 공란 입력시
-						} else if (realValue.length < 10) {
-								popup1.classList.add('active'); // 10자리 미만
-						} else if (realValue.length === 10 && realValue === validNumber) {
-								// 유효성 검사 통과
-								resultBox.classList.add('active');
-								inputWrap.classList.add('closed');
-						} else {
-								popup1.classList.add('active'); // 비밀번호 틀림
-						}
-				});
-		});
+/* mobile toggle btn */ 
+
+function btnToggleClickEvent(){
+    const btns = document.querySelectorAll('.btn-toggle');
+    btns.forEach((btn)=>{
+        btn.addEventListener('click', function(e){
+            e.preventDefault();
+            toggleContents(btn);
+            btn.classList.toggle('rotated');
+        });
+    })
+    
+}
+
+btnToggleClickEvent();
+
+function toggleContents(btn){
+    const wrapConatainer = btn.closest('.table-detail-wrap');
+    const toggleContents = wrapConatainer.querySelector('.table-toggle-contents');
+    toggleContents.classList.toggle('closed');
+}
+
 
 	</script>
 
-	<script>
-	// 인쇄하기 버튼 클릭 시 브라우저 인쇄 다이얼로그 실행
-	function printBtnEvent() {
-		const printBtn = document.querySelector('.print-btn');
-		if (printBtn) {
-			printBtn.addEventListener('click', function() {
-				window.print();
-			});
-		}
-	}
-	printBtnEvent();
-	</script>
-	<script>
-		document.addEventListener('DOMContentLoaded', () => {
-		  const billTable = document.querySelector('.bill-detail-wrap .table-detail.table-type-3');
-		  const rows      = billTable.querySelectorAll('tbody tr');
-		  const btnMore   = document.getElementById('btn-detail-more');
-		  const moTotal   = document.querySelector('.mo-table-total');
+<script>
+  // 서버에서 내려온 사업자번호(STCD2)를 JS 변수로 할당
+  var realBizNum = "2158513569";
 
-		  if (rows.length <= 10) {
-			btnMore.style.display = 'none';
-		  } else {
-			// 최초 10개만 노출
-			rows.forEach((row, idx) => row.style.display = idx < 10 ? '' : 'none');
-			btnMore.style.display = 'block';
-			btnMore.addEventListener('click', () => {
-			  // 나머지 행 모두 노출
-			  rows.forEach(row => row.style.display = 'table-row');
-			  btnMore.style.display = 'none';
-			  moTotal.classList.add('active');
-			});
-		  }
-		});
+  document.getElementById('bizNumForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const val = document.getElementById('bizNumInput').value.trim();
 
-	</script>
+    if (!val) {
+      document.querySelector('.popup-2').classList.add('active');
+    }
+    else if (val === realBizNum) {
+      document.querySelector('.popup-password-container').classList.add('closed');
+      document.querySelector('.bill_container').classList.add('active');
+    }
+    else {
+      document.querySelector('.popup-1').classList.add('active');
+    }
+  });
+
+  // 팝업 닫기 버튼
+  document.querySelectorAll('.popup-wrap .btn-close').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      this.closest('.popup-wrap').classList.remove('active');
+    });
+  });
+</script>
+
+<script>
+// 인쇄하기 버튼 클릭 시 브라우저 인쇄 다이얼로그 실행
+function printBtnEvent() {
+    const printBtn = document.querySelector('.print-btn');
+    if (printBtn) {
+        printBtn.addEventListener('click', function() {
+            window.print();
+        });
+    }
+}
+printBtnEvent();
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const billTable = document.querySelector('.bill-detail-wrap .table-detail.table-type-3');
+  const rows      = billTable.querySelectorAll('tbody tr');
+  const btnMore   = document.getElementById('btn-detail-more');
+  const moTotal   = document.querySelector('.mo-table-total');
+
+  if (rows.length <= 10) {
+    btnMore.style.display = 'none';
+  } else {
+    // 최초 10개만 노출
+    rows.forEach((row, idx) => row.style.display = idx < 10 ? '' : 'none');
+    btnMore.style.display = 'block';
+    btnMore.addEventListener('click', () => {
+      // 나머지 행 모두 노출
+      rows.forEach(row => row.style.display = 'table-row');
+      btnMore.style.display = 'none';
+      moTotal.classList.add('active');
+    });
+  }
+});
+
+</script>
 </body>
 </html>
