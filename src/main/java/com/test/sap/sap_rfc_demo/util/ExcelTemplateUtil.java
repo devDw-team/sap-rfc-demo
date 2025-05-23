@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ExcelTemplateUtil {
-    private static final String TEMPLATE_PATH = "src/main/resources/static/excel/billinfo_template.xlsx";
+    private static final String TEMPLATE_PATH = "src/main/resources/static/excel/billinfo_template_mark.xlsx";
     private static final String DOWNLOAD_PATH = "src/main/resources/static/excel/download/";
 
     // 스타일 멤버
@@ -132,7 +132,20 @@ public class ExcelTemplateUtil {
                 setMoneyCellValueWithStyle(row, 13, vat, moneyBottomBorderStyle);
                 setMoneyCellValueWithStyle(row, 14, billAmt, moneyBottomBorderStyle);
                 double rowTotal = supply + vat;
-                setMoneyCellValueWithStyle(row, 15, rowTotal, moneyBottomBorderStyle);
+                setMoneyCellValueWithStyle(row, 20, rowTotal, moneyBottomBorderStyle);
+                
+                // 추가 컬럼들
+                setCellValueWithStyle(row, 21, String.valueOf(bill.getOrDefault("PAY_COM_TX", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 22, String.valueOf(bill.getOrDefault("PAY_NO", "")), centerBottomBorderStyle);
+                setMoneyCellValueWithStyle(row, 23, parseDoubleValue(bill.get("PRE_AMT")), moneyBottomBorderStyle);
+                setMoneyCellValueWithStyle(row, 24, parseDoubleValue(bill.get("REMAIN_AMT")), moneyBottomBorderStyle);
+                setCellValueWithStyle(row, 25, String.valueOf(bill.getOrDefault("PRE_MONTH", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 26, String.valueOf(bill.getOrDefault("INST_JUSO", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 27, String.valueOf(bill.getOrDefault("GOODS_SN", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 28, String.valueOf(bill.getOrDefault("DEPT_CD_TX", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 29, String.valueOf(bill.getOrDefault("DEPT_TELNR", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 35, String.valueOf(bill.getOrDefault("ZBIGO", "")), centerBottomBorderStyle);
+                
                 totalFixSupplyValue += fixSupply;
                 totalFixVat += fixVat;
                 totalFixBillAmt += fixBillAmt;
@@ -152,7 +165,19 @@ public class ExcelTemplateUtil {
             setMoneyCellValueWithStyle(totalRow, 12, totalSupplyValue, boldMoneyBottomBorderStyle);
             setMoneyCellValueWithStyle(totalRow, 13, totalVat, boldMoneyBottomBorderStyle);
             setMoneyCellValueWithStyle(totalRow, 14, totalBillAmt, boldMoneyBottomBorderStyle);
-            setMoneyCellValueWithStyle(totalRow, 15, totalSupplyValue + totalVat , boldMoneyBottomBorderStyle);
+            setMoneyCellValueWithStyle(totalRow, 20, totalSupplyValue + totalVat , boldMoneyBottomBorderStyle);
+            
+            // 추가된 컬럼들에 대한 합계 행 처리
+            for (int col = 21; col <= 29; col++) {
+                if (col == 23 || col == 24) {
+                    // PRE_AMT, REMAIN_AMT는 금액 필드이므로 0으로 설정
+                    setMoneyCellValueWithStyle(totalRow, col, 0.0, boldMoneyBottomBorderStyle);
+                } else {
+                    // 나머지는 빈 값
+                    setCellValueWithStyle(totalRow, col, "", boldCenterBottomBorderStyle);
+                }
+            }
+            setCellValueWithStyle(totalRow, 35, "", boldCenterBottomBorderStyle); // ZBIGO
 
             // 3. bill_type_summary 반복 row (예: 50행부터, 실제 템플릿 구조에 맞게 조정)
             /*

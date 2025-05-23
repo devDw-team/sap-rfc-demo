@@ -15,8 +15,8 @@ public class SapBillInfo {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(columnDefinition = "INT UNSIGNED")
-    private Integer seq;
+    @Column(columnDefinition = "BIGINT UNSIGNED")
+    private Long seq;
 
     @Column(name = "ORDER_NO", length = 12, nullable = false)
     private String orderNo;

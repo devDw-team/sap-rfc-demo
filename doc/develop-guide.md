@@ -632,6 +632,10 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
   - 외부 메일 API 연동 및 실제 메일 발송 담당
 - **src/main/resources/static/mail/webmail.html**
   - 안내 메일 본문 템플릿(HTML)
+- **src/main/resources/static/html/bill-template.html**
+  - 청구서 템플릿(HTML)
+- **src/main/resources/static/excel/billinfo_template.xlsx**
+  - 청구서 템플릿(EXCEL)    
 
 ## 17.4 파일명 예시 및 설명
 - **htmlFileName**: `코웨이(주) 2025년 01월 대금청구서.html` (실제 청구서 HTML 파일명)
