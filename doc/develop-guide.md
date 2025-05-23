@@ -570,8 +570,14 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
         ZBIGO
     from z_re_b2b_bill_info where ZGRPNO='536263'; -- 다중 rows return, 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.
 
+    15.1 (Old) 청구 합계 조회 쿼리
     select RECP_YM as C_RECP_YM, DUE_DATE as C_DUE_DATE, sum(SUPPLY_VALUE)+sum(vat) as TOTAL_AMOUNT 
     from z_re_b2b_bill_info where ZGRPNO='536263' group by RECP_YM, DUE_DATE; -- 1 row return , 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.
+
+    15.2 (New) 청구 합계 조회 쿼리
+    select RECP_YM as C_RECP_YM, DUE_DATE as C_DUE_DATE, sum(SUPPLY_VALUE)+sum(vat) as TOTAL_AMOUNT,
+          (select count(*) as SEL_KUN_CNT from z_re_b2b_bill_info where ZGRPNO='642586' and SEL_KUN='X') as C_CEL_KUN_CNT
+    from z_re_b2b_bill_info where ZGRPNO='642586' group by RECP_YM, DUE_DATE, C_CEL_KUN_CNT; -- 1 row return , 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 
 
     select RECP_TP as C_RECP_TP, RECP_TP_TX as C_RECP_TP_TX, count(recp_tp) as SUMMARY_CNT, sum(SUPPLY_VALUE)+sum(vat) as SUMMARY_AMOUNT 
     from z_re_b2b_bill_info where ZGRPNO='536263' group by RECP_TP, RECP_TP_TX; -- 다중 rows return , 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.
@@ -579,20 +585,30 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
     select b.ZBIGO as J_JBIGO
     from z_re_b2b_cust_info a, z_re_b2b_bill_info b 
     where a.ORDER_NO = b.ORDER_NO and b.ZGRPNO='536263'; -- 1 row return , 536263는 예시 묶음 번호 임. 여기에 사용자가 입력한 묶음 번호로 조회해 오면 됨.
+   
 
 ## 16. 청구서 안내 메일 정보 조회 쿼리 (메일 템플릿 HTML 파일에 매핑하기 위한 조회 쿼리)
 ```sql
-    select STCD2,
-          CUST_NM,
-          J_1KFREPRE,
-          J_1KFTBUS,
-          J_1KFTIND,
-          EMAIL ,
-          EMAIL2 ,
-          (select left(RECP_YM, 4) from z_re_b2b_bill_info where ZGRPNO='639610' group by RECP_YM) as C_RECP_YEAR,
-          (select right(RECP_YM, 2) from z_re_b2b_bill_info where ZGRPNO='639610' group by RECP_YM) as C_RECP_MONTH
-    from z_re_b2b_cust_info
-    where ZGRPNO='639610';
+      select STCD2,
+            CUST_NM,
+            J_1KFREPRE,
+            J_1KFTBUS,
+            J_1KFTIND,
+            EMAIL,
+            EMAIL2,
+            CASE 
+                WHEN (select count(*) from z_re_b2b_bill_info where ZGRPNO='639610' and SEL_KUN='X') < 1 
+                THEN YEAR(NOW())
+                ELSE (select left(RECP_YM, 4) from z_re_b2b_bill_info where ZGRPNO='639610' group by RECP_YM)
+            END as C_RECP_YEAR,
+            CASE 
+                WHEN (select count(*) from z_re_b2b_bill_info where ZGRPNO='639610' and SEL_KUN='X') < 1 
+                THEN LPAD(MONTH(NOW()), 2, '0')
+                ELSE (select right(RECP_YM, 2) from z_re_b2b_bill_info where ZGRPNO='639610' group by RECP_YM)
+            END as C_RECP_MONTH,
+            (select count(*) as SEL_KUN_CNT from z_re_b2b_bill_info where ZGRPNO='639610' and SEL_KUN='X') as C_CEL_KUN_CNT
+      from z_re_b2b_cust_info
+      where ZGRPNO='639610';
 ```
 
 # 17. 청구서 안내 메일 수동 발송 프로세스 (묶음번호 입력)

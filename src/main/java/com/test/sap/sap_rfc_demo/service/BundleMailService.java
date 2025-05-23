@@ -39,10 +39,19 @@ public class BundleMailService {
         log.info("[BundleMailService] 메일 발송 프로세스 시작 - ZGRPNO: {}", zgrpno);
         // 1. DB에서 메일 정보 조회 (16번 쿼리)
         String sql = "SELECT STCD2, CUST_NM, J_1KFREPRE, J_1KFTBUS, J_1KFTIND, EMAIL, EMAIL2, " +
-                "(SELECT LEFT(RECP_YM, 4) FROM z_re_b2b_bill_info WHERE ZGRPNO=? GROUP BY RECP_YM) AS C_RECP_YEAR, " +
-                "(SELECT RIGHT(RECP_YM, 2) FROM z_re_b2b_bill_info WHERE ZGRPNO=? GROUP BY RECP_YM) AS C_RECP_MONTH " +
-                "FROM z_re_b2b_cust_info WHERE ZGRPNO=? LIMIT 1";
-        Map<String, Object> mailInfo = jdbcTemplate.queryForMap(sql, zgrpno, zgrpno, zgrpno);
+                "CASE " +
+                    "WHEN (SELECT COUNT(*) FROM z_re_b2b_bill_info WHERE ZGRPNO=? AND SEL_KUN='X') < 1 " +
+                    "THEN YEAR(NOW()) " +
+                    "ELSE (SELECT LEFT(RECP_YM, 4) FROM z_re_b2b_bill_info WHERE ZGRPNO=? GROUP BY RECP_YM) " +
+                "END AS C_RECP_YEAR, " +
+                "CASE " +
+                    "WHEN (SELECT COUNT(*) FROM z_re_b2b_bill_info WHERE ZGRPNO=? AND SEL_KUN='X') < 1 " +
+                    "THEN LPAD(MONTH(NOW()), 2, '0') " +
+                    "ELSE (SELECT RIGHT(RECP_YM, 2) FROM z_re_b2b_bill_info WHERE ZGRPNO=? GROUP BY RECP_YM) " +
+                "END AS C_RECP_MONTH, " +
+                "(SELECT COUNT(*) AS SEL_KUN_CNT FROM z_re_b2b_bill_info WHERE ZGRPNO=? AND SEL_KUN='X') AS C_CEL_KUN_CNT " +
+                "FROM z_re_b2b_cust_info WHERE ZGRPNO=?";
+        Map<String, Object> mailInfo = jdbcTemplate.queryForMap(sql, zgrpno, zgrpno, zgrpno, zgrpno, zgrpno, zgrpno);
         log.info("[BundleMailService] 메일 정보 DB 조회 결과: {}", mailInfo);
 
         // 2. 청구서 파일 생성 API 호출 (/api/bundle-info/generate)

@@ -60,8 +60,36 @@ public class ExcelTemplateUtil {
             replacePlaceholder(sheet, "{J_1KFTIND}", String.valueOf(customer.get("J_1KFTIND")));
             // bill_summary
             if (billSummary != null) {
-                // {C_RECP_YN} 치환 추가
-                String cRecpYm = String.valueOf(billSummary.get("C_RECP_YM"));
+                // C_SEL_KUN_CNT 값 확인
+                Object selKunCntObj = billSummary.get("C_SEL_KUN_CNT");
+                int selKunCnt = 0;
+                if (selKunCntObj != null) {
+                    try {
+                        selKunCnt = Integer.parseInt(selKunCntObj.toString());
+                    } catch (NumberFormatException e) {
+                        selKunCnt = 0;
+                    }
+                }
+                
+                String cRecpYm;
+                String cDueDate;
+                
+                // C_SEL_KUN_CNT < 1 이면 오늘날짜 기준으로 값 설정
+                if (selKunCnt < 1) {
+                    LocalDate today = LocalDate.now();
+                    // 청구년월(C_RECP_YM): 오늘날짜 기준 년월(YYYYMM)
+                    cRecpYm = String.format("%d%02d", today.getYear(), today.getMonthValue());
+                    
+                    // 납부기한(C_DUE_DATE): 오늘날짜 기준 해당 월의 말일 날짜(YYYY-MM-DD)
+                    LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+                    cDueDate = lastDayOfMonth.toString(); // YYYY-MM-DD 형식
+                } else {
+                    // 기존 프로세스: billSummary에서 값 그대로 추출
+                    cRecpYm = String.valueOf(billSummary.get("C_RECP_YM"));
+                    cDueDate = String.valueOf(billSummary.get("C_DUE_DATE"));
+                }
+                
+                // {C_RECP_YM} 치환 추가
                 System.out.println("cRecpYm : " + cRecpYm);
                 if (cRecpYm != null && cRecpYm.length() == 6) {
                     String yearPart = cRecpYm.substring(0, 4);
@@ -73,16 +101,16 @@ public class ExcelTemplateUtil {
                     replacePlaceholder(sheet, "{C_RECP_YM}", "");
                     System.out.println("cRecpYm is null or length is not 6");
                 }
+                
                 // {C_DUE_DATE} 변환 및 치환
-                String cDueDate = String.valueOf(billSummary.get("C_DUE_DATE"));
                 if (cDueDate != null && cDueDate.length() == 10) {
                     String formattedDueDate = cDueDate.replace("-", ".");
                     replacePlaceholder(sheet, "{C_DUE_DATE}", formattedDueDate);
                 } else {
                     replacePlaceholder(sheet, "{C_DUE_DATE}", cDueDate != null ? cDueDate : "");
                 }
+                
                 replacePlaceholder(sheet, "{TOTAL_AMOUNT}", String.valueOf(billSummary.get("TOTAL_AMOUNT")));
-
             }
             // remarks
             if (remarks != null) {
@@ -131,6 +159,14 @@ public class ExcelTemplateUtil {
                 setMoneyCellValueWithStyle(row, 12, supply, moneyBottomBorderStyle);
                 setMoneyCellValueWithStyle(row, 13, vat, moneyBottomBorderStyle);
                 setMoneyCellValueWithStyle(row, 14, billAmt, moneyBottomBorderStyle);
+                
+                // 15, 16, 17, 18, 19 컬럼 빈값 설정 (추후 숫자로 치환 예정)
+                setCellValueWithStyle(row, 15, "", centerBottomBorderStyle);
+                setCellValueWithStyle(row, 16, "", centerBottomBorderStyle);
+                setCellValueWithStyle(row, 17, "", centerBottomBorderStyle);
+                setCellValueWithStyle(row, 18, "", centerBottomBorderStyle);
+                setCellValueWithStyle(row, 19, "", centerBottomBorderStyle);
+                
                 double rowTotal = supply + vat;
                 setMoneyCellValueWithStyle(row, 20, rowTotal, moneyBottomBorderStyle);
                 
@@ -144,6 +180,14 @@ public class ExcelTemplateUtil {
                 setCellValueWithStyle(row, 27, String.valueOf(bill.getOrDefault("GOODS_SN", "")), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 28, String.valueOf(bill.getOrDefault("DEPT_CD_TX", "")), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 29, String.valueOf(bill.getOrDefault("DEPT_TELNR", "")), centerBottomBorderStyle);
+                
+                // 30, 31, 32, 33, 34 컬럼 빈값 설정
+                setCellValueWithStyle(row, 30, "", centerBottomBorderStyle);
+                setCellValueWithStyle(row, 31, "", centerBottomBorderStyle);
+                setCellValueWithStyle(row, 32, "", centerBottomBorderStyle);
+                setCellValueWithStyle(row, 33, "", centerBottomBorderStyle);
+                setCellValueWithStyle(row, 34, "", centerBottomBorderStyle);
+                
                 setCellValueWithStyle(row, 35, String.valueOf(bill.getOrDefault("ZBIGO", "")), centerBottomBorderStyle);
                 
                 totalFixSupplyValue += fixSupply;
@@ -165,6 +209,14 @@ public class ExcelTemplateUtil {
             setMoneyCellValueWithStyle(totalRow, 12, totalSupplyValue, boldMoneyBottomBorderStyle);
             setMoneyCellValueWithStyle(totalRow, 13, totalVat, boldMoneyBottomBorderStyle);
             setMoneyCellValueWithStyle(totalRow, 14, totalBillAmt, boldMoneyBottomBorderStyle);
+            
+            // 15, 16, 17, 18, 19 컬럼 빈값 설정 (합계 행)
+            setCellValueWithStyle(totalRow, 15, "", boldCenterBottomBorderStyle);
+            setCellValueWithStyle(totalRow, 16, "", boldCenterBottomBorderStyle);
+            setCellValueWithStyle(totalRow, 17, "", boldCenterBottomBorderStyle);
+            setCellValueWithStyle(totalRow, 18, "", boldCenterBottomBorderStyle);
+            setCellValueWithStyle(totalRow, 19, "", boldCenterBottomBorderStyle);
+            
             setMoneyCellValueWithStyle(totalRow, 20, totalSupplyValue + totalVat , boldMoneyBottomBorderStyle);
             
             // 추가된 컬럼들에 대한 합계 행 처리
@@ -177,6 +229,14 @@ public class ExcelTemplateUtil {
                     setCellValueWithStyle(totalRow, col, "", boldCenterBottomBorderStyle);
                 }
             }
+            
+            // 30, 31, 32, 33, 34 컬럼 빈값 설정 (합계 행)
+            setCellValueWithStyle(totalRow, 30, "", boldCenterBottomBorderStyle);
+            setCellValueWithStyle(totalRow, 31, "", boldCenterBottomBorderStyle);
+            setCellValueWithStyle(totalRow, 32, "", boldCenterBottomBorderStyle);
+            setCellValueWithStyle(totalRow, 33, "", boldCenterBottomBorderStyle);
+            setCellValueWithStyle(totalRow, 34, "", boldCenterBottomBorderStyle);
+            
             setCellValueWithStyle(totalRow, 35, "", boldCenterBottomBorderStyle); // ZBIGO
 
             // 3. bill_type_summary 반복 row (예: 50행부터, 실제 템플릿 구조에 맞게 조정)

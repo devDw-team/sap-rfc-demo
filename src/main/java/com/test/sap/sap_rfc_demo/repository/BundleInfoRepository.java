@@ -45,14 +45,15 @@ public class BundleInfoRepository {
 
     // 3. 청구 합계
     public Map<String, Object> findBillSummary(String zgrpno) {
-        String sql = "SELECT RECP_YM as C_RECP_YM, DUE_DATE as C_DUE_DATE, sum(SUPPLY_VALUE)+sum(vat) as TOTAL_AMOUNT " +
+        String sql = "SELECT RECP_YM as C_RECP_YM, DUE_DATE as C_DUE_DATE, sum(SUPPLY_VALUE)+sum(vat) as TOTAL_AMOUNT, " +
+                "(SELECT count(*) as SEL_KUN_CNT FROM z_re_b2b_bill_info WHERE ZGRPNO = :zgrpno AND SEL_KUN='X') as C_SEL_KUN_CNT " +
                 "FROM z_re_b2b_bill_info WHERE ZGRPNO = :zgrpno GROUP BY RECP_YM, DUE_DATE";
         List<Object[]> rows = em.createNativeQuery(sql)
                 .setParameter("zgrpno", zgrpno)
                 .getResultList();
         if (rows.isEmpty()) return Collections.emptyMap();
         Object[] row = rows.get(0);
-        String[] keys = {"C_RECP_YM", "C_DUE_DATE", "TOTAL_AMOUNT"};
+        String[] keys = {"C_RECP_YM", "C_DUE_DATE", "TOTAL_AMOUNT", "C_SEL_KUN_CNT"};
         Map<String, Object> map = new LinkedHashMap<>();
         for (int i = 0; i < keys.length; i++) map.put(keys[i], row[i]);
         return map;
