@@ -8,6 +8,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.DayOfWeek;
+import java.time.YearMonth;
+import java.util.HashSet;
+import java.util.Set;
 
 public class HtmlTemplateUtil {
     /**
@@ -205,9 +209,9 @@ public class HtmlTemplateUtil {
                 String recpYm = today.format(DateTimeFormatter.ofPattern("yyyyMM"));
                 data.put("C_RECP_YM", recpYm);
                 
-                // 납부기한(C_DUE_DATE): 오늘날짜 기준 해당 월의 말일 날짜(YYYY-MM-DD)
-                LocalDate lastDayOfMonth = today.withDayOfMonth(today.lengthOfMonth());
-                String dueDate = lastDayOfMonth.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                // 납부기한(C_DUE_DATE): 오늘날짜 기준 해당 월의 영업일 기준 말일 날짜(YYYY-MM-DD)
+                LocalDate lastBusinessDay = getLastBusinessDay(today.getYear(), today.getMonthValue());
+                String dueDate = lastBusinessDay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 data.put("C_DUE_DATE", dueDate);
                 
                 // TOTAL_AMOUNT는 기존 값 유지 또는 0으로 설정
@@ -386,5 +390,102 @@ public class HtmlTemplateUtil {
         // 최상위에서 바로 찾는 경우
         if (data.containsKey(key)) return data.get(key);
         return null;
+    }
+
+    // 한국 공휴일 (예시 - 실제로는 매년 변경되므로 동적으로 관리 필요)
+    private static final Set<LocalDate> HOLIDAYS_2025 = new HashSet<>();
+    private static final Set<LocalDate> HOLIDAYS_2026 = new HashSet<>();
+    
+    static {
+        // 2025년 주요 공휴일 예시
+        HOLIDAYS_2025.add(LocalDate.of(2025, 8, 15));  // 광복절
+        HOLIDAYS_2025.add(LocalDate.of(2025, 10, 3));  // 개천절
+        HOLIDAYS_2025.add(LocalDate.of(2025, 10, 6));  // 추석연휴
+        HOLIDAYS_2025.add(LocalDate.of(2025, 10, 7));  // 추석연휴
+        HOLIDAYS_2025.add(LocalDate.of(2025, 10, 8));  // 추석연휴
+        HOLIDAYS_2025.add(LocalDate.of(2025, 10, 9));  // 한글날
+        HOLIDAYS_2025.add(LocalDate.of(2025, 12, 25)); // 크리스마스
+        
+        HOLIDAYS_2026.add(LocalDate.of(2026, 1, 1)); // 새해 첫날
+        HOLIDAYS_2026.add(LocalDate.of(2026, 2, 16)); // 설날 연휴
+        HOLIDAYS_2026.add(LocalDate.of(2026, 2, 17)); // 설날 
+        HOLIDAYS_2026.add(LocalDate.of(2026, 2, 18)); // 설날 연휴
+        HOLIDAYS_2026.add(LocalDate.of(2026, 3, 1)); // 삼일절
+        HOLIDAYS_2026.add(LocalDate.of(2026, 3, 2)); // 대체공휴일(삼일절)
+        HOLIDAYS_2026.add(LocalDate.of(2026, 5, 5)); // 어린이날
+        HOLIDAYS_2026.add(LocalDate.of(2026, 5, 24)); // 부처님 오신날
+        HOLIDAYS_2026.add(LocalDate.of(2026, 5, 25)); // 대체공휴일(부처님 오신날)
+        HOLIDAYS_2026.add(LocalDate.of(2026, 6, 6)); // 현충일
+        HOLIDAYS_2026.add(LocalDate.of(2026, 8, 15));  // 광복절
+        HOLIDAYS_2026.add(LocalDate.of(2026, 8, 17));  // 대체공휴일(광복절)
+        HOLIDAYS_2026.add(LocalDate.of(2026, 9, 24));  // 추석 연휴
+        HOLIDAYS_2026.add(LocalDate.of(2026, 9, 25));  // 추석 
+        HOLIDAYS_2026.add(LocalDate.of(2026, 9, 26));  // 추석 연휴
+        HOLIDAYS_2026.add(LocalDate.of(2026, 10, 3));  // 개천절
+        HOLIDAYS_2026.add(LocalDate.of(2026, 10, 5));  // 대체공휴일(개천절)
+        HOLIDAYS_2026.add(LocalDate.of(2026, 10, 9));  // 한글날
+        HOLIDAYS_2026.add(LocalDate.of(2026, 12, 25));  // 크리스마스
+    }
+    
+    /**
+     * 지정된 년월의 마지막 영업일을 반환
+     * @param year 년도
+     * @param month 월
+     * @return 해당 월의 마지막 영업일
+     */
+    private static LocalDate getLastBusinessDay(int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
+        
+        // 마지막 날부터 역순으로 검사하여 영업일 찾기
+        while (!isBusinessDay(lastDayOfMonth)) {
+            lastDayOfMonth = lastDayOfMonth.minusDays(1);
+        }
+        
+        return lastDayOfMonth;
+    }
+    
+    /**
+     * 주어진 날짜가 영업일인지 확인
+     * @param date 확인할 날짜
+     * @return 영업일 여부
+     */
+    private static boolean isBusinessDay(LocalDate date) {
+        // 주말 체크
+        if (date.getDayOfWeek() == DayOfWeek.SATURDAY || 
+            date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            return false;
+        }
+        
+        // 공휴일 체크 (해당 년도의 공휴일 set을 사용)
+        Set<LocalDate> holidays = getHolidaysForYear(date.getYear());
+        return !holidays.contains(date);
+    }
+    
+    /**
+     * 특정 년도의 공휴일 목록 반환
+     * @param year 년도
+     * @return 공휴일 Set
+     */
+    private static Set<LocalDate> getHolidaysForYear(int year) {
+        // 실제 구현에서는 년도별로 공휴일을 관리하거나
+        // 외부 API/DB에서 가져오는 것을 권장
+        if (year == 2025) {
+            return HOLIDAYS_2025;
+        }
+        if (year == 2026) {
+            return HOLIDAYS_2026;
+        }
+        // 다른 년도의 경우 빈 Set 반환 (주말만 제외)
+        return new HashSet<>();
+    }
+    
+    /**
+     * 현재 월의 마지막 영업일 반환
+     * @return 현재 월의 마지막 영업일
+     */
+    private static LocalDate getCurrentMonthLastBusinessDay() {
+        LocalDate today = LocalDate.now();
+        return getLastBusinessDay(today.getYear(), today.getMonthValue());
     }
 } 

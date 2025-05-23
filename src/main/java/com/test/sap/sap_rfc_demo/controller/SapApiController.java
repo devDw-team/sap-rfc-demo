@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 import com.sap.conn.jco.JCoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,9 +115,17 @@ public class SapApiController {
     }
 
     @GetMapping("/bill-info")
-    public ResponseEntity<?> getBillInfo(@RequestParam(defaultValue = "202501") String recpYm) {
+    public ResponseEntity<?> getBillInfo(
+            @RequestParam(value = "IV_RECP_YM", required = false) String ivRecpYm,
+            @RequestParam(value = "IV_ZGRPNO", required = false) String ivZgrpno,
+            @RequestParam(value = "recpYm", defaultValue = "202501") String recpYm) {
         try {
-            Map<String, Object> result = sapService.getBillInfo(recpYm);
+            // IV_RECP_YM이 있으면 우선 사용, 없으면 기존 recpYm 사용 (하위호환성)
+            String targetRecpYm = (ivRecpYm != null && !ivRecpYm.trim().isEmpty()) ? ivRecpYm : recpYm;
+            
+            logger.info("Bill info request - IV_RECP_YM: {}, IV_ZGRPNO: {}", targetRecpYm, ivZgrpno);
+            
+            Map<String, Object> result = sapService.getBillInfo(targetRecpYm);
             logger.debug("SAP Response for bill info: {}", result);
 
             // billList 키로 데이터 확인
@@ -127,6 +136,22 @@ public class SapApiController {
             if (billDataList == null) {
                 billDataList = (List<Map<String, String>>) result.get("ET_BILL_DATA");
                 logger.debug("Using ET_BILL_DATA key, found data: {}", billDataList != null);
+            }
+
+            // IV_ZGRPNO가 제공된 경우 해당 묶음번호로 필터링
+            if (ivZgrpno != null && !ivZgrpno.trim().isEmpty() && billDataList != null) {
+                logger.info("Filtering by ZGRPNO: {}", ivZgrpno);
+                billDataList = billDataList.stream()
+                    .filter(bill -> ivZgrpno.equals(String.valueOf(bill.get("ZGRPNO"))))
+                    .collect(Collectors.toList());
+                logger.info("Filtered result count: {}", billDataList.size());
+                
+                // 필터링된 결과를 다시 result에 저장
+                if (result.containsKey("billList")) {
+                    result.put("billList", billDataList);
+                } else {
+                    result.put("ET_BILL_DATA", billDataList);
+                }
             }
 
             if (billDataList != null && !billDataList.isEmpty()) {

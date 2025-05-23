@@ -40,4 +40,9 @@ public class SapController {
         }
         return "bill-info";
     }
+
+    @GetMapping("/bill-info-form")
+    public String getBillInfoForm() {
+        return "bill-info-form";
+    }
 } 
