@@ -140,6 +140,14 @@
                             </button>
                         </div>
                     </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button class="btn btn-outline-info" onclick="viewBatchHistory()">
+                                <i class="fas fa-history me-2"></i>
+                                배치 실행 이력 조회
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -381,6 +389,43 @@
                 })
                 .catch(error => {
                     console.error('통계 새로고침 실패:', error);
+                });
+        }
+
+        // 배치 실행 이력 조회
+        function viewBatchHistory() {
+            fetch('/automail/api/batch/history')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const content = `
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6>배치 실행 현황</h6>
+                                    <p><strong>현재 월:</strong> ${data.currentMonth}</p>
+                                    <p><strong>이번 달 실행 여부:</strong> 
+                                        <span class="badge ${data.hasExecutedThisMonth ? 'bg-success' : 'bg-warning'}">
+                                            ${data.hasExecutedThisMonth ? '실행됨' : '미실행'}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <h6>최근 실행 이력</h6>
+                                    <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto; font-size: 12px;">${data.recentExecutions}</pre>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('detailContent').innerHTML = content;
+                        document.querySelector('#detailModal .modal-title').textContent = '배치 실행 이력';
+                        new bootstrap.Modal(document.getElementById('detailModal')).show();
+                    } else {
+                        showMessage('danger', '배치 실행 이력 조회 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    showMessage('danger', '배치 실행 이력 조회 중 오류 발생: ' + error.message);
                 });
         }
     </script>

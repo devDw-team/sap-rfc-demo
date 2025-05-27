@@ -4,6 +4,7 @@ import com.test.sap.sap_rfc_demo.dto.AutoMailTargetDto;
 import com.test.sap.sap_rfc_demo.entity.AutoMailData;
 import com.test.sap.sap_rfc_demo.repository.AutoMailDataRepository;
 import com.test.sap.sap_rfc_demo.service.AutoMailService;
+import com.test.sap.sap_rfc_demo.service.BatchExecutionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -36,6 +37,7 @@ public class AutoMailController {
     private final AutoMailDataRepository autoMailDataRepository;
     private final JobLauncher jobLauncher;
     private final Job autoMailJob;
+    private final BatchExecutionService batchExecutionService;
 
     /**
      * 자동메일 관리 메인 페이지
@@ -248,6 +250,36 @@ public class AutoMailController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "통계 조회 중 오류 발생: " + e.getMessage());
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * 배치 실행 이력 조회
+     */
+    @GetMapping("/api/batch/history")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getBatchHistory() {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            boolean hasExecutedThisMonth = batchExecutionService.hasAutoMailJobExecutedThisMonth(now);
+            String recentExecutions = batchExecutionService.getRecentAutoMailJobExecutions(10);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("hasExecutedThisMonth", hasExecutedThisMonth);
+            response.put("currentMonth", now.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM")));
+            response.put("recentExecutions", recentExecutions);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("배치 실행 이력 조회 중 오류 발생", e);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "배치 실행 이력 조회 중 오류 발생: " + e.getMessage());
             
             return ResponseEntity.internalServerError().body(response);
         }

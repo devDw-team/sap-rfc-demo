@@ -16,6 +16,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.util.Map;
+
 @Configuration
 @EnableBatchProcessing
 @EnableScheduling
@@ -59,17 +61,22 @@ public class BatchConfig {
     @Bean
     public Tasklet autoMailTasklet() {
         return (contribution, chunkContext) -> {
-            log.info("=== B2B 자동메일 배치 작업 시작 ===");
+            // Job Parameters에서 실행 정보 추출
+            Map<String, Object> jobParams = chunkContext.getStepContext().getJobParameters();
+            String jobType = (String) jobParams.getOrDefault("jobType", "manual");
+            String executionDate = (String) jobParams.getOrDefault("executionDate", "unknown");
+            
+            log.info("=== B2B 자동메일 배치 작업 시작 (타입: {}, 실행일: {}) ===", jobType, executionDate);
             
             try {
                 // automail-guide.md Step 1, 2 실행
                 autoMailService.executeAutoMailProcess();
                 
-                log.info("=== B2B 자동메일 배치 작업 완료 ===");
+                log.info("=== B2B 자동메일 배치 작업 완료 (타입: {}, 실행일: {}) ===", jobType, executionDate);
                 return RepeatStatus.FINISHED;
                 
             } catch (Exception e) {
-                log.error("=== B2B 자동메일 배치 작업 실패 ===", e);
+                log.error("=== B2B 자동메일 배치 작업 실패 (타입: {}, 실행일: {}) ===", jobType, executionDate, e);
                 throw e;
             }
         };
