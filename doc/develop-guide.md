@@ -611,15 +611,15 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
       where ZGRPNO='639610';
 ```
 
-# 17. 청구서 안내 메일 수동 발송 프로세스 (묶음번호 입력)
+## 17. 청구서 안내 메일 수동 발송 프로세스 (묶음번호 입력)
 
-## 17.1 기능 개요
+### 17.1 기능 개요
 - 웹 화면(/send-bill-mail-form)에서 사용자가 묶음번호(ZGRPNO)를 입력하면,
   1) 해당 묶음번호로 청구서 HTML/엑셀 파일을 생성하고
   2) 안내 메일을 자동으로 발송하는 기능
 - 파일 생성 및 메일 발송 결과는 화면에 메시지로 안내됨
 
-## 17.2 주요 화면 및 동작 흐름
+### 17.2 주요 화면 및 동작 흐름
 1. **/send-bill-mail-form**
    - 묶음번호(ZGRPNO) 입력 폼과 '청구서 안내 메일 발송' 버튼 제공
    - 사용자가 묶음번호 입력 후 버튼 클릭 시, `/send-bill-mail`로 POST 요청
@@ -633,11 +633,11 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
      4. EmailService를 통해 외부 메일 API로 안내 메일 발송
      5. 결과 메시지 화면에 표시
 
-## 17.3 주요 파일 및 역할
+### 17.3 주요 파일 및 역할
 - **src/main/resources/templates/sendMailForm.html**
   - 묶음번호 입력 폼 및 결과 메시지 표시용 Thymeleaf 템플릿
 - **src/main/java/com/test/sap/sap_rfc_demo/controller/SendMailController.java**
-  - 폼 화면 제공 및 메일 발송 요청 처리 컨트롤러
+  - 폼 페이지 제공 및 메일 발송 요청 처리 컨트롤러
 - **src/main/java/com/test/sap/sap_rfc_demo/service/BundleMailService.java**
   - DB 조회, 파일 생성, 메일 템플릿 치환, EmailService 호출 등 전체 프로세스 담당 서비스
 - **src/main/java/com/test/sap/sap_rfc_demo/service/BundleInfoService.java**
@@ -653,17 +653,17 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
 - **src/main/resources/static/excel/billinfo_template.xlsx**
   - 청구서 템플릿(EXCEL)    
 
-## 17.4 파일명 예시 및 설명
+### 17.4 파일명 예시 및 설명
 - **htmlFileName**: `코웨이(주) 2025년 01월 대금청구서.html` (실제 청구서 HTML 파일명)
 - **htmlFilePath**: `http://www.digitalworks.co.kr/coway/사업자번호.html` (메일 첨부/링크용 실제 접근 경로)
 - **excel**: `/static/excel/download/코웨이(주) 2025년 01월 대금청구서.xlsx` (엑셀 파일 상대경로)
 
-## 17.5 참고 사항
+### 17.5 참고 사항
 - 파일명/경로 생성 규칙 및 메일 본문 치환 규칙은 BundleInfoService, BundleMailService 소스 참고
 - 메일 발송 결과 및 오류는 화면 메시지와 서버 로그에서 확인 가능
 - 실제 메일 발송은 외부 API 연동 결과에 따라 성공/실패가 결정됨
 
-# 18. 대한민국 매월 영업일 기준 마지막 날짜 구하는 예제 소스
+## 18. 대한민국 매월 영업일 기준 마지막 날짜 구하는 예제 소스
 ```java
     import java.time.DayOfWeek;
     import java.time.LocalDate;
@@ -819,3 +819,177 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
             printNextMonthsLastBusinessDays(6);
         }
     }
+```
+
+## 19. 청구 정보 조회 폼 (IV_RECP_YM, IV_ZGRPNO 파라미터 지원)
+
+### 19.1 기능 개요
+- 웹 화면에서 청구년월과 묶음번호를 입력받아 청구 정보를 조회하는 기능
+- Ajax 기반의 실시간 조회 및 결과 표시
+- 입력 유효성 검사 및 필터링 기능 제공
+- 기존 API와의 하위호환성 유지
+
+### 19.2 주요 파일 및 역할
+
+#### 19.2.1 웹 폼 페이지
+- **파일:** `src/main/resources/templates/bill-info-form.html`
+- **접속 URL:** `http://localhost:8080/bill-info-form`
+- **기능:**
+  - 청구년월(IV_RECP_YM) 입력 필드 - **필수입력**
+  - 묶음번호(IV_ZGRPNO) 입력 필드 - **선택입력**
+  - 실시간 유효성 검사 (숫자만 입력, YYYYMM 형식 검증)
+  - Ajax를 통한 `/api/bill-info` API 호출
+  - JSON 응답 데이터 표시
+
+#### 19.2.2 컨트롤러
+- **SapController.java** - 폼 페이지 라우팅
+  ```java
+  @GetMapping("/bill-info-form")
+  public String getBillInfoForm() {
+      return "bill-info-form";
+  }
+  ```
+
+- **SapApiController.java** - API 엔드포인트 처리
+  ```java
+  @GetMapping("/bill-info")
+  public ResponseEntity<?> getBillInfo(
+          @RequestParam(value = "IV_RECP_YM", required = false) String ivRecpYm,
+          @RequestParam(value = "IV_ZGRPNO", required = false) String ivZgrpno,
+          @RequestParam(value = "recpYm", defaultValue = "202501") String recpYm)
+  ```
+
+### 19.3 화면 및 동작 흐름
+
+#### 19.3.1 화면 구성
+1. **청구년월 입력 필드**
+   - 형식: YYYYMM (예: 202505)
+   - 필수입력, 숫자만 입력 가능
+   - 최대 6자리 제한
+
+2. **묶음번호 입력 필드**
+   - 형식: 숫자 (예: 536263)
+   - 선택입력, 숫자만 입력 가능
+   - 특정 묶음번호 필터링용
+
+3. **조회/초기화 버튼**
+   - 조회하기: API 호출 및 결과 표시
+   - 초기화: 폼 리셋 및 결과 클리어
+
+#### 19.3.2 동작 흐름
+1. 사용자가 청구년월 입력 (필수)
+2. 묶음번호 입력 (선택사항)
+3. '조회하기' 버튼 클릭
+4. JavaScript 유효성 검사 실행
+5. Ajax로 `/api/bill-info` API 호출
+6. 서버에서 데이터 조회 및 필터링
+7. JSON 응답을 화면에 표시
+
+### 19.4 API 파라미터 및 처리 로직
+
+#### 19.4.1 파라미터 우선순위
+```java
+// IV_RECP_YM이 있으면 우선 사용, 없으면 기존 recpYm 사용 (하위호환성)
+String targetRecpYm = (ivRecpYm != null && !ivRecpYm.trim().isEmpty()) ? ivRecpYm : recpYm;
+```
+
+### 19.4.2 묶음번호 필터링 로직
+```java
+// IV_ZGRPNO가 제공된 경우 해당 묶음번호로 필터링
+if (ivZgrpno != null && !ivZgrpno.trim().isEmpty() && billDataList != null) {
+    billDataList = billDataList.stream()
+        .filter(bill -> ivZgrpno.equals(String.valueOf(bill.get("ZGRPNO"))))
+        .collect(Collectors.toList());
+}
+```
+
+## 19.5 API 호출 예시
+
+### 19.5.1 URL 패턴
+```
+1. 청구년월만 조회:
+   GET /api/bill-info?IV_RECP_YM=202505
+
+2. 청구년월 + 묶음번호 조회:
+   GET /api/bill-info?IV_RECP_YM=202505&IV_ZGRPNO=536263
+
+3. 기존 방식 (하위호환):
+   GET /api/bill-info?recpYm=202501
+```
+
+### 19.5.2 응답 형식
+```json
+{
+  "returnInfo": {
+    "TYPE": "S",
+    "MESSAGE": "정상처리되었습니다"
+  },
+  "billList": [
+    {
+      "ORDER_NO": "...",
+      "ZGRPNO": "536263",
+      "RECP_YM": "202505",
+      // ... 기타 필드들
+    }
+  ]
+}
+```
+
+## 19.6 주요 기능 특징
+
+### 19.6.1 입력 유효성 검사
+- **클라이언트 사이드:** JavaScript를 통한 실시간 검증
+- **서버 사이드:** 파라미터 값 검증 및 로깅
+- **형식 검증:** 청구년월 YYYYMM 형식 체크
+
+### 19.6.2 필터링 기능
+- **Stream API 활용:** 효율적인 데이터 필터링
+- **ZGRPNO 기반 필터링:** 특정 묶음번호 데이터만 추출
+- **결과 카운팅:** 필터링 전후 데이터 개수 로깅
+
+### 19.6.3 하위호환성
+- **기존 API 유지:** `recpYm` 파라미터 지원 지속
+- **점진적 전환:** 새로운 파라미터와 기존 파라미터 병행 지원
+- **로그 구분:** 신규/기존 파라미터 사용 여부 로깅
+
+## 19.7 사용 방법
+
+### 19.7.1 웹 폼 접속
+```
+http://localhost:8080/bill-info-form
+```
+
+### 19.7.2 입력 예시
+- **청구년월:** 202505 (2025년 5월)
+- **묶음번호:** 536263 (특정 묶음번호로 필터링)
+
+### 19.7.3 결과 확인
+- 조회 건수 표시
+- JSON 형태의 상세 응답 데이터 표시
+- 오류 발생 시 에러 메시지 표시
+
+## 19.8 개발 시 고려사항
+
+### 19.8.1 성능 최적화
+- Stream API를 활용한 메모리 효율적 필터링
+- 불필요한 데이터 전송 최소화
+- 로깅 레벨 조정을 통한 성능 튜닝
+
+### 19.8.2 에러 처리
+- 입력값 검증 실패 시 사용자 친화적 메시지
+- API 호출 실패 시 적절한 에러 표시
+- 서버 로그를 통한 문제 상황 추적
+
+### 19.8.3 확장성
+- 추가 필터링 조건 확장 가능한 구조
+- 새로운 조회 조건 추가 시 기존 코드 영향 최소화
+- API 버전 관리 고려사항
+
+---
+
+**주니어 개발자를 위한 참고:**
+- 이 폼은 SAP 청구 정보 조회의 사용자 인터페이스 역할을 합니다.
+- Ajax를 활용하여 페이지 새로고침 없이 데이터를 조회할 수 있습니다.
+- Stream API는 Java 8 이상에서 제공하는 함수형 프로그래밍 기능입니다.
+- 하위호환성 유지는 기존 시스템과의 연동성을 보장하는 중요한 개발 원칙입니다.
+</rewritten_file>

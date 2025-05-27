@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B2B 자동메일 관리 대시보드</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .stat-card.success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .stat-card.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .stat-card.info {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        .btn-execute {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        .btn-execute:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            color: white;
+        }
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .loading {
+            display: none;
+        }
+        .alert-custom {
+            border-radius: 10px;
+            border: none;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid py-4">
+        <!-- 헤더 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-6 fw-bold text-primary">
+                    <i class="fas fa-envelope-open-text me-3"></i>
+                    B2B 자동메일 관리 대시보드
+                </h1>
+                <p class="text-muted">automail-guide.md Step 1-3 구현 현황 및 관리</p>
+            </div>
+        </div>
+
+        <!-- 통계 카드 -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">오늘 생성</h6>
+                            <h3 class="mb-0" th:text="${todayDataCount}">0</h3>
+                        </div>
+                        <i class="fas fa-calendar-day fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card success">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">전체 활성</h6>
+                            <h3 class="mb-0" th:text="${totalActiveCount}">0</h3>
+                        </div>
+                        <i class="fas fa-check-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card info">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">파일 생성 완료</h6>
+                            <h3 class="mb-0" th:text="${fileCreatedCount}">0</h3>
+                        </div>
+                        <i class="fas fa-file-alt fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card warning">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-0">메일 발송 대기</h6>
+                            <h3 class="mb-0" th:text="${mailPendingCount}">0</h3>
+                        </div>
+                        <i class="fas fa-paper-plane fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 실행 버튼 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="table-container">
+                    <h5 class="mb-3">
+                        <i class="fas fa-play-circle me-2"></i>
+                        수동 실행
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <button class="btn btn-execute w-100" onclick="executeStep1()">
+                                <i class="fas fa-search me-2"></i>
+                                Step 1: 대상 조회
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button class="btn btn-execute w-100" onclick="executeFullProcess()">
+                                <i class="fas fa-cogs me-2"></i>
+                                Step 1+2: 전체 실행
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button class="btn btn-execute w-100" onclick="executeBatchJob()">
+                                <i class="fas fa-rocket me-2"></i>
+                                Batch Job 실행
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결과 메시지 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div id="resultMessage" style="display: none;"></div>
+                <div id="loadingMessage" class="alert alert-info alert-custom loading">
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    처리 중입니다...
+                </div>
+            </div>
+        </div>
+
+        <!-- 최근 데이터 목록 -->
+        <div class="row">
+            <div class="col-12">
+                <div class="table-container">
+                    <h5 class="mb-3">
+                        <i class="fas fa-list me-2"></i>
+                        최근 생성된 자동메일 데이터 (최대 10건)
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>SEQ</th>
+                                    <th>사업자번호</th>
+                                    <th>고객명</th>
+                                    <th>묶음번호</th>
+                                    <th>주문번호</th>
+                                    <th>이메일</th>
+                                    <th>파일생성</th>
+                                    <th>생성일시</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="data : ${recentData}" th:if="${not #lists.isEmpty(recentData)}">
+                                    <td th:text="${data.seq}">1</td>
+                                    <td th:text="${data.stcd2}">123-45-67890</td>
+                                    <td th:text="${data.custNm}">고객명</td>
+                                    <td th:text="${data.zgrpno}">12345</td>
+                                    <td th:text="${data.orderNo}">ORDER001</td>
+                                    <td th:text="${data.email}">test@example.com</td>
+                                    <td>
+                                        <span th:if="${data.fileCreateFlag == 'Y'}" class="badge bg-success">완료</span>
+                                        <span th:if="${data.fileCreateFlag == 'N'}" class="badge bg-warning">대기</span>
+                                    </td>
+                                    <td th:text="${#temporals.format(data.dtCreateDate, 'yyyy-MM-dd HH:mm')}">2024-01-01 08:00</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                th:onclick="'viewDetail(' + ${data.seq} + ')'">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentData)}">
+                                    <td colspan="9" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                        생성된 데이터가 없습니다.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 모달 -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">자동메일 데이터 상세</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="detailContent">
+                        <!-- 상세 내용이 여기에 로드됩니다 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Step 1: 대상 조회 실행
+        function executeStep1() {
+            showLoading();
+            fetch('/automail/api/step1/targets')
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        showMessage('success', 
+                            `Step 1 실행 완료<br>
+                            총 조회: ${data.totalCount}건<br>
+                            처리 대상: ${data.validCount}건`);
+                    } else {
+                        showMessage('danger', 'Step 1 실행 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', 'Step 1 실행 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // 전체 프로세스 실행
+        function executeFullProcess() {
+            showLoading();
+            fetch('/automail/api/execute', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        showMessage('success', 'Step 1+2 전체 프로세스 실행 완료');
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        showMessage('danger', '전체 프로세스 실행 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', '전체 프로세스 실행 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // Batch Job 실행
+        function executeBatchJob() {
+            showLoading();
+            fetch('/automail/api/batch/run', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        showMessage('success', 'Batch Job 실행 완료');
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        showMessage('danger', 'Batch Job 실행 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', 'Batch Job 실행 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // 상세 보기
+        function viewDetail(seq) {
+            fetch(`/automail/api/data/${seq}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const content = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>기본 정보</h6>
+                                    <p><strong>SEQ:</strong> ${data.data.seq}</p>
+                                    <p><strong>사업자번호:</strong> ${data.data.stcd2 || '-'}</p>
+                                    <p><strong>고객명:</strong> ${data.data.custNm || '-'}</p>
+                                    <p><strong>고객코드:</strong> ${data.data.kunnr || '-'}</p>
+                                    <p><strong>묶음번호:</strong> ${data.data.zgrpno || '-'}</p>
+                                    <p><strong>주문번호:</strong> ${data.data.orderNo || '-'}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>상태 정보</h6>
+                                    <p><strong>자동메일플래그:</strong> ${data.data.autoMailFlag}</p>
+                                    <p><strong>파일생성플래그:</strong> ${data.data.fileCreateFlag}</p>
+                                    <p><strong>삭제플래그:</strong> ${data.data.delFlag}</p>
+                                    <p><strong>생성일시:</strong> ${data.data.dtCreateDate}</p>
+                                    <p><strong>이메일:</strong> ${data.data.email || '-'}</p>
+                                    <p><strong>이메일2:</strong> ${data.data.email2 || '-'}</p>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <h6>메일 데이터 (JSON)</h6>
+                                    <pre class="bg-light p-3 rounded" style="max-height: 300px; overflow-y: auto;">${data.data.mailData || '데이터 없음'}</pre>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('detailContent').innerHTML = content;
+                        new bootstrap.Modal(document.getElementById('detailModal')).show();
+                    } else {
+                        showMessage('danger', '상세 정보 조회 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    showMessage('danger', '상세 정보 조회 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // 로딩 표시
+        function showLoading() {
+            document.getElementById('loadingMessage').style.display = 'block';
+            document.getElementById('resultMessage').style.display = 'none';
+        }
+
+        // 로딩 숨김
+        function hideLoading() {
+            document.getElementById('loadingMessage').style.display = 'none';
+        }
+
+        // 메시지 표시
+        function showMessage(type, message) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+            
+            document.getElementById('resultMessage').innerHTML = `
+                <div class="alert ${alertClass} alert-custom">
+                    <i class="fas ${icon} me-2"></i>
+                    ${message}
+                </div>
+            `;
+            document.getElementById('resultMessage').style.display = 'block';
+        }
+
+        // 페이지 로드 시 통계 새로고침
+        document.addEventListener('DOMContentLoaded', function() {
+            // 5분마다 통계 새로고침
+            setInterval(refreshStatistics, 300000);
+        });
+
+        // 통계 새로고침
+        function refreshStatistics() {
+            fetch('/automail/api/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 통계 업데이트 로직 (필요시 구현)
+                        console.log('통계 새로고침 완료', data.statistics);
+                    }
+                })
+                .catch(error => {
+                    console.error('통계 새로고침 실패:', error);
+                });
+        }
+    </script>
+</body>
+</html> 
