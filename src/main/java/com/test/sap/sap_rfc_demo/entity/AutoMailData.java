@@ -28,9 +28,9 @@ public class AutoMailData {
     @Column(name = "FORM_ID", length = 50)
     private String formId;
 
-    @Column(name = "AUTOMAILFLAG", length = 1, nullable = false)
+    @Column(name = "SEND_AUTO", length = 1, nullable = false)
     @Builder.Default
-    private String autoMailFlag = "Y";
+    private String sendAuto = "Y";
 
     @Column(name = "STCD2", length = 11)
     private String stcd2;

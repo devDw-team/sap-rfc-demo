@@ -19,7 +19,7 @@ public interface AutoMailDataRepository extends JpaRepository<AutoMailData, Long
     /**
      * 자동메일 플래그가 'Y'인 데이터 조회
      */
-    List<AutoMailData> findByAutoMailFlagAndDelFlag(String autoMailFlag, String delFlag);
+    List<AutoMailData> findBySendAutoAndDelFlag(String sendAuto, String delFlag);
 
     /**
      * 파일 생성 플래그가 'N'인 데이터 조회 (파일 생성 대상)

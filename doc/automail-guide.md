@@ -19,7 +19,7 @@
 
 ### Step 1: 청구서 발송 대상 조회
 
-이 단계에서는 자동 메일 발송 플래그(`AUTOMAILFLAG='Y'`)가 설정된 고객 정보를 조회합니다.
+이 단계에서는 자동 메일 발송 플래그(`SEND_AUTO='Y'`)가 설정된 고객 정보를 조회합니다.
 
 * **목적**: 청구서 자동 발송이 필요한 기본 대상 목록을 가져옵니다.
 * **대상 조회 쿼리**:
@@ -41,7 +41,7 @@
         AND b.KUNNR = a.KUNNR 
         AND (b.ZGRPNO = a.ZGRPNO OR b.ORDER_NO = a.ORDER_NO)
     )
-    WHERE a.AUTOMAILFLAG = 'Y'
+    WHERE a.SEND_AUTO = 'Y'
     GROUP BY a.STCD2, a.CUST_NM, a.KUNNR, a.ZGRPNO, a.ORDER_NO, 
             a.FXDAY, a.EMAIL, a.EMAIL2;    
     ```
@@ -209,7 +209,7 @@ Step 1에서 조회된 데이터를 필터링하고, 각 대상에 대한 상세
     CREATE TABLE b2b_automail_dt (
         SEQ               BIGINT NOT NULL AUTO_INCREMENT COMMENT '순번',
         FORM_ID           VARCHAR(50) DEFAULT NULL COMMENT '양식 ID',
-        AUTOMAILFLAG      VARCHAR(1) NOT NULL DEFAULT 'Y' COMMENT '자동 발생 대상 Flag : SAP IF에서 조회해 옴.' ,
+        SEND_AUTO         VARCHAR(1) NOT NULL DEFAULT 'Y' COMMENT '자동 발생 대상 Flag : SAP IF에서 조회해 옴.' ,
         STCD2             VARCHAR(11) DEFAULT NULL COMMENT '사업자번호',
         CUST_NM           VARCHAR(40) DEFAULT NULL COMMENT '사업자명',
         KUNNR             VARCHAR(10) DEFAULT NULL COMMENT '대표고객코드',
@@ -245,11 +245,11 @@ Step 1에서 조회된 데이터를 필터링하고, 각 대상에 대한 상세
     * Step 1에서 조회된 각 row 데이터와 위에서 생성된 `MAILDATA` (JSON 문자열)를 사용하여 `b2b_automail_dt` 테이블에 삽입합니다.
     ```sql
     INSERT INTO b2b_automail_dt (
-        AUTOMAILFLAG, STCD2, CUST_NM, KUNNR, ZGRPNO, ORDER_NO, FXDAY, EMAIL, EMAIL2,
+        SEND_AUTO, STCD2, CUST_NM, KUNNR, ZGRPNO, ORDER_NO, FXDAY, EMAIL, EMAIL2,
         MAILDATA, DT_CREATE_DATE, FILE_CREATE_FLAG, DEL_FLAG,
         CREATE_ID, CREATE_DATE, UPDATE_ID, UPDATE_DATE, FORM_ID /* 필요시 추가 */
     ) VALUES (
-        :automailflag, :stcd2, :cust_nm, :kunnr, :zgrpno, :order_no, :fxday, :email, :email2,
+        :send_auto, :stcd2, :cust_nm, :kunnr, :zgrpno, :order_no, :fxday, :email, :email2,
         :maildata,    -- JSON 문자열
         NOW(),       -- 또는 SYSDATE, CURRENT_TIMESTAMP 등 DBMS에 맞게
         'N',         -- 파일 생성 전이므로 'N'
@@ -261,7 +261,7 @@ Step 1에서 조회된 데이터를 필터링하고, 각 대상에 대한 상세
         :form_id    -- 양식 ID (필요한 경우 바인딩)
     );
     ```
-    * **참고**: `AUTOMAILFLAG`는 Step 1에서 이미 'Y'로 필터링되었으므로, 해당 값을 그대로 사용하거나 적재 시 별도 관리할 수 있습니다. `ORDER_NO`도 Step 1 조회 결과에 있으므로 적재 대상에 포함합니다. `FORM_ID` 등 다른 필요한 기본값이 있다면 INSERT 문에 포함합니다.
+    * **참고**: `SEND_AUTO`는 Step 1에서 이미 'Y'로 필터링되었으므로, 해당 값을 그대로 사용하거나 적재 시 별도 관리할 수 있습니다. `ORDER_NO`도 Step 1 조회 결과에 있으므로 적재 대상에 포함합니다. `FORM_ID` 등 다른 필요한 기본값이 있다면 INSERT 문에 포함합니다.
 
 ---
 

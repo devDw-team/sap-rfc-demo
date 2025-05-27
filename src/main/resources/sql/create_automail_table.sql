@@ -4,7 +4,7 @@
 CREATE TABLE b2b_automail_dt (
     SEQ               BIGINT NOT NULL AUTO_INCREMENT COMMENT '순번',
     FORM_ID           VARCHAR(50) DEFAULT NULL COMMENT '양식 ID',
-    AUTOMAILFLAG      VARCHAR(1) NOT NULL DEFAULT 'Y' COMMENT '자동 발생 대상 Flag : SAP IF에서 조회해 옴.',
+    SEND_AUTO         VARCHAR(1) NOT NULL DEFAULT 'Y' COMMENT '자동 발생 대상 Flag : SAP IF에서 조회해 옴.',
     STCD2             VARCHAR(11) DEFAULT NULL COMMENT '사업자번호',
     CUST_NM           VARCHAR(40) DEFAULT NULL COMMENT '사업자명',
     KUNNR             VARCHAR(10) DEFAULT NULL COMMENT '대표고객코드',
@@ -38,5 +38,5 @@ CREATE TABLE b2b_automail_dt (
 CREATE INDEX idx_automail_stcd2_kunnr ON b2b_automail_dt(STCD2, KUNNR);
 CREATE INDEX idx_automail_zgrpno ON b2b_automail_dt(ZGRPNO);
 CREATE INDEX idx_automail_order_no ON b2b_automail_dt(ORDER_NO);
-CREATE INDEX idx_automail_flag ON b2b_automail_dt(AUTOMAILFLAG, FILE_CREATE_FLAG, DEL_FLAG);
+CREATE INDEX idx_automail_flag ON b2b_automail_dt(SEND_AUTO, FILE_CREATE_FLAG, DEL_FLAG);
 CREATE INDEX idx_automail_create_date ON b2b_automail_dt(DT_CREATE_DATE); 

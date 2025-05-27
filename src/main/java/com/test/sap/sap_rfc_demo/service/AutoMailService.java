@@ -53,7 +53,7 @@ public class AutoMailService {
                 AND b.KUNNR = a.KUNNR 
                 AND (b.ZGRPNO = a.ZGRPNO OR b.ORDER_NO = a.ORDER_NO)
             )
-            WHERE a.AUTOMAILFLAG = 'Y'
+            WHERE a.SEND_AUTO = 'Y'
             GROUP BY a.STCD2, a.CUST_NM, a.KUNNR, a.ZGRPNO, a.ORDER_NO, 
                     a.FXDAY, a.EMAIL, a.EMAIL2
             """;
@@ -113,7 +113,7 @@ public class AutoMailService {
 
                 // Step 2-7: 데이터 적재
                 AutoMailData autoMailData = AutoMailData.builder()
-                    .autoMailFlag("Y")
+                    .sendAuto("Y")
                     .stcd2(target.getStcd2())
                     .custNm(target.getCustNm())
                     .kunnr(target.getKunnr())

@@ -44,7 +44,7 @@ public class AutoMailController {
     public String dashboard(Model model) {
         // 오늘 생성된 데이터 통계
         List<AutoMailData> todayData = autoMailDataRepository.findTodayBatchTargets();
-        List<AutoMailData> allActiveData = autoMailDataRepository.findByAutoMailFlagAndDelFlag("Y", "N");
+        List<AutoMailData> allActiveData = autoMailDataRepository.findBySendAutoAndDelFlag("Y", "N");
         List<AutoMailData> fileCreatedData = autoMailDataRepository.findByFileCreateFlagAndDelFlag("Y", "N");
         List<AutoMailData> mailSendTargets = autoMailDataRepository.findMailSendTargets();
 
@@ -224,7 +224,7 @@ public class AutoMailController {
     public ResponseEntity<Map<String, Object>> getStatistics() {
         try {
             long totalCount = autoMailDataRepository.count();
-            long activeCount = autoMailDataRepository.findByAutoMailFlagAndDelFlag("Y", "N").size();
+            long activeCount = autoMailDataRepository.findBySendAutoAndDelFlag("Y", "N").size();
             long fileCreatedCount = autoMailDataRepository.findByFileCreateFlagAndDelFlag("Y", "N").size();
             long mailPendingCount = autoMailDataRepository.findMailSendTargets().size();
             long todayCount = autoMailDataRepository.findTodayBatchTargets().size();
