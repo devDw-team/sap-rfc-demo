@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
 
@@ -60,6 +61,7 @@ public class AutoMailData {
     private String mailData;
 
     @Column(name = "DT_CREATE_DATE")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime dtCreateDate;
 
     @Column(name = "FILE_CREATE_FLAG", length = 1, nullable = false)
@@ -85,6 +87,7 @@ public class AutoMailData {
     private String excelFilepath;
 
     @Column(name = "FILE_CREATE_DATE")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime fileCreateDate;
 
     @Column(name = "UMS_CODE", length = 20)
@@ -104,12 +107,14 @@ public class AutoMailData {
     private String createId;
 
     @Column(name = "CREATE_DATE", nullable = false, updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createDate;
 
     @Column(name = "UPDATE_ID", length = 50)
     private String updateId;
 
     @Column(name = "UPDATE_DATE", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateDate;
 
     @PrePersist

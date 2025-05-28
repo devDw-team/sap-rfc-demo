@@ -70,4 +70,20 @@ public interface AutoMailDataRepository extends JpaRepository<AutoMailData, Long
     @Query("SELECT a FROM AutoMailData a WHERE DATE(a.dtCreateDate) = CURRENT_DATE " +
            "AND a.fileCreateFlag = 'N' AND a.delFlag = 'N'")
     List<AutoMailData> findTodayBatchTargets();
+
+    /**
+     * 파일 생성 대상 조회 (filecreate-guide.md Step 1)
+     * 조건: SEND_AUTO = 'Y', FILE_CREATE_FLAG = 'N', 현재 년월과 동일
+     */
+    @Query("SELECT a FROM AutoMailData a WHERE a.sendAuto = 'Y' " +
+           "AND a.fileCreateFlag = 'N' " +
+           "AND FUNCTION('DATE_FORMAT', a.dtCreateDate, '%Y-%m') = :currentYearMonth " +
+           "AND a.delFlag = 'N' " +
+           "ORDER BY a.seq")
+    List<AutoMailData> findFileCreationTargets(@Param("currentYearMonth") String currentYearMonth);
+
+    /**
+     * 전체 데이터를 SEQ 내림차순으로 조회 (최신 순)
+     */
+    List<AutoMailData> findAllByOrderBySeqDesc();
 } 

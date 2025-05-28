@@ -55,10 +55,9 @@ public class AutoMailController {
         model.addAttribute("fileCreatedCount", fileCreatedData.size());
         model.addAttribute("mailPendingCount", mailSendTargets.size());
         
-        // 최근 데이터 목록 (최대 10건)
-        Pageable pageable = PageRequest.of(0, 10);
-        List<AutoMailData> recentData = autoMailDataRepository.findAll(pageable).getContent();
-        model.addAttribute("recentData", recentData);
+        // 전체 데이터 목록 (최신 순으로 정렬)
+        List<AutoMailData> allData = autoMailDataRepository.findAllByOrderBySeqDesc();
+        model.addAttribute("recentData", allData);
 
         return "automail/dashboard";
     }
@@ -158,7 +157,7 @@ public class AutoMailController {
     }
 
     /**
-     * 자동메일 데이터 목록 조회
+     * 자동메일 데이터 목록 조회 (페이징)
      */
     @GetMapping("/api/data")
     @ResponseBody
@@ -168,12 +167,17 @@ public class AutoMailController {
         
         try {
             Pageable pageable = PageRequest.of(page, size);
-            List<AutoMailData> data = autoMailDataRepository.findAll(pageable).getContent();
+            List<AutoMailData> dataList = autoMailDataRepository.findAll(pageable).getContent();
             long totalCount = autoMailDataRepository.count();
+            
+            // AutoMailData 리스트를 DTO로 변환
+            List<Map<String, Object>> dataDtoList = dataList.stream()
+                .map(this::convertToDto)
+                .toList();
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("data", data);
+            response.put("data", dataDtoList);
             response.put("totalCount", totalCount);
             response.put("currentPage", page);
             response.put("pageSize", size);
@@ -192,6 +196,49 @@ public class AutoMailController {
     }
 
     /**
+     * AutoMailData를 DTO Map으로 변환하는 헬퍼 메서드
+     */
+    private Map<String, Object> convertToDto(AutoMailData data) {
+        Map<String, Object> dataDto = new HashMap<>();
+        dataDto.put("seq", data.getSeq());
+        dataDto.put("formId", data.getFormId());
+        dataDto.put("sendAuto", data.getSendAuto());
+        dataDto.put("stcd2", data.getStcd2());
+        dataDto.put("custNm", data.getCustNm());
+        dataDto.put("kunnr", data.getKunnr());
+        dataDto.put("zgrpno", data.getZgrpno());
+        dataDto.put("orderNo", data.getOrderNo());
+        dataDto.put("fxday", data.getFxday());
+        dataDto.put("email", data.getEmail());
+        dataDto.put("email2", data.getEmail2());
+        dataDto.put("mailData", data.getMailData());
+        dataDto.put("fileCreateFlag", data.getFileCreateFlag());
+        dataDto.put("oriHtmlFilenm", data.getOriHtmlFilenm());
+        dataDto.put("chgHtmlFilenm", data.getChgHtmlFilenm());
+        dataDto.put("htmlFilepath", data.getHtmlFilepath());
+        dataDto.put("oriExcelFilenm", data.getOriExcelFilenm());
+        dataDto.put("chgExcelFilenm", data.getChgExcelFilenm());
+        dataDto.put("excelFilepath", data.getExcelFilepath());
+        dataDto.put("umsCode", data.getUmsCode());
+        dataDto.put("umsMsg", data.getUmsMsg());
+        dataDto.put("delFlag", data.getDelFlag());
+        dataDto.put("createId", data.getCreateId());
+        dataDto.put("updateId", data.getUpdateId());
+        
+        // LocalDateTime을 String으로 변환
+        dataDto.put("dtCreateDate", data.getDtCreateDate() != null ? 
+            data.getDtCreateDate().toString() : null);
+        dataDto.put("fileCreateDate", data.getFileCreateDate() != null ? 
+            data.getFileCreateDate().toString() : null);
+        dataDto.put("createDate", data.getCreateDate() != null ? 
+            data.getCreateDate().toString() : null);
+        dataDto.put("updateDate", data.getUpdateDate() != null ? 
+            data.getUpdateDate().toString() : null);
+            
+        return dataDto;
+    }
+
+    /**
      * 특정 자동메일 데이터 상세 조회
      */
     @GetMapping("/api/data/{seq}")
@@ -201,9 +248,12 @@ public class AutoMailController {
             AutoMailData data = autoMailDataRepository.findById(seq)
                     .orElseThrow(() -> new RuntimeException("데이터를 찾을 수 없습니다. SEQ: " + seq));
             
+            // AutoMailData를 DTO로 변환하여 LocalDateTime 직렬화 문제 해결
+            Map<String, Object> dataDto = convertToDto(data);
+            
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("data", data);
+            response.put("data", dataDto);
             
             return ResponseEntity.ok(response);
             
