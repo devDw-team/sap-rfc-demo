@@ -58,7 +58,7 @@
             <div class="col-12">
                 <h1 class="display-6 fw-bold text-primary">
                     <i class="fas fa-envelope-open-text me-3"></i>
-                    B2B 자동메일 관리 대시보드
+                    Coway B2B 청구서 자동메일 관리 대시보드
                 </h1>
                 <p class="text-muted">automail-guide.md Step 1-3 구현 현황 및 관리</p>
             </div>
@@ -103,10 +103,10 @@
                 <div class="stat-card warning">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="mb-0">메일 발송 대기</h6>
-                            <h3 class="mb-0" th:text="${mailPendingCount}">0</h3>
+                            <h6 class="mb-0">메일 발송 완료</h6>
+                            <h3 class="mb-0" th:text="${mailSentCount}">0</h3>
                         </div>
-                        <i class="fas fa-paper-plane fa-2x opacity-75"></i>
+                        <i class="fas fa-envelope-circle-check fa-2x opacity-75"></i>
                     </div>
                 </div>
             </div>
@@ -230,8 +230,11 @@
                                     <th>고객명</th>
                                     <th>묶음번호</th>
                                     <th>주문번호</th>
+                                    <th>발송일</th>
+                                    <th>청구년월</th>
                                     <th>이메일</th>
                                     <th>파일생성</th>
+                                    <th>메일발송</th>
                                     <th>생성일시</th>
                                     <th>액션</th>
                                 </tr>
@@ -243,10 +246,16 @@
                                     <td th:text="${data.custNm}">고객명</td>
                                     <td th:text="${data.zgrpno}">12345</td>
                                     <td th:text="${data.orderNo}">ORDER001</td>
+                                    <td th:text="${data.fxday != null ? data.fxday : '-'}">15</td>
+                                    <td th:text="${data.recpYm != null ? data.recpYm : '-'}">202401</td>
                                     <td th:text="${data.email}">test@example.com</td>
                                     <td>
                                         <span th:if="${data.fileCreateFlag == 'Y'}" class="badge bg-success">완료</span>
                                         <span th:if="${data.fileCreateFlag == 'N'}" class="badge bg-warning">대기</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${data.mailSendFlag == 'Y'}" class="badge bg-primary">완료</span>
+                                        <span th:if="${data.mailSendFlag == 'N'}" class="badge bg-secondary">대기</span>
                                     </td>
                                     <td th:text="${#temporals.format(data.dtCreateDate, 'yyyy-MM-dd HH:mm')}">2024-01-01 08:00</td>
                                     <td>
@@ -262,7 +271,7 @@
                                     </td>
                                 </tr>
                                 <tr th:if="${#lists.isEmpty(recentData)}">
-                                    <td colspan="9" class="text-center text-muted py-4">
+                                    <td colspan="12" class="text-center text-muted py-4">
                                         <i class="fas fa-inbox fa-2x mb-2"></i><br>
                                         생성된 데이터가 없습니다.
                                     </td>
@@ -372,11 +381,14 @@
                                     <p><strong>고객코드:</strong> ${data.data.kunnr || '-'}</p>
                                     <p><strong>묶음번호:</strong> ${data.data.zgrpno || '-'}</p>
                                     <p><strong>주문번호:</strong> ${data.data.orderNo || '-'}</p>
+                                    <p><strong>발송일:</strong> ${data.data.fxday || '-'}</p>
+                                    <p><strong>청구년월:</strong> ${data.data.recpYm || '-'}</p>
                                 </div>
                                 <div class="col-md-6">
                                     <h6>상태 정보</h6>
                                     <p><strong>자동메일플래그:</strong> ${data.data.sendAuto}</p>
                                     <p><strong>파일생성플래그:</strong> ${data.data.fileCreateFlag}</p>
+                                    <p><strong>메일발송플래그:</strong> ${data.data.mailSendFlag}</p>
                                     <p><strong>삭제플래그:</strong> ${data.data.delFlag}</p>
                                     <p><strong>생성일시:</strong> ${data.data.dtCreateDate}</p>
                                     <p><strong>이메일:</strong> ${data.data.email || '-'}</p>

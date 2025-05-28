@@ -46,6 +46,7 @@ public class AutoMailService {
                 a.FXDAY,    -- 고정일
                 a.EMAIL,    -- 이메일 주소1
                 a.EMAIL2,   -- 이메일 주소2
+                b.RECP_YM,  -- 청구년월
                 COUNT(b.STCD2) AS chk_cnt -- 관련 청구 정보 건수
             FROM z_re_b2b_cust_info a
             LEFT JOIN z_re_b2b_bill_info b ON (
@@ -55,7 +56,7 @@ public class AutoMailService {
             )
             WHERE a.SEND_AUTO = 'Y'
             GROUP BY a.STCD2, a.CUST_NM, a.KUNNR, a.ZGRPNO, a.ORDER_NO, 
-                    a.FXDAY, a.EMAIL, a.EMAIL2
+                    a.FXDAY, a.EMAIL, a.EMAIL2, b.RECP_YM
             """;
 
         List<AutoMailTargetDto> targets = jdbcTemplate.query(sql, (rs, rowNum) -> 
@@ -68,6 +69,7 @@ public class AutoMailService {
                 .fxday(rs.getShort("FXDAY") == 0 ? null : rs.getShort("FXDAY"))
                 .email(rs.getString("EMAIL"))
                 .email2(rs.getString("EMAIL2"))
+                .recpYm(rs.getString("RECP_YM"))
                 .chkCnt(rs.getLong("chk_cnt"))
                 .build()
         );
@@ -122,9 +124,11 @@ public class AutoMailService {
                     .fxday(target.getFxday())
                     .email(target.getEmail())
                     .email2(target.getEmail2())
+                    .recpYm(target.getRecpYm())
                     .mailData(mailDataJson)
                     .dtCreateDate(LocalDateTime.now())
                     .fileCreateFlag("N")
+                    .mailSendFlag("N")
                     .delFlag("N")
                     .createId("BATCH_JOB")
                     .updateId("BATCH_JOB")

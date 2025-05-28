@@ -48,11 +48,13 @@ public class AutoMailController {
         List<AutoMailData> todayData = autoMailDataRepository.findTodayBatchTargets();
         List<AutoMailData> allActiveData = autoMailDataRepository.findBySendAutoAndDelFlag("Y", "N");
         List<AutoMailData> fileCreatedData = autoMailDataRepository.findByFileCreateFlagAndDelFlag("Y", "N");
+        List<AutoMailData> mailSentData = autoMailDataRepository.findByMailSendFlagAndDelFlag("Y", "N");
         List<AutoMailData> mailSendTargets = autoMailDataRepository.findMailSendTargets();
 
         model.addAttribute("todayDataCount", todayData.size());
         model.addAttribute("totalActiveCount", allActiveData.size());
         model.addAttribute("fileCreatedCount", fileCreatedData.size());
+        model.addAttribute("mailSentCount", mailSentData.size());
         model.addAttribute("mailPendingCount", mailSendTargets.size());
         
         // 전체 데이터 목록 (최신 순으로 정렬)
@@ -211,8 +213,10 @@ public class AutoMailController {
         dataDto.put("fxday", data.getFxday());
         dataDto.put("email", data.getEmail());
         dataDto.put("email2", data.getEmail2());
+        dataDto.put("recpYm", data.getRecpYm());
         dataDto.put("mailData", data.getMailData());
         dataDto.put("fileCreateFlag", data.getFileCreateFlag());
+        dataDto.put("mailSendFlag", data.getMailSendFlag());
         dataDto.put("oriHtmlFilenm", data.getOriHtmlFilenm());
         dataDto.put("chgHtmlFilenm", data.getChgHtmlFilenm());
         dataDto.put("htmlFilepath", data.getHtmlFilepath());
@@ -278,6 +282,7 @@ public class AutoMailController {
             long totalCount = autoMailDataRepository.count();
             long activeCount = autoMailDataRepository.findBySendAutoAndDelFlag("Y", "N").size();
             long fileCreatedCount = autoMailDataRepository.findByFileCreateFlagAndDelFlag("Y", "N").size();
+            long mailSentCount = autoMailDataRepository.findByMailSendFlagAndDelFlag("Y", "N").size();
             long mailPendingCount = autoMailDataRepository.findMailSendTargets().size();
             long todayCount = autoMailDataRepository.findTodayBatchTargets().size();
             
@@ -285,6 +290,7 @@ public class AutoMailController {
             statistics.put("totalCount", totalCount);
             statistics.put("activeCount", activeCount);
             statistics.put("fileCreatedCount", fileCreatedCount);
+            statistics.put("mailSentCount", mailSentCount);
             statistics.put("mailPendingCount", mailPendingCount);
             statistics.put("todayCount", todayCount);
             

@@ -61,8 +61,13 @@ public interface AutoMailDataRepository extends JpaRepository<AutoMailData, Long
      * 메일 발송 대상 조회 (파일 생성 완료된 데이터)
      */
     @Query("SELECT a FROM AutoMailData a WHERE a.fileCreateFlag = 'Y' " +
-           "AND a.delFlag = 'N' AND (a.umsCode IS NULL OR a.umsCode = '')")
+           "AND a.mailSendFlag = 'N' AND a.delFlag = 'N' AND (a.umsCode IS NULL OR a.umsCode = '')")
     List<AutoMailData> findMailSendTargets();
+
+    /**
+     * 메일 발송 완료된 데이터 조회
+     */
+    List<AutoMailData> findByMailSendFlagAndDelFlag(String mailSendFlag, String delFlag);
 
     /**
      * 배치 처리 대상 조회 (오늘 생성된 데이터 중 파일 미생성)

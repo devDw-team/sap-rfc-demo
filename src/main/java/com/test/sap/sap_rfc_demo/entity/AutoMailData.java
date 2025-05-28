@@ -57,6 +57,9 @@ public class AutoMailData {
     @Column(name = "EMAIL2", length = 50)
     private String email2;
 
+    @Column(name = "RECP_YM", length = 6)
+    private String recpYm;
+
     @Column(name = "MAILDATA", columnDefinition = "TEXT")
     private String mailData;
 
@@ -67,6 +70,10 @@ public class AutoMailData {
     @Column(name = "FILE_CREATE_FLAG", length = 1, nullable = false)
     @Builder.Default
     private String fileCreateFlag = "N";
+
+    @Column(name = "MAIL_SEND_FLAG", length = 1, nullable = false)
+    @Builder.Default
+    private String mailSendFlag = "N";
 
     @Column(name = "ORI_HTML_FILENM", length = 100)
     private String oriHtmlFilenm;

@@ -23,6 +23,7 @@ public class AutoMailTargetDto {
     private Short fxday;         // 고정일
     private String email;        // 이메일 주소1
     private String email2;       // 이메일 주소2
+    private String recpYm;       // 청구년월
     private Long chkCnt;         // 관련 청구 정보 건수
     
     /**
