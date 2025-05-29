@@ -451,7 +451,28 @@
                                     <p><strong>고객코드:</strong> ${data.data.kunnr || '-'}</p>
                                     <p><strong>묶음번호:</strong> ${data.data.zgrpno || '-'}</p>
                                     <p><strong>주문번호:</strong> ${data.data.orderNo || '-'}</p>
-                                    <p><strong>발송일:</strong> ${data.data.fxday || '-'}</p>
+                                    <p><strong>발송일:</strong> 
+                                        <span id="fxdayDisplay">${data.data.fxday || '-'}</span>
+                                        <button class="btn btn-sm btn-outline-primary ms-2" onclick="editFxday(${seq}, '${data.data.fxday || ''}')">
+                                            <i class="fas fa-edit"></i> 수정
+                                        </button>
+                                        <div id="fxdayEditForm" style="display: none;" class="mt-2">
+                                            <div class="input-group input-group-sm" style="max-width: 200px;">
+                                                <input type="text" id="fxdayInput" class="form-control" 
+                                                       placeholder="1-31" maxlength="2" 
+                                                       value="${data.data.fxday || ''}"
+                                                       onkeypress="return isNumberKey(event)"
+                                                       oninput="formatFxdayInput(this)">
+                                                <button class="btn btn-success" onclick="saveFxday(${seq})">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                                <button class="btn btn-secondary" onclick="cancelEditFxday()">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <small class="text-muted">1~31 사이의 숫자만 입력 가능</small>
+                                        </div>
+                                    </p>
                                     <p><strong>청구년월:</strong> ${data.data.recpYm || '-'}</p>
                                 </div>
                                 <div class="col-md-6">
@@ -1182,6 +1203,104 @@ VALUES
             } else {
                 showMessage('warning', 'EXCEL 파일은 미리보기를 지원하지 않습니다.');
             }
+        }
+
+        // === 편집 관련 함수들 ===
+
+        // 발송일 편집
+        function editFxday(seq, currentFxday) {
+            const fxdayInput = document.getElementById('fxdayInput');
+            fxdayInput.value = currentFxday;
+            document.getElementById('fxdayEditForm').style.display = 'block';
+        }
+
+        // 발송일 저장
+        function saveFxday(seq) {
+            const fxdayValue = document.getElementById('fxdayInput').value.trim();
+            
+            // 입력 값 검증
+            if (!fxdayValue) {
+                showMessage('danger', '발송일을 입력하세요.');
+                return;
+            }
+            
+            // 숫자만 입력 가능한지 체크
+            if (!/^\d+$/.test(fxdayValue)) {
+                showMessage('danger', '숫자만 입력 가능합니다.');
+                return;
+            }
+            
+            // 앞의 0 제거 후 범위 체크
+            const fxdayInt = parseInt(fxdayValue);
+            if (fxdayInt < 1 || fxdayInt > 31) {
+                showMessage('danger', '발송일은 1부터 31까지만 입력 가능합니다.');
+                return;
+            }
+            
+            showLoading();
+            
+            // PUT 요청으로 발송일 업데이트
+            fetch(`/automail/api/data/${seq}/fxday`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    fxday: fxdayInt
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        // 화면에 업데이트된 값 반영
+                        document.getElementById('fxdayDisplay').textContent = data.newFxday;
+                        document.getElementById('fxdayEditForm').style.display = 'none';
+                        
+                        showMessage('success', 
+                            `발송일이 ${data.oldFxday || '없음'}에서 ${data.newFxday}로 업데이트되었습니다.`);
+                    } else {
+                        showMessage('danger', '발송일 업데이트 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', '발송일 업데이트 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // 발송일 취소
+        function cancelEditFxday() {
+            document.getElementById('fxdayEditForm').style.display = 'none';
+        }
+
+        // 숫자 키 검사
+        function isNumberKey(event) {
+            const key = event.key;
+            // 숫자, 백스페이스, 델리트, 탭, 화살표 키만 허용
+            if (/^[0-9]$/.test(key) || 
+                ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(key)) {
+                return true;
+            }
+            event.preventDefault();
+            return false;
+        }
+
+        // 발송일 포맷 처리
+        function formatFxdayInput(input) {
+            // 숫자가 아닌 문자 제거
+            let value = input.value.replace(/\D/g, '');
+            
+            // 최대 2자리까지만 허용
+            value = value.slice(0, 2);
+            
+            // 31을 초과하는 값 입력 방지
+            const num = parseInt(value);
+            if (num > 31) {
+                value = '31';
+            }
+            
+            input.value = value;
         }
     </script>
 </body>

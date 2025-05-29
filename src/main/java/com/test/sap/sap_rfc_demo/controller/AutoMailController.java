@@ -491,4 +491,85 @@ public class AutoMailController {
                     .body("<html><body><h3>HTML 파일 미리보기 실패: " + e.getMessage() + "</h3></body></html>");
         }
     }
+
+    /**
+     * 발송일(FXDAY) 업데이트
+     */
+    @PutMapping("/api/data/{seq}/fxday")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> updateFxday(
+            @PathVariable Long seq,
+            @RequestBody Map<String, Object> request) {
+        
+        try {
+            // 요청 데이터 검증
+            Object fxdayObj = request.get("fxday");
+            if (fxdayObj == null) {
+                throw new RuntimeException("발송일이 입력되지 않았습니다.");
+            }
+            
+            String fxdayStr = fxdayObj.toString().trim();
+            
+            // 빈 값 체크
+            if (fxdayStr.isEmpty()) {
+                throw new RuntimeException("발송일을 입력해주세요.");
+            }
+            
+            // 숫자만 입력 가능하도록 검증
+            if (!fxdayStr.matches("\\d+")) {
+                throw new RuntimeException("발송일은 숫자만 입력 가능합니다.");
+            }
+            
+            // 앞의 0 제거 (01 -> 1)
+            int fxdayInt = Integer.parseInt(fxdayStr);
+            
+            // 1~31 범위 검증
+            if (fxdayInt < 1 || fxdayInt > 31) {
+                throw new RuntimeException("발송일은 1부터 31까지만 입력 가능합니다.");
+            }
+            
+            // 데이터 조회
+            AutoMailData data = autoMailDataRepository.findById(seq)
+                    .orElseThrow(() -> new RuntimeException("데이터를 찾을 수 없습니다. SEQ: " + seq));
+            
+            // FXDAY 업데이트
+            Short oldFxday = data.getFxday();
+            data.setFxday((short) fxdayInt);
+            data.setUpdateDate(LocalDateTime.now());
+            data.setUpdateId("SYSTEM"); // 실제 환경에서는 현재 로그인 사용자 ID 사용
+            
+            autoMailDataRepository.save(data);
+            
+            log.info("발송일 업데이트 완료 - SEQ: {}, 기존 FXDAY: {}, 새 FXDAY: {}", 
+                     seq, oldFxday, fxdayInt);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "발송일이 성공적으로 업데이트되었습니다.");
+            response.put("seq", seq);
+            response.put("oldFxday", oldFxday);
+            response.put("newFxday", fxdayInt);
+            response.put("updatedAt", LocalDateTime.now().toString());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (NumberFormatException e) {
+            log.error("발송일 업데이트 중 숫자 형식 오류. SEQ: {}", seq, e);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "올바른 숫자 형식이 아닙니다.");
+            
+            return ResponseEntity.badRequest().body(response);
+            
+        } catch (Exception e) {
+            log.error("발송일 업데이트 중 오류 발생. SEQ: {}", seq, e);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "발송일 업데이트 실패: " + e.getMessage());
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
 } 
