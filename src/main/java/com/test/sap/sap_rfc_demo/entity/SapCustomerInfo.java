@@ -84,6 +84,9 @@ public class SapCustomerInfo {
     @Column(name = "REMAIN_AMT", precision = 13, scale = 0)
     private java.math.BigDecimal remainAmt;
 
+    @Column(name = "SEND_AUTO", length = 1)
+    private String sendAuto;
+
     @Column(name = "REGID", length = 20, nullable = false)
     private String regid = "SAP RFC";
 

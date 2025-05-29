@@ -52,6 +52,7 @@ public class SapCustomerInfoService {
                 customerInfo.setPreMonth(parseBigDecimal(customerData.get("PRE_MONTH")));
                 customerInfo.setPreAmt(parseBigDecimal(customerData.get("PRE_AMT")));
                 customerInfo.setRemainAmt(parseBigDecimal(customerData.get("REMAIN_AMT")));
+                customerInfo.setSendAuto(convertToString(customerData.get("SEND_AUTO")));
 
                 customerInfoRepository.save(customerInfo);
                 logger.debug("Successfully saved customer with ORDER_NO: {}", customerInfo.getOrderNo());

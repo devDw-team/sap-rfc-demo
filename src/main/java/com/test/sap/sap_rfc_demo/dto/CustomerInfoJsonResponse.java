@@ -32,6 +32,7 @@ public class CustomerInfoJsonResponse {
     private java.math.BigDecimal preMonth;
     private java.math.BigDecimal preAmt;
     private java.math.BigDecimal remainAmt;
+    private String sendAuto;
 
     public static CustomerInfoJsonResponse from(SapCustomerInfo entity) {
         CustomerInfoJsonResponse dto = new CustomerInfoJsonResponse();
@@ -60,6 +61,7 @@ public class CustomerInfoJsonResponse {
         dto.setPreMonth(entity.getPreMonth());
         dto.setPreAmt(entity.getPreAmt());
         dto.setRemainAmt(entity.getRemainAmt());
+        dto.setSendAuto(entity.getSendAuto());
         return dto;
     }
 

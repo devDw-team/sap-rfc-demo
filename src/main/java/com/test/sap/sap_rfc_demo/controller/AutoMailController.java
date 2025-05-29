@@ -109,7 +109,7 @@ public class AutoMailController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "B2B 자동메일 프로세스 실행 완료");
-            response.put("executedAt", LocalDateTime.now());
+            response.put("executedAt", LocalDateTime.now().toString());
             
             return ResponseEntity.ok(response);
             
@@ -143,7 +143,7 @@ public class AutoMailController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "배치 Job 실행 완료");
-            response.put("executedAt", LocalDateTime.now());
+            response.put("executedAt", LocalDateTime.now().toString());
             
             return ResponseEntity.ok(response);
             
@@ -338,6 +338,157 @@ public class AutoMailController {
             response.put("message", "배치 실행 이력 조회 중 오류 발생: " + e.getMessage());
             
             return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * 파일 다운로드 (HTML 또는 EXCEL)
+     */
+    @GetMapping("/api/download/{seq}/{fileType}")
+    public ResponseEntity<byte[]> downloadFile(
+            @PathVariable Long seq, 
+            @PathVariable String fileType) {
+        
+        try {
+            AutoMailData data = autoMailDataRepository.findById(seq)
+                    .orElseThrow(() -> new RuntimeException("데이터를 찾을 수 없습니다. SEQ: " + seq));
+            
+            // 파일생성플래그 확인
+            if (!"Y".equals(data.getFileCreateFlag())) {
+                throw new RuntimeException("파일이 생성되지 않은 데이터입니다.");
+            }
+            
+            String filePath;
+            String fileName;
+            String originalFileName;
+            String contentType;
+            
+            if ("html".equalsIgnoreCase(fileType)) {
+                filePath = data.getHtmlFilepath();
+                fileName = data.getChgHtmlFilenm();
+                originalFileName = data.getOriHtmlFilenm();
+                contentType = "text/html; charset=UTF-8";
+            } else if ("excel".equalsIgnoreCase(fileType)) {
+                filePath = data.getExcelFilepath();
+                fileName = data.getChgExcelFilenm();
+                originalFileName = data.getOriExcelFilenm();
+                contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            } else {
+                throw new RuntimeException("지원하지 않는 파일 타입입니다: " + fileType);
+            }
+            
+            if (filePath == null || fileName == null) {
+                throw new RuntimeException(fileType.toUpperCase() + " 파일 정보가 없습니다.");
+            }
+            
+            // 웹 경로로 파일 URL 생성
+            String webPath = filePath.startsWith("/") ? filePath : "/" + filePath;
+            if (!webPath.endsWith("/")) {
+                webPath += "/";
+            }
+            String fileUrl = "http://localhost:8080" + webPath + fileName;
+            
+            log.info("파일 다운로드 시도 - URL: {}, 원본파일명: {}", fileUrl, originalFileName);
+            
+            // HTTP 클라이언트를 사용하여 파일 내용 가져오기
+            java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create(fileUrl))
+                    .GET()
+                    .build();
+            
+            java.net.http.HttpResponse<byte[]> response = httpClient.send(request, 
+                    java.net.http.HttpResponse.BodyHandlers.ofByteArray());
+            
+            if (response.statusCode() != 200) {
+                throw new RuntimeException("파일을 가져올 수 없습니다. HTTP Status: " + response.statusCode());
+            }
+            
+            byte[] fileContent = response.body();
+            
+            // 원본 파일명이 없으면 변환 파일명 사용
+            String downloadFileName = originalFileName != null ? originalFileName : fileName;
+            
+            // 파일 다운로드 응답 생성 (원본파일명으로 다운로드)
+            return ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, 
+                            "attachment; filename*=UTF-8''" + java.net.URLEncoder.encode(downloadFileName, java.nio.charset.StandardCharsets.UTF_8))
+                    .body(fileContent);
+                    
+        } catch (Exception e) {
+            log.error("파일 다운로드 중 오류 발생. SEQ: {}, 파일타입: {}", seq, fileType, e);
+            
+            // 오류 시 에러 메시지 반환
+            String errorMessage = "파일 다운로드 실패: " + e.getMessage();
+            return ResponseEntity.badRequest()
+                    .contentType(org.springframework.http.MediaType.TEXT_PLAIN)
+                    .body(errorMessage.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        }
+    }
+
+    /**
+     * HTML 파일 미리보기
+     */
+    @GetMapping("/api/preview/{seq}/html")
+    public ResponseEntity<String> previewHtmlFile(@PathVariable Long seq) {
+        try {
+            AutoMailData data = autoMailDataRepository.findById(seq)
+                    .orElseThrow(() -> new RuntimeException("데이터를 찾을 수 없습니다. SEQ: " + seq));
+            
+            // 파일생성플래그 확인
+            if (!"Y".equals(data.getFileCreateFlag())) {
+                return ResponseEntity.badRequest()
+                        .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                        .body("<html><body><h3>파일이 생성되지 않은 데이터입니다.</h3></body></html>");
+            }
+            
+            String filePath = data.getHtmlFilepath();
+            String fileName = data.getChgHtmlFilenm();
+            
+            if (filePath == null || fileName == null) {
+                return ResponseEntity.badRequest()
+                        .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                        .body("<html><body><h3>HTML 파일 정보가 없습니다.</h3></body></html>");
+            }
+            
+            // 웹 경로로 파일 URL 생성
+            String webPath = filePath.startsWith("/") ? filePath : "/" + filePath;
+            if (!webPath.endsWith("/")) {
+                webPath += "/";
+            }
+            String fileUrl = "http://localhost:8080" + webPath + fileName;
+            
+            log.info("HTML 파일 미리보기 시도 - URL: {}", fileUrl);
+            
+            // HTTP 클라이언트를 사용하여 HTML 내용 가져오기
+            java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
+            java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+                    .uri(java.net.URI.create(fileUrl))
+                    .GET()
+                    .build();
+            
+            java.net.http.HttpResponse<String> response = httpClient.send(request, 
+                    java.net.http.HttpResponse.BodyHandlers.ofString(java.nio.charset.StandardCharsets.UTF_8));
+            
+            if (response.statusCode() != 200) {
+                return ResponseEntity.badRequest()
+                        .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                        .body("<html><body><h3>파일을 가져올 수 없습니다. HTTP Status: " + response.statusCode() + "</h3></body></html>");
+            }
+            
+            String htmlContent = response.body();
+            
+            return ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                    .body(htmlContent);
+                    
+        } catch (Exception e) {
+            log.error("HTML 파일 미리보기 중 오류 발생. SEQ: {}", seq, e);
+            
+            return ResponseEntity.internalServerError()
+                    .contentType(org.springframework.http.MediaType.TEXT_HTML)
+                    .body("<html><body><h3>HTML 파일 미리보기 실패: " + e.getMessage() + "</h3></body></html>");
         }
     }
 } 

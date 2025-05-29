@@ -409,6 +409,38 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // 파일 다운로드 버튼 생성 (파일생성플래그가 Y인 경우만)
+                        let downloadButtons = '';
+                        if (data.data.fileCreateFlag === 'Y') {
+                            downloadButtons = `
+                                <div class="col-12 mt-3">
+                                    <h6>파일 다운로드</h6>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        ${data.data.chgHtmlFilenm ? `
+                                            <div class="btn-group" role="group">
+                                                <button class="btn btn-outline-primary btn-sm" onclick="downloadFile(${seq}, 'html')">
+                                                    <i class="fas fa-download me-1"></i>
+                                                    HTML 다운로드
+                                                </button>
+                                                <button class="btn btn-outline-info btn-sm" onclick="previewFile(${seq}, 'html')">
+                                                    <i class="fas fa-eye me-1"></i>
+                                                    미리보기
+                                                </button>
+                                            </div>
+                                            <small class="text-muted align-self-center ms-2">${data.data.chgHtmlFilenm}</small>
+                                        ` : ''}
+                                        ${data.data.chgExcelFilenm ? `
+                                            <button class="btn btn-outline-success btn-sm" onclick="downloadFile(${seq}, 'excel')">
+                                                <i class="fas fa-download me-1"></i>
+                                                EXCEL 다운로드
+                                                <small class="d-block text-muted">${data.data.chgExcelFilenm}</small>
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }
+
                         const content = `
                             <div class="row">
                                 <div class="col-md-6">
@@ -424,13 +456,31 @@
                                 </div>
                                 <div class="col-md-6">
                                     <h6>상태 정보</h6>
-                                    <p><strong>자동메일플래그:</strong> ${data.data.sendAuto}</p>
-                                    <p><strong>파일생성플래그:</strong> ${data.data.fileCreateFlag}</p>
-                                    <p><strong>메일발송플래그:</strong> ${data.data.mailSendFlag}</p>
+                                    <p><strong>자동메일플래그:</strong> 
+                                        <span class="badge ${data.data.sendAuto === 'Y' ? 'bg-success' : 'bg-secondary'}">${data.data.sendAuto}</span>
+                                    </p>
+                                    <p><strong>파일생성플래그:</strong> 
+                                        <span class="badge ${data.data.fileCreateFlag === 'Y' ? 'bg-success' : 'bg-warning'}">${data.data.fileCreateFlag}</span>
+                                    </p>
+                                    <p><strong>메일발송플래그:</strong> 
+                                        <span class="badge ${data.data.mailSendFlag === 'Y' ? 'bg-primary' : 'bg-secondary'}">${data.data.mailSendFlag}</span>
+                                    </p>
                                     <p><strong>삭제플래그:</strong> ${data.data.delFlag}</p>
                                     <p><strong>생성일시:</strong> ${data.data.dtCreateDate}</p>
                                     <p><strong>이메일:</strong> ${data.data.email || '-'}</p>
                                     <p><strong>이메일2:</strong> ${data.data.email2 || '-'}</p>
+                                </div>
+                                ${downloadButtons}
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <h6>파일 정보</h6>
+                                    <p><strong>HTML 원본파일명:</strong> ${data.data.oriHtmlFilenm || '-'}</p>
+                                    <p><strong>HTML 변환파일명:</strong> ${data.data.chgHtmlFilenm || '-'}</p>
+                                    <p><strong>HTML 파일경로:</strong> ${data.data.htmlFilepath || '-'}</p>
+                                    <p><strong>EXCEL 원본파일명:</strong> ${data.data.oriExcelFilenm || '-'}</p>
+                                    <p><strong>EXCEL 변환파일명:</strong> ${data.data.chgExcelFilenm || '-'}</p>
+                                    <p><strong>EXCEL 파일경로:</strong> ${data.data.excelFilepath || '-'}</p>
                                 </div>
                             </div>
                             <div class="row mt-3">
@@ -1086,6 +1136,52 @@ VALUES
             
             showPage(page);
             updatePagination();
+        }
+
+        // === 파일 다운로드 관련 함수들 ===
+
+        // 파일 다운로드
+        function downloadFile(seq, fileType) {
+            const url = `/automail/api/download/${seq}/${fileType}`;
+            
+            showMessage('info', `${fileType.toUpperCase()} 파일 다운로드를 시작합니다.`);
+            
+            // 간단한 링크 방식으로 다운로드
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // 다운로드 완료 메시지는 약간의 지연 후 표시
+            setTimeout(() => {
+                showMessage('success', `${fileType.toUpperCase()} 파일 다운로드가 시작되었습니다.`);
+            }, 500);
+        }
+
+        // 파일 미리보기 (HTML 파일의 경우)
+        function previewFile(seq, fileType) {
+            if (fileType === 'html') {
+                const previewUrl = `/automail/api/preview/${seq}/html`;
+                
+                // 미리보기 창 열기 전에 URL 유효성 검사
+                fetch(previewUrl, { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            window.open(previewUrl, '_blank', 'width=1200,height=800,scrollbars=yes,resizable=yes');
+                        } else {
+                            throw new Error(`미리보기 실패: ${response.status} ${response.statusText}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('미리보기 오류:', error);
+                        showMessage('danger', `HTML 파일 미리보기 실패: ${error.message}`);
+                    });
+            } else {
+                showMessage('warning', 'EXCEL 파일은 미리보기를 지원하지 않습니다.');
+            }
         }
     </script>
 </body>

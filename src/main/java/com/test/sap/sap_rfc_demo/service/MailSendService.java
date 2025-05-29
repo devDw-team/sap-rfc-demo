@@ -372,7 +372,7 @@ public class MailSendService {
         String sql = """
             SELECT COUNT(*) FROM b2b_automail_dt 
             WHERE SEQ = ? AND MAIL_SEND_FLAG = 'Y' 
-            AND DATE(MAIL_SEND_DATE) = CURDATE()
+            AND DATE(UPDATE_DATE) = CURDATE()
             """;
         
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, seq);
@@ -391,8 +391,7 @@ public class MailSendService {
                     UMS_MSG = ?,
                     UMS_KEY = ?,
                     MAIL_SEND_FLAG = ?,
-                    UPDATE_DATE = ?,
-                    MAIL_SEND_DATE = ?
+                    UPDATE_DATE = ?
                 WHERE SEQ = ?
                 """;
 
@@ -403,7 +402,6 @@ public class MailSendService {
                     umsKey, 
                     success ? "Y" : "N", 
                     now,
-                    success ? now : null,  // 성공일 때만 MAIL_SEND_DATE 업데이트
                     seq);
 
             if (updatedRows == 1) {

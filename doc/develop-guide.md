@@ -339,6 +339,7 @@ java -jar target/sap-rfc-demo-0.0.1-SNAPSHOT.jar
         `PRE_MONTH`   DECIMAL(3,0)      DEFAULT NULL COMMENT 'prepaymentInfo.amountPaid 선납개월수 (DEC3)',
         `PRE_AMT`     DECIMAL(13,0)     DEFAULT NULL COMMENT 'prepaymentInfo.amountPaid 선납금액 (DEC13)',
         `REMAIN_AMT`  DECIMAL(13,0)     DEFAULT NULL COMMENT 'prepaymentInfo.amountRemaining 선납잔액 (DEC13)',
+        `SEND_AUTO`   VARCHAR(1)        DEFAULT NULL COMMENT '자동메일발송여부 (Y/N)',
         `REGID`       VARCHAR(20)       NOT NULL DEFAULT 'SAP RFC',
         `REGDT`       DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (`SEQ`,`ORDER_NO`)
