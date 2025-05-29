@@ -35,7 +35,12 @@ public class BatchSchedulerConfig {
         this.batchExecutionService = batchExecutionService;
     }
 
-    @Scheduled(cron = "0 00 09 * * ?")  // 매일 09:00에 실행
+    // ========== 기타 배치 - 비활성화됨 ==========
+    /**
+     * 기타 고객 정보 배치 (비활성화됨)
+     * 원래 스케줄: 매일 09:00
+     */
+    // @Scheduled(cron = "0 00 09 * * ?")  // 비활성화됨 - 기타 배치
     public void runJob() {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
@@ -53,10 +58,10 @@ public class BatchSchedulerConfig {
     // ========== AutoMail Batch Job 스케줄러 (automail-guide.md Step 3) ==========
     /**
      * B2B 자동메일 배치 Job 스케줄러
-     * 실행 주기: 매달 3일 오전 07:00 (3일이 공휴일인 경우 다음 평일에 실행)
+     * 실행 주기: 매달 3일 오전 06:00 (3일이 공휴일인 경우 다음 평일에 실행)
      * automail-guide.md Step 3에 정의된 스케줄링 정책
      */
-    @Scheduled(cron = "0 0 7 * * *")  // 매일 07:00에 실행 (조건부 실행)
+    @Scheduled(cron = "0 0 6 * * *")  // 매일 06:00에 실행 (조건부 실행)
     public void runAutoMailJob() {
         LocalDateTime now = LocalDateTime.now();
         
@@ -79,7 +84,7 @@ public class BatchSchedulerConfig {
      * 공휴일 연기된 B2B 자동메일 배치 Job 실행
      * 매달 4일부터 7일까지 평일에 한 번만 실행
      */
-    @Scheduled(cron = "0 0 7 4-7 * *")  // 매달 4~7일 07:00에 실행
+    @Scheduled(cron = "0 0 6 4-7 * *")  // 매달 4~7일 06:00에 실행
     public void runDelayedAutoMailJob() {
         LocalDateTime now = LocalDateTime.now();
         

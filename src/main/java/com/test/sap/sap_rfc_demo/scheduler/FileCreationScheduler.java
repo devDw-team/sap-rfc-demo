@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 /**
  * 파일 생성 스케줄러
  * filecreate-guide.md Step 4 구현
- * 실행 주기: 매월 4일 오전 8시
+ * 실행 주기: 매월 3일 오전 7시
  */
 @Component
 @RequiredArgsConstructor
@@ -25,10 +25,10 @@ public class FileCreationScheduler {
     private final Job fileCreationJob;
 
     /**
-     * 매월 4일 오전 8시에 파일 생성 배치 작업 실행
-     * Cron: 0 0 8 4 * ? (초 분 시 일 월 요일)
+     * 매월 3일 오전 7시에 파일 생성 배치 작업 실행
+     * Cron: 0 0 7 3 * ? (초 분 시 일 월 요일)
      */
-    @Scheduled(cron = "0 0 8 4 * ?")
+    @Scheduled(cron = "0 0 7 3 * ?")
     public void executeFileCreationBatch() {
         try {
             log.info("=== 파일 생성 배치 스케줄 실행 시작 ===");

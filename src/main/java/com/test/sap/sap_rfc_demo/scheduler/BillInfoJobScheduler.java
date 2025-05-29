@@ -19,7 +19,11 @@ public class BillInfoJobScheduler {
     @Qualifier("billInfoJob")
     private final Job billInfoJob;
 
-    @Scheduled(cron = "0 07 09 * * ?") // 매일 18시에 실행
+    /**
+     * 청구서 정보 배치 (비활성화됨)
+     * 원래 스케줄: 매일 09:07
+     */
+    // @Scheduled(cron = "0 07 09 * * ?") // 비활성화됨 - 기타 배치
     public void runJob() {
         try {
             JobParameters jobParameters = new JobParametersBuilder()

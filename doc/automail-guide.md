@@ -298,27 +298,36 @@ sap-rfc-demo/
 │   │   │           └── sap/
 │   │   │               └── sap_rfc_demo/
 │   │   │                   ├── config/
-│   │   │                   │   ├── BatchConfig.java              # [수정] AutoMail Batch Job 추가
-│   │   │                   │   └── BatchSchedulerConfig.java     # [수정] AutoMail 스케줄러 추가
+│   │   │                   │   ├── BatchConfig.java              # [수정] AutoMail + FileCreation Batch Job 추가
+│   │   │                   │   ├── BatchSchedulerConfig.java     # [수정] AutoMail + FileCreation 스케줄러 추가
+│   │   │                   │   └── FileCreationConfig.java       # [신규] 파일 생성 설정
 │   │   │                   ├── controller/
-│   │   │                   │   └── AutoMailController.java       # [신규] AutoMail 관리 컨트롤러
+│   │   │                   │   ├── AutoMailController.java       # [수정] AutoMail 관리 컨트롤러 (파일 생성 기능 추가)
+│   │   │                   │   └── FileCreationController.java   # [신규] 파일 생성 관리 컨트롤러
 │   │   │                   ├── dto/
 │   │   │                   │   ├── AutoMailTargetDto.java        # [신규] 발송 대상 조회 DTO
-│   │   │                   │   └── MailDataDto.java              # [신규] JSON 구성 데이터 DTO
+│   │   │                   │   ├── MailDataDto.java              # [신규] JSON 구성 데이터 DTO
+│   │   │                   │   └── FileCreationTargetDto.java    # [신규] 파일 생성 대상 DTO
 │   │   │                   ├── entity/
-│   │   │                   │   └── AutoMailData.java             # [신규] AutoMail 엔티티
+│   │   │                   │   └── AutoMailData.java             # [수정] AutoMail 엔티티 (파일 생성 관련 필드 추가)
 │   │   │                   ├── repository/
-│   │   │                   │   └── AutoMailDataRepository.java   # [신규] AutoMail Repository
+│   │   │                   │   └── AutoMailDataRepository.java   # [수정] AutoMail Repository (파일 생성 대상 조회 추가)
+│   │   │                   ├── scheduler/
+│   │   │                   │   └── FileCreationScheduler.java    # [신규] 파일 생성 스케줄러
 │   │   │                   └── service/
-│   │   │                       └── AutoMailService.java          # [신규] AutoMail 서비스
+│   │   │                       ├── AutoMailService.java          # [신규] AutoMail 서비스
+│   │   │                       └── FileCreationService.java      # [신규] 파일 생성 서비스
 │   │   └── resources/
 │   │       ├── sql/
 │   │       │   └── create_automail_table.sql                     # [신규] 테이블 생성 스크립트
-│   │       └── templates/
-│   │           └── automail/
-│   │               └── dashboard.html                            # [신규] 관리 대시보드
+│   │       ├── templates/
+│   │       │   └── automail/
+│   │       │       └── dashboard.html                            # [수정] 관리 대시보드 (파일 생성 기능 추가)
+│   │       └── application.properties                            # [수정] 파일 생성 설정 추가
 └── doc/
-    └── automail-guide.md                                         # [수정] 개발 가이드 업데이트
+    ├── automail-guide.md                                         # [수정] 개발 가이드 업데이트
+    ├── filecreate-guide.md                                       # [신규] 파일 생성 개발 가이드
+    └── README_FILE_CREATION.md                                   # [신규] 파일 생성 기능 상세 문서
 ```
 
 ### 📋 신규 생성 파일 설명
@@ -330,6 +339,7 @@ sap-rfc-demo/
   - automail-guide.md Step 2-6에 정의된 테이블 구조 매핑
   - 자동 생성/수정 일시 관리 (`@PrePersist`, `@PreUpdate`)
   - Lombok을 활용한 Builder 패턴 지원
+  - 파일 생성 관련 필드 추가 (RECP_YM, MAIL_SEND_FLAG)
 
 #### 2. **AutoMailDataRepository.java** (Repository)
 - **위치**: `src/main/java/com/test/sap/sap_rfc_demo/repository/AutoMailDataRepository.java`
@@ -340,6 +350,7 @@ sap-rfc-demo/
   - 중복 데이터 체크
   - 배치 처리 대상 조회
   - 메일 발송 대상 조회
+  - 파일 생성 대상 조회 (`findFileCreationTargets()`)
 
 #### 3. **AutoMailTargetDto.java** (DTO)
 - **위치**: `src/main/java/com/test/sap/sap_rfc_demo/dto/AutoMailTargetDto.java`
@@ -356,7 +367,15 @@ sap-rfc-demo/
   - 중첩 클래스 구조로 JSON 계층 표현
   - 모든 필드에 대한 타입 안전성 보장
 
-#### 5. **AutoMailService.java** (Service)
+#### 5. **FileCreationTargetDto.java** (DTO)
+- **위치**: `src/main/java/com/test/sap/sap_rfc_demo/dto/FileCreationTargetDto.java`
+- **역할**: filecreate-guide.md Step 1 파일 생성 대상 조회 결과 매핑
+- **주요 기능**:
+  - AutoMailData 엔티티를 DTO로 변환
+  - LocalDateTime 직렬화 문제 해결
+  - 파일 생성 상태 정보 제공
+
+#### 6. **AutoMailService.java** (Service)
 - **위치**: `src/main/java/com/test/sap/sap_rfc_demo/service/AutoMailService.java`
 - **역할**: automail-guide.md Step 1, 2 로직 구현
 - **주요 기능**:
@@ -366,7 +385,17 @@ sap-rfc-demo/
   - 4가지 데이터 조회 메서드 (고객정보, 청구요약, 유형별요약, 상세정보)
   - 전체 프로세스 실행 (`executeAutoMailProcess()`)
 
-#### 6. **AutoMailController.java** (Controller)
+#### 7. **FileCreationService.java** (Service)
+- **위치**: `src/main/java/com/test/sap/sap_rfc_demo/service/FileCreationService.java`
+- **역할**: filecreate-guide.md Step 1-3 파일 생성 로직 구현
+- **주요 기능**:
+  - Step 1: 파일 생성 대상 조회 (`getFileCreationTargets()`)
+  - Step 2: HTML/Excel 파일 생성 (`createHtmlFile()`, `createExcelFile()`)
+  - Step 3: DB 업데이트 (`updateFileCreationStatus()`)
+  - 보안 기능 (사업자번호 마스킹, Path Traversal 방지)
+  - 대용량 Excel 처리 최적화 (SXSSFWorkbook)
+
+#### 8. **AutoMailController.java** (Controller)
 - **위치**: `src/main/java/com/test/sap/sap_rfc_demo/controller/AutoMailController.java`
 - **역할**: AutoMail 기능의 수동 실행 및 모니터링 제공
 - **주요 기능**:
@@ -375,18 +404,46 @@ sap-rfc-demo/
   - 전체 프로세스 수동 실행 API (`/automail/api/execute`)
   - Batch Job 수동 실행 API (`/automail/api/batch/run`)
   - 데이터 조회 및 통계 API
+  - LocalDateTime 직렬화 문제 해결 (DTO 변환)
 
-#### 7. **dashboard.html** (Template)
+#### 9. **FileCreationController.java** (Controller)
+- **위치**: `src/main/java/com/test/sap/sap_rfc_demo/controller/FileCreationController.java`
+- **역할**: 파일 생성 기능의 수동 실행 및 모니터링 제공
+- **주요 기능**:
+  - 파일 생성 대상 조회 API (`/api/file-creation/targets`)
+  - 개별 파일 생성 API (`/api/file-creation/create/{seq}`)
+  - 전체 파일 생성 API (`/api/file-creation/execute-all`)
+  - 배치 실행 API (`/api/file-creation/batch/execute`)
+  - 통계 정보 API (`/api/file-creation/statistics`)
+  - 테스트용 샘플 데이터 생성 API
+
+#### 10. **FileCreationScheduler.java** (Scheduler)
+- **위치**: `src/main/java/com/test/sap/sap_rfc_demo/scheduler/FileCreationScheduler.java`
+- **역할**: 파일 생성 배치 작업 스케줄링
+- **주요 기능**:
+  - 매월 4일 오전 8시 자동 실행 (`@Scheduled(cron = "0 0 8 4 * ?")`)
+  - 수동 실행 메서드 제공
+  - 실행 이력 로깅
+
+#### 11. **FileCreationConfig.java** (Configuration)
+- **위치**: `src/main/java/com/test/sap/sap_rfc_demo/config/FileCreationConfig.java`
+- **역할**: 파일 생성 관련 Bean 설정
+- **주요 기능**:
+  - ObjectMapper Bean 설정
+  - 파일 경로 설정
+  - 기타 필요한 Bean 구성
+
+#### 12. **dashboard.html** (Template)
 - **위치**: `src/main/resources/templates/automail/dashboard.html`
 - **역할**: AutoMail 관리 대시보드 웹 페이지
 - **주요 기능**:
-  - 실시간 통계 카드 (오늘 생성, 전체 활성, 파일 생성 완료, 메일 발송 대기)
-  - 수동 실행 버튼 (Step 1, Step 1+2, Batch Job)
-  - 최근 데이터 목록 표시
-  - 상세 정보 모달
+  - 실시간 통계 카드 (오늘 생성, 전체 활성, 파일 생성 완료, 메일 발송 완료)
+  - 수동 실행 버튼 (Step 1, Step 1+2, Batch Job, 파일 생성 관련)
+  - 전체 데이터 목록 표시 (클라이언트 사이드 페이징)
+  - 상세 정보 모달 (발송일, 청구년월, 메일발송상태 포함)
   - Bootstrap 5 기반 반응형 디자인
 
-#### 8. **create_automail_table.sql** (SQL)
+#### 13. **create_automail_table.sql** (SQL)
 - **위치**: `src/main/resources/sql/create_automail_table.sql`
 - **역할**: `b2b_automail_dt` 테이블 생성 스크립트
 - **주요 기능**:
@@ -394,22 +451,51 @@ sap-rfc-demo/
   - 성능 최적화를 위한 인덱스 생성
   - 한글 지원을 위한 utf8mb4 charset 설정
 
+#### 14. **filecreate-guide.md** (Documentation)
+- **위치**: `doc/filecreate-guide.md`
+- **역할**: 청구서 파일 생성 기능 개발 가이드
+- **주요 내용**:
+  - Step 1-4 상세 명세
+  - 파일 생성 규칙 및 경로 정의
+  - Spring Batch 구성 방법
+  - 보안 및 성능 고려사항
+
+#### 15. **README_FILE_CREATION.md** (Documentation)
+- **위치**: `doc/README_FILE_CREATION.md`
+- **역할**: 파일 생성 기능 상세 문서
+- **주요 내용**:
+  - 전체 아키텍처 설명
+  - API 명세서
+  - 설정 방법
+  - 트러블슈팅 가이드
+
 ### 📝 수정된 파일 설명
 
 #### 1. **BatchConfig.java** (수정)
-- **수정 내용**: AutoMail Batch Job 구성 추가
+- **수정 내용**: AutoMail + FileCreation Batch Job 구성 추가
 - **추가된 Bean**:
   - `autoMailJob`: AutoMail 배치 Job 정의
   - `autoMailStep`: AutoMail 배치 Step 정의
   - `autoMailTasklet`: AutoMailService 호출 Tasklet
-- **주석 표시**: `// ========== AutoMail Batch Job 구성 (automail-guide.md Step 3) ==========`
+  - `fileCreationBatchJob`: 파일 생성 배치 Job 정의
+  - `fileCreationBatchStep`: 파일 생성 배치 Step 정의
+- **주석 표시**: `// ========== AutoMail + FileCreation Batch Job 구성 ==========`
 
 #### 2. **BatchSchedulerConfig.java** (수정)
-- **수정 내용**: AutoMail 스케줄러 추가
+- **수정 내용**: AutoMail + FileCreation 스케줄러 추가
 - **추가된 기능**:
   - `runAutoMailJob()`: 월~금요일 08:00 실행 스케줄러
+  - `runFileCreationJob()`: 매월 4일 08:00 실행 스케줄러
   - `@Scheduled(cron = "0 0 7 * * *")` 설정 (매달 3일 조건부 실행)
-- **주석 표시**: `// ========== AutoMail Batch Job 추가 (automail-guide.md Step 3) ==========`
+- **주석 표시**: `// ========== AutoMail + FileCreation Batch Job 추가 ==========`
+
+#### 3. **application.properties** (수정)
+- **수정 내용**: 파일 생성 관련 설정 추가
+- **추가된 설정**:
+  - `file.creation.base.path`: 파일 생성 기본 경로
+  - `file.creation.html.path`: HTML 파일 경로
+  - `file.creation.excel.path`: Excel 파일 경로
+  - Jackson 설정 (LocalDateTime 직렬화)
 
 ### 🚀 실행 방법
 
@@ -425,18 +511,21 @@ http://localhost:8080/automail/dashboard
 
 #### 3. **API 직접 호출**
 ```bash
-# Step 1 실행
+# AutoMail API
 GET /automail/api/step1/targets
-
-# 전체 프로세스 실행
 POST /automail/api/execute
-
-# Batch Job 실행
 POST /automail/api/batch/run
+
+# FileCreation API
+GET /api/file-creation/targets
+POST /api/file-creation/create/{seq}
+POST /api/file-creation/execute-all
+POST /api/file-creation/batch/execute
 ```
 
 #### 4. **자동 스케줄링**
-- 매주 월~금요일 오전 08:00에 자동 실행
+- AutoMail: 매주 월~금요일 오전 08:00에 자동 실행
+- FileCreation: 매월 4일 오전 08:00에 자동 실행
 - 로그에서 실행 결과 확인 가능
 
 ### 🔧 주요 특징
@@ -448,5 +537,10 @@ POST /automail/api/batch/run
 5. **실시간 모니터링**: 웹 대시보드를 통한 실행 상태 및 통계 확인
 6. **에러 처리**: 각 단계별 예외 처리 및 로깅
 7. **성능 최적화**: 인덱스 설정 및 효율적인 쿼리 구성
+8. **보안 강화**: 사업자번호 마스킹, Path Traversal 방지
+9. **대용량 처리**: SXSSFWorkbook을 활용한 3000행 Excel 최적화
+10. **유연한 파일 관리**: 동적 파일명 생성 및 경로 관리
+11. **클라이언트 사이드 페이징**: 효율적인 대용량 데이터 표시
+12. **메일 발송 상태 관리**: MAIL_SEND_FLAG를 통한 발송 상태 분리
 
 ---

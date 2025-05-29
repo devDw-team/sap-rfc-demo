@@ -18,7 +18,11 @@ public class CustomerInfoJobScheduler {
     private final JobLauncher jobLauncher;
     private final Job customerInfoJob;
 
-    @Scheduled(cron = "0 10 09 * * ?") // 매일 16시에 실행
+    /**
+     * 고객 정보 배치 (비활성화됨)
+     * 원래 스케줄: 매일 09:10
+     */
+    // @Scheduled(cron = "0 10 09 * * ?") // 비활성화됨 - 기타 배치
     public void runJob() {
         try {
             JobParameters jobParameters = new JobParametersBuilder()

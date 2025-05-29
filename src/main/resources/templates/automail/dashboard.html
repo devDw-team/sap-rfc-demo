@@ -160,14 +160,47 @@
                             </button>
                         </div>
                     </div>
+                    <!-- Step 4 메일 발송 기능 추가 -->
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <button class="btn btn-execute w-100" onclick="getMailSendTargets()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <i class="fas fa-envelope-open me-2"></i>
+                                Step 4-1: 메일 발송 대상 조회
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button class="btn btn-execute w-100" onclick="executeAllMailSending()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Step 4-2: 전체 메일 발송
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button class="btn btn-execute w-100" onclick="executeStep4Batch()" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <i class="fas fa-magic me-2"></i>
+                                Step 4: 배치 작업 실행
+                            </button>
+                        </div>
+                    </div>
                     <div class="row mt-3">
-                        <div class="col-md-6">
-                            <button class="btn btn-outline-info" onclick="viewBatchHistory()">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-info" onclick="previewMailTemplate()">
+                                <i class="fas fa-eye me-2"></i>
+                                메일 템플릿 미리보기
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary" onclick="getMailSendStatistics()">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                메일 발송 통계
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-warning" onclick="viewBatchHistory()">
                                 <i class="fas fa-history me-2"></i>
                                 배치 실행 이력 조회
                             </button>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <button class="btn btn-outline-success" onclick="createSampleData()">
                                 <i class="fas fa-database me-2"></i>
                                 테스트용 샘플 데이터 생성
@@ -267,6 +300,11 @@
                                                 th:onclick="'createFilesForData(' + ${data.seq} + ')'"
                                                 th:if="${data.fileCreateFlag == 'N'}">
                                             <i class="fas fa-file-plus"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" 
+                                                th:onclick="'sendMailBySeq(' + ${data.seq} + ')'"
+                                                th:if="${data.fileCreateFlag == 'Y' and data.mailSendFlag == 'N'}">
+                                            <i class="fas fa-paper-plane"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -668,6 +706,266 @@ VALUES
                 .catch(error => {
                     hideLoading();
                     showMessage('danger', '샘플 데이터 생성 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // === Step 4 메일 발송 관련 함수들 ===
+
+        // Step 4-1: 메일 발송 대상 조회
+        function getMailSendTargets() {
+            showLoading();
+            fetch('/api/mail-send/targets')
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        showMessage('success', 
+                            `Step 4-1: 메일 발송 대상 조회 완료<br>
+                            총 대상: ${data.totalCount}건`);
+                        
+                        // 대상 목록을 모달로 표시
+                        if (data.totalCount > 0) {
+                            showMailSendTargets(data.targets);
+                        }
+                    } else {
+                        showMessage('danger', 'Step 4-1: 메일 발송 대상 조회 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', 'Step 4-1: 메일 발송 대상 조회 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // 메일 발송 대상 목록 표시
+        function showMailSendTargets(targets) {
+            let tableRows = '';
+            targets.forEach(target => {
+                tableRows += `
+                    <tr>
+                        <td>${target.seq}</td>
+                        <td>${target.stcd2 || '-'}</td>
+                        <td>${target.custNm || '-'}</td>
+                        <td>${target.email || '-'}</td>
+                        <td>${target.recpYm || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="sendMailBySeq(${target.seq})">
+                                <i class="fas fa-paper-plane"></i> 메일 발송
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            const content = `
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>SEQ</th>
+                                <th>사업자번호</th>
+                                <th>고객명</th>
+                                <th>이메일</th>
+                                <th>청구년월</th>
+                                <th>액션</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            document.getElementById('detailContent').innerHTML = content;
+            document.querySelector('#detailModal .modal-title').textContent = 'Step 4-1: 메일 발송 대상 목록';
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
+        }
+
+        // 개별 메일 발송
+        function sendMailBySeq(seq) {
+            if (!confirm(`SEQ ${seq} 건에 대해 메일을 발송하시겠습니까?`)) {
+                return;
+            }
+            
+            showLoading();
+            fetch(`/api/mail-send/send/${seq}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        showMessage('success', `SEQ ${seq} 메일 발송 완료<br>고객: ${data.customerName}`);
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        showMessage('danger', `SEQ ${seq} 메일 발송 실패: ` + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', `SEQ ${seq} 메일 발송 중 오류 발생: ` + error.message);
+                });
+        }
+
+        // Step 4-2: 전체 메일 발송
+        function executeAllMailSending() {
+            if (!confirm('전체 메일 발송을 실행하시겠습니까?')) {
+                return;
+            }
+            
+            showLoading();
+            fetch('/api/mail-send/execute-all', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        showMessage('success', 
+                            `Step 4-2: 전체 메일 발송 완료<br>
+                            총 대상: ${data.totalCount}건<br>
+                            처리 완료: ${data.processedCount}건`);
+                        setTimeout(() => location.reload(), 3000);
+                    } else {
+                        showMessage('danger', 'Step 4-2: 전체 메일 발송 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', 'Step 4-2: 전체 메일 발송 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // Step 4: 배치 작업 실행
+        function executeStep4Batch() {
+            if (!confirm('Step 4 배치 작업을 실행하시겠습니까?')) {
+                return;
+            }
+            
+            showLoading();
+            fetch('/api/mail-send/batch/execute', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        showMessage('success', 
+                            `Step 4: 배치 작업 실행 완료<br>
+                            실행 시간: ${data.executedAt}`);
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        showMessage('danger', 'Step 4: 배치 작업 실행 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', 'Step 4: 배치 작업 실행 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // 메일 템플릿 미리보기
+        function previewMailTemplate() {
+            const custNm = prompt('고객명을 입력하세요 (기본값: 테스트고객)', '테스트고객');
+            const recpYear = prompt('청구년도를 입력하세요 (기본값: 2024)', '2024');
+            const recpMonth = prompt('청구월을 입력하세요 (기본값: 12)', '12');
+            
+            if (!custNm || !recpYear || !recpMonth) {
+                return;
+            }
+            
+            showLoading();
+            fetch(`/api/mail-send/preview-template?custNm=${encodeURIComponent(custNm)}&recpYear=${recpYear}&recpMonth=${recpMonth}`)
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        const content = `
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6>메일 템플릿 미리보기</h6>
+                                    <div class="alert alert-info">
+                                        <strong>템플릿 변수:</strong><br>
+                                        • 고객명: ${data.custNm}<br>
+                                        • 청구년도: ${data.recpYear}년<br>
+                                        • 청구월: ${data.recpMonth}월
+                                    </div>
+                                    <h6>변수 치환 정보:</h6>
+                                    <pre class="bg-light p-3 rounded">${JSON.stringify(data.templateVariables, null, 2)}</pre>
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        실제 HTML 템플릿 렌더링은 실제 메일 발송 시 확인할 수 있습니다.
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('detailContent').innerHTML = content;
+                        document.querySelector('#detailModal .modal-title').textContent = '메일 템플릿 미리보기';
+                        new bootstrap.Modal(document.getElementById('detailModal')).show();
+                        
+                        showMessage('success', '메일 템플릿 미리보기 생성 완료');
+                    } else {
+                        showMessage('danger', '메일 템플릿 미리보기 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', '메일 템플릿 미리보기 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // 메일 발송 통계 조회
+        function getMailSendStatistics() {
+            showLoading();
+            fetch('/api/mail-send/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        const stats = data.statistics;
+                        const content = `
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6>메일 발송 통계</h6>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="card text-center bg-primary text-white">
+                                                <div class="card-body">
+                                                    <h5>${stats.todayTargetCount}</h5>
+                                                    <p class="mb-0">오늘 발송 대상</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card text-center bg-success text-white">
+                                                <div class="card-body">
+                                                    <h5>${stats.sentCount}</h5>
+                                                    <p class="mb-0">발송 완료</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="card text-center bg-warning text-white">
+                                                <div class="card-body">
+                                                    <h5>${stats.pendingCount}</h5>
+                                                    <p class="mb-0">발송 대기</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <p><strong>마지막 업데이트:</strong> ${stats.lastUpdated}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('detailContent').innerHTML = content;
+                        document.querySelector('#detailModal .modal-title').textContent = '메일 발송 통계';
+                        new bootstrap.Modal(document.getElementById('detailModal')).show();
+                        
+                        showMessage('success', '메일 발송 통계 조회 완료');
+                    } else {
+                        showMessage('danger', '메일 발송 통계 조회 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', '메일 발송 통계 조회 중 오류 발생: ' + error.message);
                 });
         }
 
