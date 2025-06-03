@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>청구서 템플릿 생성</title>
+    <link rel="stylesheet" th:href="@{/css/template-form.css}">
+    <style>
+        /* 기본 스타일 (CSS 파일이 없을 경우 대비) */
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-control:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        
+        .form-actions {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .format-info {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧾 청구서 템플릿 생성</h1>
+        
+        <!-- 오류 메시지 표시 -->
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <span th:text="${errorMessage}"></span>
+        </div>
+        
+        <form th:action="@{/template/generate}" th:object="${templateRequest}" method="post" class="template-form">
+            <div class="form-group">
+                <label for="businessNo">사업자번호 *</label>
+                <input type="text" 
+                       th:field="*{businessNo}" 
+                       id="businessNo" 
+                       placeholder="1234567890" 
+                       class="form-control"
+                       maxlength="10"
+                       pattern="[0-9]{10}"
+                       inputmode="numeric"
+                       required>
+                <div class="format-info">
+                    형식: 숫자 10자리 (예: 1234567890)
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">📄 템플릿 생성</button>
+                <button type="reset" class="btn btn-secondary">🔄 초기화</button>
+            </div>
+        </form>
+        
+        <div style="margin-top: 40px; text-align: center; color: #6c757d; font-size: 14px;">
+            <p>💡 입력한 사업자번호에 해당하는 HTML 및 Excel 청구서 템플릿이 생성됩니다.</p>
+            <p>📁 생성된 파일은 /template/[사업자번호]/ 폴더에 저장됩니다.</p>
+        </div>
+    </div>
+    
+    <script th:src="@{/js/template-form.js}"></script>
+    <script>
+        // 기본 JavaScript (외부 파일이 없을 경우 대비)
+        document.addEventListener('DOMContentLoaded', function() {
+            const businessNoInput = document.getElementById('businessNo');
+            
+            // 숫자만 입력 허용
+            businessNoInput.addEventListener('input', function(e) {
+                // 숫자가 아닌 문자 제거
+                let value = e.target.value.replace(/[^\d]/g, '');
+                
+                // 10자리 초과 입력 방지
+                if (value.length > 10) {
+                    value = value.substring(0, 10);
+                }
+                
+                e.target.value = value;
+            });
+            
+            // 키보드 입력 제한 (숫자키와 기능키만 허용)
+            businessNoInput.addEventListener('keydown', function(e) {
+                // 허용할 키: 숫자(0-9), 백스페이스, 탭, 엔터, 화살표키, Delete, Home, End
+                const allowedKeys = [
+                    'Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight', 
+                    'ArrowUp', 'ArrowDown', 'Delete', 'Home', 'End'
+                ];
+                
+                const isNumber = (e.key >= '0' && e.key <= '9');
+                const isAllowedKey = allowedKeys.includes(e.key);
+                const isCtrlKey = e.ctrlKey || e.metaKey; // Ctrl+A, Ctrl+C, Ctrl+V 등 허용
+                
+                if (!isNumber && !isAllowedKey && !isCtrlKey) {
+                    e.preventDefault();
+                }
+            });
+            
+            // 폼 제출 시 검증
+            document.querySelector('.template-form').addEventListener('submit', function(e) {
+                const businessNo = businessNoInput.value;
+                
+                if (!businessNo) {
+                    alert('사업자번호를 입력해주세요.');
+                    businessNoInput.focus();
+                    e.preventDefault();
+                    return;
+                }
+                
+                if (!/^\d{10}$/.test(businessNo)) {
+                    alert('사업자번호는 숫자 10자리여야 합니다. (예: 1234567890)');
+                    businessNoInput.focus();
+                    e.preventDefault();
+                    return;
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
