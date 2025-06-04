@@ -1861,7 +1861,7 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 				const inputSubmitBtn = document.querySelector('.btn-submit');
 				
 				// 서버에서 내려온 사업자번호(STCD2)를 JS 변수로 할당
-				const validNumber = "1111111111"; // 실제 비밀번호
+				const validNumber = "${STCD2}"; // 실제 비밀번호
 				let realValue = '';
 
 
