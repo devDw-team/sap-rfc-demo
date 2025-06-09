@@ -105,6 +105,14 @@ public class TmplService {
     }
     
     /**
+     * 전체 사업자 템플릿 데이터 조회
+     */
+    public List<BusinessTemplateDto> getAllBusinessTemplateData() {
+        log.info("전체 사업자 템플릿 데이터 조회");
+        return businessRepository.findAllBusinessTemplateData();
+    }
+    
+    /**
      * 단일 사업자에 대한 템플릿 생성 (내부 메서드)
      */
     private void generateTemplateForBusiness(BusinessTemplateDto business) {

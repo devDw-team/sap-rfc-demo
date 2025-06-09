@@ -38,6 +38,7 @@ public class AutoMailController {
     private final JobLauncher jobLauncher;
     private final Job autoMailJob;
     private final BatchExecutionService batchExecutionService;
+    private final com.test.sap.sap_rfc_demo.service.TmplService tmplService;
 
     /**
      * 자동메일 관리 메인 페이지
@@ -568,6 +569,68 @@ public class AutoMailController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "발송일 업데이트 실패: " + e.getMessage());
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * B2B 사업자 청구서 양식 생성 (전체 사업자 대상)
+     */
+    @PostMapping("/api/templates/generate-all")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> generateAllBusinessTemplates() {
+        log.info("B2B 사업자 청구서 양식 전체 생성 API 호출");
+        
+        try {
+            // 전체 사업자에 대한 템플릿 생성 실행
+            tmplService.generateAllTemplates();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "모든 사업자의 청구서 양식(HTML, Excel) 생성이 완료되었습니다.");
+            response.put("executedAt", LocalDateTime.now().toString());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("사업자 청구서 양식 생성 중 오류 발생", e);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "사업자 청구서 양식 생성 중 오류 발생: " + e.getMessage());
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * B2B 사업자 청구서 양식 생성 대상 조회
+     */
+    @GetMapping("/api/templates/targets")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getTemplateGenerationTargets() {
+        log.info("사업자 청구서 양식 생성 대상 조회 API 호출");
+        
+        try {
+            // 전체 사업자 템플릿 데이터 조회
+            List<com.test.sap.sap_rfc_demo.dto.BusinessTemplateDto> targets = 
+                tmplService.getAllBusinessTemplateData();
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "사업자 청구서 양식 생성 대상 조회 완료");
+            response.put("totalCount", targets.size());
+            response.put("targets", targets);
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("사업자 양식 생성 대상 조회 중 오류 발생", e);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "대상 조회 중 오류 발생: " + e.getMessage());
             
             return ResponseEntity.internalServerError().body(response);
         }

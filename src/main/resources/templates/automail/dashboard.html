@@ -207,6 +207,27 @@
                             </button>
                         </div>
                     </div>
+                    <!-- 청구서 양식 생성 기능 추가 -->
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <button class="btn btn-execute w-100" onclick="getTemplateGenerationTargets()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <i class="fas fa-file-invoice me-2"></i>
+                                사업자 양식 생성 대상 조회
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-execute w-100" onclick="generateAllBusinessTemplates()" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <i class="fas fa-file-contract me-2"></i>
+                                B2B 사업자 청구서 양식 생성
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-secondary" onclick="viewTemplateGenerationStatus()">
+                                <i class="fas fa-chart-line me-2"></i>
+                                양식 생성 현황 조회
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1301,6 +1322,82 @@ VALUES
             }
             
             input.value = value;
+        }
+
+        // === 청구서 양식 생성 관련 함수들 ===
+
+        // 사업자 청구서 양식 생성 대상 조회
+        function getTemplateGenerationTargets() {
+            showLoading();
+            fetch('/automail/api/templates/targets')
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        const totalCount = data.totalCount || 0;
+                        const targets = data.targets || [];
+                        
+                        let message = `사업자 청구서 양식 생성 대상 조회 완료\n\n`;
+                        message += `▪ 전체 대상 사업자 수: ${totalCount}개\n\n`;
+                        
+                        if (targets.length > 0) {
+                            message += `주요 사업자 목록 (최대 5개):\n`;
+                            targets.slice(0, 5).forEach((target, index) => {
+                                message += `${index + 1}. ${target.businessNm} (${target.businessNo})\n`;
+                                message += `   - 인감날인: ${target.stampYn === 'Y' ? '사용' : '미사용'}\n`;
+                                message += `   - 고객센터안내: ${target.csGuideYn === 'Y' ? '사용' : '미사용'}\n`;
+                            });
+                            
+                            if (targets.length > 5) {
+                                message += `... 외 ${targets.length - 5}개 사업자\n`;
+                            }
+                        }
+                        
+                        showMessage('info', message);
+                    } else {
+                        showMessage('danger', '대상 조회 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('대상 조회 오류:', error);
+                    showMessage('danger', '대상 조회 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // B2B 사업자 청구서 양식 전체 생성
+        function generateAllBusinessTemplates() {
+            if (!confirm('전체 사업자의 청구서 양식(HTML, Excel)을 생성하시겠습니까?\n\n처리 시간이 다소 소요될 수 있습니다.')) {
+                return;
+            }
+            
+            showLoading();
+            
+            fetch('/automail/api/templates/generate-all', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        showMessage('success', `✅ ${data.message}\n\n실행 시간: ${data.executedAt}`);
+                    } else {
+                        showMessage('danger', `❌ 양식 생성 실패: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('양식 생성 오류:', error);
+                    showMessage('danger', '양식 생성 중 오류 발생: ' + error.message);
+                });
+        }
+
+        // 양식 생성 현황 조회 (향후 구현 예정)
+        function viewTemplateGenerationStatus() {
+            showMessage('info', '양식 생성 현황 조회 기능은 향후 구현 예정입니다.\n\n현재는 서버 로그를 통해 생성 상태를 확인해주세요.');
         }
     </script>
 </body>
