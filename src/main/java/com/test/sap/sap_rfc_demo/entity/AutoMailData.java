@@ -57,10 +57,25 @@ public class AutoMailData {
     @Column(name = "EMAIL2", length = 50)
     private String email2;
 
+    @Column(name = "EMAIL3", length = 50)
+    private String email3;
+
+    @Column(name = "EMAIL4", length = 50)
+    private String email4;
+
+    @Column(name = "EMAIL5", length = 50)
+    private String email5;
+
+    @Column(name = "EMAIL6", length = 50)
+    private String email6;
+
+    @Column(name = "EMAIL7", length = 50)
+    private String email7;
+
     @Column(name = "RECP_YM", length = 6)
     private String recpYm;
 
-    @Column(name = "MAILDATA", columnDefinition = "TEXT")
+    @Column(name = "MAILDATA", columnDefinition = "LONGTEXT")
     private String mailData;
 
     @Column(name = "DT_CREATE_DATE")
