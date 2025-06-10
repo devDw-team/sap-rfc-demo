@@ -1504,7 +1504,17 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 									</tr>
 									<tbody>
 									<!--BILLS_LOOP_START-->
-									<tr class="bill-detail-row">
+									<tr class="bill-detail-row mo-clickable-row" 
+										data-recp-tp="${RECP_TP_TX}"
+										data-order-no="${ORDER_NO}"
+										data-vtext="${VTEXT}"
+										data-goods-tx="${GOODS_TX}"
+										data-inst-dt="${INST_DT_DOT}"
+										data-use-month="${USE_MONTH_DOT}"
+										data-recp-ym="${RECP_YM_DOT}"
+										data-supply-value="${SUPPLY_VALUE_COMMA}"
+										data-vat="${VAT_COMMA}"
+										data-cell-total="${CELL_TOTAL}">
 										<td>
 											<p>${RECP_TP_TX}</p>
 										</td>
@@ -1614,46 +1624,46 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 				<div class="popup-detail-content">
 					<div class="popup-detail-content-wrapper">
 						<table class="table-bill-detail">
-							<tbody>
+							<tbody id="popup-detail-tbody">
 								<tr>
 									<th>구분</th>
-									<td>렌탈료</td>
+									<td id="popup-recp-tp">${RECP_TP_TX}</td>
 								</tr>
 								<tr>
 									<th>주문번호</th>
-									<td>20ABN2003948</td>
+									<td id="popup-order-no">${ORDER_NO}</td>
 								</tr>
 								<tr>
 									<th>품목(제품군)</th>
-									<td>정수기</td>
+									<td id="popup-vtext">${VTEXT}</td>
 								</tr>
 								<tr>
 									<th>제품명(모델명)</th>
-									<td>CPI-7400N</td>
+									<td id="popup-goods-tx">${GOODS_TX}</td>
 								</tr>
 								<tr>
 									<th>계약일(설치일)</th>
-									<td>2025.03.01</td>
+									<td id="popup-inst-dt">${INST_DT_DOT}</td>
 								</tr>
 								<tr>
 									<th>사용월</th>
-									<td>2025.03</td>
+									<td id="popup-use-month">${USE_MONTH_DOT}</td>
 								</tr>
 								<tr>
 									<th>청구월</th>
-									<td>2025.04</td>
+									<td id="popup-recp-ym">${RECP_YM_DOT}</td>
 								</tr>
 								<tr>
 									<th>공급가액(원)</th>
-									<td>10,000</td>
+									<td id="popup-supply-value">${SUPPLY_VALUE_COMMA}</td>
 								</tr>
 								<tr>
 									<th>부가세(원)</th>
-									<td>1,000</td>
+									<td id="popup-vat">${VAT_COMMA}</td>
 								</tr>
 								<tr>
 									<th>합계(원)</th>
-									<td><span class="total-amount">11,000</span></td>
+									<td id="popup-cell-total"><span class="total-amount">${CELL_TOTAL}</span></td>
 								</tr>
 							</tbody>
 						</table>
@@ -1827,6 +1837,73 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
 				});
 		}
 		popupDetailOpenEvent();
+
+		/* 모바일에서 행 클릭 이벤트 */
+		function mobileRowClickEvent() {
+				// 모바일에서만 동작하도록 체크
+				function isMobile() {
+						return window.innerWidth <= 768; // 모바일 기준 너비
+				}
+
+				const rows = document.querySelectorAll('.mo-clickable-row');
+				
+				rows.forEach((row) => {
+						row.addEventListener('click', function(e) {
+								// 모바일에서만 동작
+								if (!isMobile()) return;
+								
+								// 기존 total-popup-btn 클릭 시에는 중복 실행 방지
+								if (e.target.closest('.total-popup-btn')) return;
+
+								e.preventDefault();
+								
+								// 클릭된 행의 데이터 가져오기
+								const rowData = {
+										recpTp: row.getAttribute('data-recp-tp'),
+										orderNo: row.getAttribute('data-order-no'),
+										vtext: row.getAttribute('data-vtext'),
+										goodsTx: row.getAttribute('data-goods-tx'),
+										instDt: row.getAttribute('data-inst-dt'),
+										useMonth: row.getAttribute('data-use-month'),
+										recpYm: row.getAttribute('data-recp-ym'),
+										supplyValue: row.getAttribute('data-supply-value'),
+										vat: row.getAttribute('data-vat'),
+										cellTotal: row.getAttribute('data-cell-total')
+								};
+
+								// 팝업 데이터 업데이트
+								updatePopupData(rowData);
+								
+								// 팝업 열기
+								const popup = document.querySelector('.popup-detail-wrap');
+								popup.classList.add('active');
+						});
+				});
+		}
+
+		/* 팝업 데이터 업데이트 함수 */
+		function updatePopupData(data) {
+				document.getElementById('popup-recp-tp').textContent = data.recpTp;
+				document.getElementById('popup-order-no').textContent = data.orderNo;
+				document.getElementById('popup-vtext').textContent = data.vtext;
+				document.getElementById('popup-goods-tx').textContent = data.goodsTx;
+				document.getElementById('popup-inst-dt').textContent = data.instDt;
+				document.getElementById('popup-use-month').textContent = data.useMonth;
+				document.getElementById('popup-recp-ym').textContent = data.recpYm;
+				document.getElementById('popup-supply-value').textContent = data.supplyValue;
+				document.getElementById('popup-vat').textContent = data.vat;
+				
+				// 합계 금액은 span 태그 안에 넣기
+				const totalElement = document.getElementById('popup-cell-total');
+				const spanElement = totalElement.querySelector('.total-amount');
+				if (spanElement) {
+						spanElement.textContent = data.cellTotal;
+				} else {
+						totalElement.innerHTML = `<span class="total-amount">${data.cellTotal}</span>`;
+				}
+		}
+
+		mobileRowClickEvent();
 
 		function popupDetailCloseEvent(){
 				const btnClose = document.querySelector('.btn-close-popup-detail');
