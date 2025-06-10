@@ -160,6 +160,21 @@
                             </button>
                         </div>
                     </div>
+                    <!-- 템플릿 파일 상태 확인 -->
+                    <div class="row mt-3">
+                        <div class="col-md-4 mb-2">
+                            <button class="btn btn-outline-warning w-100" onclick="checkTemplateStatus()">
+                                <i class="fas fa-file-medical me-2"></i>
+                                템플릿 파일 상태 확인
+                            </button>
+                        </div>
+                        <div class="col-md-8">
+                            <div id="templateStatusResult" class="alert alert-info d-none">
+                                <strong>템플릿 파일 상태:</strong>
+                                <div id="templateStatusContent"></div>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Step 4 메일 발송 기능 추가 -->
                     <div class="row">
                         <div class="col-md-4 mb-2">
@@ -1398,6 +1413,87 @@ VALUES
         // 양식 생성 현황 조회 (향후 구현 예정)
         function viewTemplateGenerationStatus() {
             showMessage('info', '양식 생성 현황 조회 기능은 향후 구현 예정입니다.\n\n현재는 서버 로그를 통해 생성 상태를 확인해주세요.');
+        }
+
+        // === 템플릿 파일 상태 확인 관련 함수들 ===
+
+        // 템플릿 파일 상태 확인
+        function checkTemplateStatus() {
+            showLoading();
+            fetch('/api/file-creation/template-status')
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success && data.templateStatus) {
+                        let content = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+                        content += '<thead class="table-dark"><tr><th>사업자번호</th><th>HTML 템플릿</th><th>Excel 템플릿</th><th>상태 메시지</th></tr></thead><tbody>';
+                        
+                        data.templateStatus.forEach(status => {
+                            const htmlStatus = status.htmlTemplateExists ? 
+                                '<span class="badge bg-success">존재</span>' : 
+                                '<span class="badge bg-danger">없음</span>';
+                            const excelStatus = status.excelTemplateExists ? 
+                                '<span class="badge bg-success">존재</span>' : 
+                                '<span class="badge bg-danger">없음</span>';
+                            const rowClass = status.bothTemplatesExist ? '' : 'table-warning';
+                            
+                            content += `<tr class="${rowClass}">
+                                <td>${status.businessNumber}</td>
+                                <td>${htmlStatus}</td>
+                                <td>${excelStatus}</td>
+                                <td>${status.message}</td>
+                            </tr>`;
+                        });
+                        
+                        content += '</tbody></table></div>';
+                        
+                        // 요약 정보 추가
+                        const totalCount = data.templateStatus.length;
+                        const completeCount = data.templateStatus.filter(s => s.bothTemplatesExist).length;
+                        const missingCount = totalCount - completeCount;
+                        
+                        content = `
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="h5 text-primary">${totalCount}</div>
+                                        <div class="text-muted">총 사업자수</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="h5 text-success">${completeCount}</div>
+                                        <div class="text-muted">템플릿 완료</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="text-center">
+                                        <div class="h5 text-danger">${missingCount}</div>
+                                        <div class="text-muted">템플릿 누락</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ` + content;
+                        
+                        document.getElementById('templateStatusContent').innerHTML = content;
+                        document.getElementById('templateStatusResult').classList.remove('d-none');
+                        document.getElementById('templateStatusResult').classList.add('d-block');
+                        
+                        if (missingCount > 0) {
+                            document.getElementById('templateStatusResult').className = 'alert alert-warning d-block';
+                            showMessage('warning', `템플릿 파일 상태 조회 완료 - ${missingCount}개 사업자의 템플릿 파일이 누락되었습니다.`);
+                        } else {
+                            document.getElementById('templateStatusResult').className = 'alert alert-success d-block';
+                            showMessage('success', '템플릿 파일 상태 조회 완료 - 모든 템플릿 파일이 정상입니다.');
+                        }
+                    } else {
+                        showMessage('danger', '템플릿 파일 상태 조회 실패: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', '템플릿 파일 상태 조회 중 오류 발생: ' + error.message);
+                });
         }
     </script>
 </body>

@@ -49,7 +49,7 @@ public class AutoMailService {
         log.info("Step 1: 청구서 발송 대상 조회 시작 (NEW 쿼리)");
         
         String sql = """
-            SELECT
+            SELECT 
                 bsmg.busi_mgmt_id AS MGMT_ID, -- 사업자 키 정보
                 bsmg.business_no AS STCD2,    -- 사업자번호
                 bsmg.business_nm AS CUST_NM,  -- 고객명
@@ -150,25 +150,25 @@ public class AutoMailService {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public boolean processIndividualTarget(AutoMailTargetDto target) throws JsonProcessingException {
-        try {
-            // Step 2-1: 적재 조건 확인 (chk_cnt > 0)
-            if (!target.isValidForProcessing()) {
-                log.debug("적재 조건 불만족으로 스킵. STCD2: {}, KUNNR: {}, chk_cnt: {}", 
-                         target.getStcd2(), target.getKunnr(), target.getChkCnt());
+            try {
+                // Step 2-1: 적재 조건 확인 (chk_cnt > 0)
+                if (!target.isValidForProcessing()) {
+                    log.debug("적재 조건 불만족으로 스킵. STCD2: {}, KUNNR: {}, chk_cnt: {}", 
+                             target.getStcd2(), target.getKunnr(), target.getChkCnt());
                 return false;
-            }
+                }
 
-            // 중복 데이터 체크
-            long duplicateCount = autoMailDataRepository.countDuplicateData(
-                target.getStcd2(), target.getKunnr(), target.getZgrpno(), target.getOrderNo());
-            
-            if (duplicateCount > 0) {
-                log.debug("중복 데이터로 스킵. STCD2: {}, KUNNR: {}", target.getStcd2(), target.getKunnr());
+                // 중복 데이터 체크
+                long duplicateCount = autoMailDataRepository.countDuplicateData(
+                    target.getStcd2(), target.getKunnr(), target.getZgrpno(), target.getOrderNo());
+                
+                if (duplicateCount > 0) {
+                    log.debug("중복 데이터로 스킵. STCD2: {}, KUNNR: {}", target.getStcd2(), target.getKunnr());
                 return false;
-            }
+                }
 
-            // Step 2-3: JSON 구성 데이터 조회 및 생성
-            MailDataDto.MailData mailData = createMailData(target);
+                // Step 2-3: JSON 구성 데이터 조회 및 생성
+                MailDataDto.MailData mailData = createMailData(target);
             ObjectMapper optimizedMapper = createOptimizedObjectMapper();
             String mailDataJson = optimizedMapper.writeValueAsString(mailData);
             
@@ -179,38 +179,38 @@ public class AutoMailService {
                 return false;
             }
 
-            // Step 2-7: 데이터 적재
-            AutoMailData autoMailData = AutoMailData.builder()
-                .sendAuto("Y")
-                .stcd2(target.getStcd2())
-                .custNm(target.getCustNm())
-                .kunnr(target.getKunnr())
-                .zgrpno(target.getZgrpno())
-                .orderNo(target.getOrderNo())
-                .fxday(target.getFxday())
-                .email(target.getEmail())
-                .email2(target.getEmail2())
+                // Step 2-7: 데이터 적재
+                AutoMailData autoMailData = AutoMailData.builder()
+                    .sendAuto("Y")
+                    .stcd2(target.getStcd2())
+                    .custNm(target.getCustNm())
+                    .kunnr(target.getKunnr())
+                    .zgrpno(target.getZgrpno())
+                    .orderNo(target.getOrderNo())
+                    .fxday(target.getFxday())
+                    .email(target.getEmail())
+                    .email2(target.getEmail2())
                 .email3(target.getEmail3())
                 .email4(target.getEmail4())
                 .email5(target.getEmail5())
                 .email6(target.getEmail6())
                 .email7(target.getEmail7())
-                .recpYm(target.getRecpYm())
-                .mailData(mailDataJson)
-                .dtCreateDate(LocalDateTime.now())
-                .fileCreateFlag("N")
-                .mailSendFlag("N")
-                .delFlag("N")
-                .createId("BATCH_JOB")
-                .updateId("BATCH_JOB")
-                .build();
+                    .recpYm(target.getRecpYm())
+                    .mailData(mailDataJson)
+                    .dtCreateDate(LocalDateTime.now())
+                    .fileCreateFlag("N")
+                    .mailSendFlag("N")
+                    .delFlag("N")
+                    .createId("BATCH_JOB")
+                    .updateId("BATCH_JOB")
+                    .build();
 
-            autoMailDataRepository.save(autoMailData);
+                autoMailDataRepository.save(autoMailData);
             log.debug("데이터 적재 완료. STCD2: {}, KUNNR: {}, MAILDATA 크기: {}bytes", 
                      target.getStcd2(), target.getKunnr(), mailDataJson.length());
             return true;
 
-        } catch (Exception e) {
+            } catch (Exception e) {
             log.error("개별 데이터 적재 중 오류 발생. STCD2: {}, KUNNR: {}", target.getStcd2(), target.getKunnr(), e);
             throw e; // 트랜잭션 롤백을 위해 다시 던짐
         }
@@ -226,6 +226,11 @@ public class AutoMailService {
 
         // 고객 정보 조회
         MailDataDto.Customer customer = getCustomerInfo(target);
+        log.debug("Customer 객체 생성 완료 - STCD2: {}, invoiceNote: '{}'", 
+                 target.getStcd2(), customer.getInvoiceNote());
+        
+        // 청구 요약 정보 조회
+        MailDataDto.BillSummary billSummary = getBillSummary(target);
         
         // 청구 유형별 요약 조회
         List<MailDataDto.BillTypeSummary> billTypeSummary = getBillTypeSummary(target);
@@ -238,7 +243,8 @@ public class AutoMailService {
 
         // 데이터 최적화: 빈 리스트 제거
         MailDataDto.MailData.MailDataBuilder builder = MailDataDto.MailData.builder()
-            .customer(customer);
+            .customer(customer)
+            .billSummary(billSummary);
             
         if (billTypeSummary != null && !billTypeSummary.isEmpty()) {
             builder.billTypeSummary(billTypeSummary);
@@ -259,6 +265,14 @@ public class AutoMailService {
         String jsonTest = optimizedMapper.writeValueAsString(mailData);
         log.debug("JSON 데이터 생성 완료. STCD2: {}, 예상 크기: {}bytes", target.getStcd2(), jsonTest.length());
         
+        // invoiceNote 포함 여부 확인을 위한 추가 로그
+        if (jsonTest.contains("invoiceNote")) {
+            log.debug("JSON에 invoiceNote 필드 포함 확인됨 - STCD2: {}", target.getStcd2());
+        } else {
+            log.warn("JSON에 invoiceNote 필드가 누락됨 - STCD2: {}, customer.invoiceNote: '{}'", 
+                    target.getStcd2(), customer.getInvoiceNote());
+        }
+        
         return mailData;
     }
 
@@ -273,9 +287,6 @@ public class AutoMailService {
                 bsmg.ceo_nm AS J_1KFREPRE,          -- 대표자명
                 bsmg.business_type AS J_1KFTBUS,    -- 업태
                 bsmg.business_category AS J_1KFTIND,-- 업종
-                invc.recp_ym AS C_RECP_YM,          -- 청구년월
-                invc.due_date AS C_DUE_DATE,        -- 납부기한
-                invc.bill_total_amt AS TOTAL_AMOUNT,-- 청구합계
                 invc.pay_com_nm AS PAY_COM_TX,      -- 결제수단명
                 invc.pay_no AS PAY_NO,              -- 계좌/카드번호
                 invc.prepay_amt AS PRE_AMT,         -- 선납금액
@@ -296,25 +307,64 @@ public class AutoMailService {
 
         List<MailDataDto.Customer> customers = jdbcTemplate.query(sql, 
             new Object[]{target.getKunnr(), target.getStcd2()},
-            (rs, rowNum) -> MailDataDto.Customer.builder()
-                .stcd2(rs.getString("STCD2"))
-                .custNm(rs.getString("CUST_NM"))
-                .j1kfrepre(rs.getString("J_1KFREPRE"))
-                .j1kftbus(rs.getString("J_1KFTBUS"))
-                .j1kftind(rs.getString("J_1KFTIND"))
+            (rs, rowNum) -> {
+                String invoiceNote = rs.getString("INVOICE_NOTE");
+                log.debug("Customer invoiceNote 조회 결과 - STCD2: {}, KUNNR: {}, invoiceNote: '{}'", 
+                         target.getStcd2(), target.getKunnr(), invoiceNote);
+                
+                return MailDataDto.Customer.builder()
+                    .stcd2(rs.getString("STCD2"))
+                    .custNm(rs.getString("CUST_NM"))
+                    .j1kfrepre(rs.getString("J_1KFREPRE"))
+                    .j1kftbus(rs.getString("J_1KFTBUS"))
+                    .j1kftind(rs.getString("J_1KFTIND"))
+                    .payComTx(rs.getString("PAY_COM_TX"))
+                    .payNo(rs.getString("PAY_NO"))
+                    .preAmt(rs.getBigDecimal("PRE_AMT"))
+                    .remainAmt(rs.getBigDecimal("REMAIN_AMT"))
+                    .preMonth(rs.getString("PRE_MONTH"))
+                    .invoiceNote(invoiceNote != null ? invoiceNote : "") // null을 빈 문자열로 변환
+                    .build();
+            }
+        );
+
+        MailDataDto.Customer result = customers.isEmpty() ? MailDataDto.Customer.builder().invoiceNote("").build() : customers.get(0);
+        log.debug("Customer 최종 결과 - STCD2: {}, invoiceNote: '{}'", target.getStcd2(), result.getInvoiceNote());
+        
+        return result;
+    }
+
+    /**
+     * 청구 요약 정보 조회 (NEW 쿼리)
+     */
+    private MailDataDto.BillSummary getBillSummary(AutoMailTargetDto target) {
+        String sql = """
+            SELECT
+                invc.recp_ym AS C_RECP_YM,          -- 청구년월
+                invc.due_date AS C_DUE_DATE,        -- 납부기한
+                invc.bill_total_amt AS TOTAL_AMOUNT -- 청구합계
+            FROM
+                bbimcm_bsmg bsmg
+            LEFT JOIN
+                bbimcm_invc invc
+            ON
+                bsmg.busi_mgmt_id = invc.busi_mgmt_id
+                AND invc.cust_no = ?
+            WHERE
+                bsmg.business_no = ?
+            LIMIT 1
+            """;
+
+        List<MailDataDto.BillSummary> billSummaries = jdbcTemplate.query(sql, 
+            new Object[]{target.getKunnr(), target.getStcd2()},
+            (rs, rowNum) -> MailDataDto.BillSummary.builder()
                 .cRecpYm(rs.getString("C_RECP_YM"))
                 .cDueDate(rs.getString("C_DUE_DATE"))
                 .totalAmount(rs.getBigDecimal("TOTAL_AMOUNT"))
-                .payComTx(rs.getString("PAY_COM_TX"))
-                .payNo(rs.getString("PAY_NO"))
-                .preAmt(rs.getBigDecimal("PRE_AMT"))
-                .remainAmt(rs.getBigDecimal("REMAIN_AMT"))
-                .preMonth(rs.getString("PRE_MONTH"))
-                .invoiceNote(rs.getString("INVOICE_NOTE"))
                 .build()
         );
 
-        return customers.isEmpty() ? new MailDataDto.Customer() : customers.get(0);
+        return billSummaries.isEmpty() ? new MailDataDto.BillSummary() : billSummaries.get(0);
     }
 
     /**
@@ -323,8 +373,8 @@ public class AutoMailService {
     private List<MailDataDto.BillTypeSummary> getBillTypeSummary(AutoMailTargetDto target) {
         String sql = """
             SELECT t.item_nm AS C_RECP_TP_TX,    -- 항목명
-                  SUM(t.amount) AS SUMMARY_CNT,  -- 항목별 금액 합계
-                  COUNT(*) AS SUMMARY_AMOUNT     -- 항목별 건수
+                  COUNT(*) AS SUMMARY_CNT,       -- 항목별 건수
+                  SUM(t.amount) AS SUMMARY_AMOUNT -- 항목별 금액 합계
               FROM (
                     SELECT '렌탈료' AS item_nm,
                           invd.bill_amt AS amount
@@ -386,8 +436,8 @@ public class AutoMailService {
                         target.getMgmtId(), target.getKunnr()},
             (rs, rowNum) -> MailDataDto.BillTypeSummary.builder()
                 .cRecpTpTx(rs.getString("C_RECP_TP_TX"))
-                .summaryCnt(rs.getBigDecimal("SUMMARY_CNT"))
-                .summaryAmount(rs.getLong("SUMMARY_AMOUNT"))
+                .summaryCnt(rs.getLong("SUMMARY_CNT"))
+                .summaryAmount(rs.getBigDecimal("SUMMARY_AMOUNT"))
                 .build()
         );
     }
@@ -511,7 +561,8 @@ public class AutoMailService {
                     invd.req_value3 AS REQ_VALUE3,
                     invd.req_value4 AS REQ_VALUE4,
                     invd.req_value5 AS REQ_VALUE5,
-                    invd.note AS ZBIGO
+                    invd.note AS ZBIGO,
+                    invd.contact_date AS INST_DT      -- 계약일(설치일)
             FROM bbimcd_invd invd, bbimcm_invc invc
             WHERE invd.invc_id = invc.invc_id
             AND   invc.busi_mgmt_id = ?
@@ -555,6 +606,7 @@ public class AutoMailService {
                 .reqValue4(rs.getString("REQ_VALUE4"))
                 .reqValue5(rs.getString("REQ_VALUE5"))
                 .zbigo(rs.getString("ZBIGO"))
+                .instDt(rs.getString("INST_DT"))
                 .build()
         );
     }

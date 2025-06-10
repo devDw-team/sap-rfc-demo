@@ -1,5 +1,6 @@
 package com.test.sap.sap_rfc_demo.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class MailDataDto {
     @Builder
     public static class MailData {
         private Customer customer;
+        private BillSummary billSummary;
         private List<BillTypeSummary> billTypeSummary;
         private List<HtmlBill> htmlbills;
         private List<ExcelBill> excelbills;
@@ -41,18 +43,28 @@ public class MailDataDto {
         private String j1kfrepre;       // 대표자명
         private String j1kftbus;        // 업태
         private String j1kftind;        // 업종
-        private String cRecpYm;         // 청구년월 (NEW)
-        private String cDueDate;        // 납부기한 (NEW)
-        private BigDecimal totalAmount; // 청구합계 (NEW)
         private String payComTx;        // 결제수단명
         private String payNo;           // 계좌/카드번호
         private BigDecimal preAmt;      // 선납금액
         private BigDecimal remainAmt;   // 선납잔액
         private String preMonth;        // 선납개월수
-        private String invoiceNote;     // 청구서 비고 (NEW)
+        
+        @JsonInclude(JsonInclude.Include.ALWAYS)  // invoiceNote는 null이거나 빈 값이어도 항상 포함
+        private String invoiceNote;     // 청구서 비고
     }
 
-
+    /**
+     * 청구 요약 정보 (bill_summary)
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class BillSummary {
+        private String cRecpYm;         // 청구년월
+        private String cDueDate;        // 납부기한
+        private BigDecimal totalAmount; // 청구합계
+    }
 
     /**
      * 청구 유형별 요약 (bill_type_summary)
@@ -63,8 +75,8 @@ public class MailDataDto {
     @Builder
     public static class BillTypeSummary {
         private String cRecpTpTx;       // 항목명 (렌탈료, 멤버십, A/S 등)
-        private BigDecimal summaryCnt;  // 항목별 금액 합계
-        private Long summaryAmount;     // 항목별 건수
+        private Long summaryCnt;        // 항목별 건수
+        private BigDecimal summaryAmount; // 항목별 금액 합계
     }
 
     /**
@@ -128,5 +140,6 @@ public class MailDataDto {
         private String reqValue4;       // 요청사항 4
         private String reqValue5;       // 요청사항 5
         private String zbigo;           // 비고
+        private String instDt;          // 계약일(설치일)
     }
 } 

@@ -19,8 +19,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 파일 생성 서비스
@@ -171,6 +173,15 @@ public class FileCreationService {
     private FileCreationResult createHtmlFile(Map<String, Object> mailData, String businessNumber, 
                                             String billingYearMonth, String timestamp) {
         try {
+            // 사업자별 HTML 템플릿 파일 경로 확인
+            String businessHtmlTemplatePath = String.format("%s/template/%s/%s.html", basePath, businessNumber, businessNumber);
+            File templateFile = new File(businessHtmlTemplatePath);
+            
+            if (!templateFile.exists()) {
+                log.warn("사업자별 HTML 템플릿 파일이 존재하지 않습니다: {}", businessHtmlTemplatePath);
+                throw new RuntimeException("사업자 청구서 템플릿 양식 미생성 - HTML");
+            }
+            
             // 파일명 생성
             String year = billingYearMonth.substring(0, 4);
             String month = String.valueOf(Integer.parseInt(billingYearMonth.substring(4, 6)));
@@ -181,11 +192,11 @@ public class FileCreationService {
             String saveDir = String.format("%s/html/download/%s/%s", basePath, businessNumber, billingYearMonth);
             createDirectoryIfNotExists(saveDir);
             
-            // HtmlTemplateUtil용 데이터 변환
+            // htmlbills 데이터를 HTML 템플릿에 매핑
             Map<String, Object> htmlData = convertDataForHtmlTemplate(mailData);
             
-            // HTML 파일 생성 (HtmlTemplateUtil 사용) - 임시 파일명으로 생성
-            String outputPath = HtmlTemplateUtil.generateHtml(htmlTemplatePath, saveDir, 
+            // HTML 파일 생성 (사업자별 템플릿 사용)
+            String outputPath = HtmlTemplateUtil.generateHtml(businessHtmlTemplatePath, saveDir, 
                                                             "temp", htmlData);
             
             // HtmlTemplateUtil이 동적으로 생성한 파일을 원하는 파일명으로 이동
@@ -230,32 +241,81 @@ public class FileCreationService {
     private FileCreationResult createExcelFile(Map<String, Object> mailData, String businessNumber, 
                                              String billingYearMonth, String timestamp) {
         try {
+            log.info("Excel 파일 생성 시작 - 사업자번호: {}, 청구년월: {}", maskBusinessNumber(businessNumber), billingYearMonth);
+            
+            // 사업자별 Excel 템플릿 파일 경로 확인
+            String businessExcelTemplatePath = String.format("%s/template/%s/%s.xlsx", basePath, businessNumber, businessNumber);
+            File templateFile = new File(businessExcelTemplatePath);
+            
+            log.debug("Excel 템플릿 파일 경로: {}", businessExcelTemplatePath);
+            
+            if (!templateFile.exists()) {
+                log.warn("사업자별 Excel 템플릿 파일이 존재하지 않습니다: {}", businessExcelTemplatePath);
+                throw new RuntimeException("사업자 청구서 템플릿 양식 미생성 - Excel");
+            }
+            log.debug("Excel 템플릿 파일 존재 확인 완료");
+
             // 파일명 생성
             String originalFileName = "코웨이 청구 상세내역.xlsx";
             String changedFileName = String.format("%s_%s.xlsx", businessNumber, timestamp);
-            
+            log.debug("Excel 파일명 - 원본: {}, 변경: {}", originalFileName, changedFileName);
+
             // 저장 경로 생성
             String saveDir = String.format("%s/excel/download/%s/%s", basePath, businessNumber, billingYearMonth);
             createDirectoryIfNotExists(saveDir);
-            
-            // ExcelTemplateUtil용 데이터 변환
+            log.debug("Excel 저장 디렉토리: {}", saveDir);
+
+            // excelbills 데이터를 Excel 템플릿에 매핑
+            log.debug("Excel 데이터 변환 시작");
             Map<String, Object> excelData = convertDataForExcelTemplate(mailData);
+            log.debug("Excel 데이터 변환 완료 - customer: {}, bills: {}", 
+                     excelData.containsKey("customer"), excelData.containsKey("bills"));
             
-            // Excel 파일 생성 (ExcelTemplateUtil 사용)
-            String outputPath = excelTemplateUtil.generateExcelFromTemplate(excelData);
+            if (excelData.containsKey("customer")) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> customer = (Map<String, Object>) excelData.get("customer");
+                log.debug("고객 정보 - 사업자번호: {}, 고객명: {}", 
+                         customer.get("STCD2"), customer.get("CUST_NM"));
+            }
             
+            if (excelData.containsKey("bills")) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> bills = (List<Map<String, Object>>) excelData.get("bills");
+                log.debug("청구 데이터 건수: {}", bills != null ? bills.size() : 0);
+            }
+
+            // Excel 파일 생성 (사업자별 템플릿 파일 사용)
+            log.debug("ExcelTemplateUtil.generateExcelFromTemplate 호출 시작");
+            String outputPath = excelTemplateUtil.generateExcelFromTemplate(excelData, businessExcelTemplatePath);
+            log.debug("ExcelTemplateUtil.generateExcelFromTemplate 호출 완료 - 결과: {}", outputPath);
+
             if (outputPath == null) {
+                log.error("ExcelTemplateUtil에서 null 반환 - Excel 파일 생성 실패");
                 throw new RuntimeException("Excel 파일 생성 실패");
             }
             
+            log.debug("Excel 파일 생성 성공: {}", outputPath);
+
             // 생성된 파일을 목적지로 이동
             Path sourcePath = Paths.get(outputPath);
             Path targetPath = Paths.get(saveDir, changedFileName);
-            Files.move(sourcePath, targetPath);
             
+            log.debug("파일 이동 - 원본: {}, 대상: {}", sourcePath, targetPath);
+            
+            if (!Files.exists(sourcePath)) {
+                log.error("생성된 Excel 파일이 존재하지 않습니다: {}", sourcePath);
+                throw new RuntimeException("생성된 Excel 파일을 찾을 수 없습니다: " + sourcePath);
+            }
+            
+            Files.move(sourcePath, targetPath);
+            log.debug("Excel 파일 이동 완료: {} -> {}", sourcePath, targetPath);
+
             // 다운로드 경로 생성 (파일명 제외, 디렉토리만)
             String downloadPath = String.format("/excel/download/%s/%s/", businessNumber, billingYearMonth);
             
+            log.info("Excel 파일 생성 완료 - 사업자번호: {}, 파일: {}", 
+                    maskBusinessNumber(businessNumber), changedFileName);
+
             return FileCreationResult.builder()
                     .originalFileName(originalFileName)
                     .changedFileName(changedFileName)
@@ -264,7 +324,8 @@ public class FileCreationService {
                     .build();
                     
         } catch (Exception e) {
-            log.error("Excel 파일 생성 실패: {}", e.getMessage(), e);
+            log.error("Excel 파일 생성 실패 - 사업자번호: {}, 오류: {}", 
+                     maskBusinessNumber(businessNumber), e.getMessage(), e);
             throw new RuntimeException("Excel 파일 생성 실패: " + e.getMessage(), e);
         }
     }
@@ -319,17 +380,15 @@ public class FileCreationService {
 
     /**
      * HtmlTemplateUtil용 데이터 변환
-     * filecreate-guide.md의 JSON 구조를 HtmlTemplateUtil이 기대하는 구조로 변환
+     * filecreate-guide.md의 JSON 구조에서 htmlbills를 HTML 템플릿에 매핑
      */
     private Map<String, Object> convertDataForHtmlTemplate(Map<String, Object> mailData) {
         Map<String, Object> htmlData = new HashMap<>(mailData);
         
         @SuppressWarnings("unchecked")
         Map<String, Object> customer = (Map<String, Object>) mailData.get("customer");
-        @SuppressWarnings("unchecked")
-        Map<String, Object> billSummary = (Map<String, Object>) mailData.get("billSummary");
         
-        // HtmlTemplateUtil이 기대하는 필드명으로 변환
+        // customer 정보 변환
         if (customer != null) {
             htmlData.put("STCD2", customer.get("stcd2"));
             htmlData.put("CUST_NM", customer.get("custNm"));
@@ -341,44 +400,35 @@ public class FileCreationService {
             htmlData.put("PRE_MONTH", customer.get("preMonth"));
         }
         
+        // bill_summary 정보 변환 (HtmlTemplateUtil이 기대하는 bill_summary 객체 생성)
+        @SuppressWarnings("unchecked")
+        Map<String, Object> billSummary = (Map<String, Object>) mailData.get("billSummary");
         if (billSummary != null) {
-            htmlData.put("TOTAL_AMOUNT", billSummary.get("totalAmount"));
-            htmlData.put("C_RECP_YM", billSummary.get("crecpYm"));
-            htmlData.put("C_DUE_DATE", billSummary.get("cdueDate"));
-            htmlData.put("C_SEL_KUN_CNT", billSummary.get("cselKunCnt"));
+            Map<String, Object> billSummaryInfo = new HashMap<>();
+            billSummaryInfo.put("TOTAL_AMOUNT", billSummary.get("totalAmount"));
+            billSummaryInfo.put("C_RECP_YM", billSummary.get("crecpYm"));
+            billSummaryInfo.put("C_DUE_DATE", billSummary.get("cdueDate"));
+            billSummaryInfo.put("C_SEL_KUN_CNT", 0); // 기본값 설정
+            htmlData.put("bill_summary", billSummaryInfo);
         }
         
-        // bills 리스트의 필드명도 변환
+        // htmlbills 리스트를 HTML 템플릿에 매핑 (bills로 변환)
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> bills = (List<Map<String, Object>>) mailData.get("bills");
-        if (bills != null) {
+        List<Map<String, Object>> htmlbills = (List<Map<String, Object>>) mailData.get("htmlbills");
+        if (htmlbills != null) {
             List<Map<String, Object>> convertedBills = new ArrayList<>();
-            for (Map<String, Object> bill : bills) {
+            for (Map<String, Object> bill : htmlbills) {
                 Map<String, Object> convertedBill = new HashMap<>();
                 convertedBill.put("RECP_TP_TX", bill.get("recpTpTx"));
                 convertedBill.put("ORDER_NO", bill.get("orderNo"));
                 convertedBill.put("VTEXT", bill.get("vtext"));
-                convertedBill.put("GOODS_CD", bill.get("goodsCd"));
+                convertedBill.put("GOODS_TX", bill.get("goodsTx"));
                 convertedBill.put("INST_DT", bill.get("instDt"));
-                convertedBill.put("USE_DUTY_MONTH", bill.get("useDutyMonth"));
-                convertedBill.put("OWNER_DATE", bill.get("ownerDate"));
                 convertedBill.put("USE_MONTH", bill.get("useMonth"));
                 convertedBill.put("RECP_YM", bill.get("recpYm"));
-                convertedBill.put("FIX_SUPPLY_VALUE", bill.get("fixSupplyValue"));
-                convertedBill.put("FIX_VAT", bill.get("fixVat"));
-                convertedBill.put("FIX_BILL_AMT", bill.get("fixBillAmt"));
                 convertedBill.put("SUPPLY_VALUE", bill.get("supplyValue"));
                 convertedBill.put("VAT", bill.get("vat"));
                 convertedBill.put("BILL_AMT", bill.get("billAmt"));
-                convertedBill.put("INST_JUSO", bill.get("instJuso"));
-                convertedBill.put("GOODS_SN", bill.get("goodsSn"));
-                convertedBill.put("DEPT_CD_TX", bill.get("deptCdTx"));
-                convertedBill.put("DEPT_TELNR", bill.get("deptTelnr"));
-                convertedBill.put("ZBIGO", bill.get("zbigo"));
-                convertedBill.put("GOODS_TX", bill.get("goodsTx"));
-                convertedBill.put("PRE_AMT", bill.get("preAmt"));
-                convertedBill.put("REMAIN_AMT", bill.get("remainAmt"));
-                convertedBill.put("PRE_MONTH", bill.get("preMonth"));
                 convertedBills.add(convertedBill);
             }
             htmlData.put("bills", convertedBills);
@@ -394,7 +444,6 @@ public class FileCreationService {
                 convertedBillType.put("SUMMARY_CNT", billType.get("summaryCnt"));
                 convertedBillType.put("SUMMARY_AMOUNT", billType.get("summaryAmount"));
                 convertedBillType.put("C_RECP_TP_TX", billType.get("crecpTpTx"));
-                convertedBillType.put("C_RECP_TP", billType.get("crecpTp"));
                 convertedBillTypes.add(convertedBillType);
             }
             htmlData.put("bill_type_summary", convertedBillTypes);
@@ -405,18 +454,19 @@ public class FileCreationService {
     
     /**
      * ExcelTemplateUtil용 데이터 변환
-     * filecreate-guide.md의 JSON 구조를 ExcelTemplateUtil이 기대하는 구조로 변환
+     * filecreate-guide.md의 JSON 구조에서 excelbills를 Excel 템플릿에 매핑
      */
     private Map<String, Object> convertDataForExcelTemplate(Map<String, Object> mailData) {
+        log.debug("Excel 데이터 변환 시작");
         Map<String, Object> excelData = new HashMap<>();
         
         @SuppressWarnings("unchecked")
         Map<String, Object> customer = (Map<String, Object>) mailData.get("customer");
-        @SuppressWarnings("unchecked")
-        Map<String, Object> billSummary = (Map<String, Object>) mailData.get("billSummary");
         
         // customer 정보 변환
         if (customer != null) {
+            log.debug("customer 정보 변환 - 사업자번호: {}, 고객명: {}", 
+                     customer.get("stcd2"), customer.get("custNm"));
             Map<String, Object> customerInfo = new HashMap<>();
             customerInfo.put("STCD2", customer.get("stcd2"));
             customerInfo.put("CUST_NM", customer.get("custNm"));
@@ -424,24 +474,39 @@ public class FileCreationService {
             customerInfo.put("J_1KFTBUS", customer.get("j1kftbus"));
             customerInfo.put("J_1KFTIND", customer.get("j1kftind"));
             excelData.put("customer", customerInfo);
+            log.debug("customer 정보 변환 완료");
+        } else {
+            log.warn("customer 정보가 null입니다.");
         }
         
-        // bill_summary 정보 변환 (ExcelTemplateUtil은 bill_summary를 기대)
+        // bill_summary 정보 변환 (billSummary에서 추출하여 구성)
+        @SuppressWarnings("unchecked")
+        Map<String, Object> billSummary = (Map<String, Object>) mailData.get("billSummary");
         if (billSummary != null) {
+            log.debug("billSummary 정보 변환 - 총액: {}, 청구년월: {}", 
+                     billSummary.get("totalAmount"), billSummary.get("crecpYm"));
             Map<String, Object> billSummaryInfo = new HashMap<>();
             billSummaryInfo.put("TOTAL_AMOUNT", billSummary.get("totalAmount"));
             billSummaryInfo.put("C_RECP_YM", billSummary.get("crecpYm"));
             billSummaryInfo.put("C_DUE_DATE", billSummary.get("cdueDate"));
-            billSummaryInfo.put("C_SEL_KUN_CNT", billSummary.get("cselKunCnt"));
+            billSummaryInfo.put("C_SEL_KUN_CNT", 0); // 기본값 설정
             excelData.put("bill_summary", billSummaryInfo);
+            log.debug("billSummary 정보 변환 완료");
+        } else {
+            log.warn("billSummary 정보가 null입니다.");
         }
         
-        // bills 리스트 변환
+        // excelbills 리스트를 Excel 템플릿에 매핑 (bills로 변환)
         @SuppressWarnings("unchecked")
-        List<Map<String, Object>> bills = (List<Map<String, Object>>) mailData.get("bills");
-        if (bills != null) {
+        List<Map<String, Object>> excelbills = (List<Map<String, Object>>) mailData.get("excelbills");
+        if (excelbills != null) {
+            log.debug("excelbills 데이터 변환 시작 - 건수: {}", excelbills.size());
             List<Map<String, Object>> convertedBills = new ArrayList<>();
-            for (Map<String, Object> bill : bills) {
+            for (int i = 0; i < excelbills.size(); i++) {
+                Map<String, Object> bill = excelbills.get(i);
+                log.debug("excelbill[{}] 변환 - 주문번호: {}, 상품명: {}", 
+                         i, bill.get("orderNo"), bill.get("vtext"));
+                
                 Map<String, Object> convertedBill = new HashMap<>();
                 convertedBill.put("ORDER_NO", bill.get("orderNo"));
                 convertedBill.put("VTEXT", bill.get("vtext"));
@@ -457,25 +522,102 @@ public class FileCreationService {
                 convertedBill.put("SUPPLY_VALUE", bill.get("supplyValue"));
                 convertedBill.put("VAT", bill.get("vat"));
                 convertedBill.put("BILL_AMT", bill.get("billAmt"));
+                convertedBill.put("MEMBERSHIP_BILL_AMT", bill.get("membershipBillAmt"));
+                convertedBill.put("AS_BILL_AMT", bill.get("asBillAmt"));
+                convertedBill.put("CONS_BILL_AMT", bill.get("consBillAmt"));
+                convertedBill.put("OVD_BILL_AMT", bill.get("ovdBillAmt"));
+                convertedBill.put("PENALTY_BILL_AMT", bill.get("penaltyBillAmt"));
                 convertedBill.put("PRE_AMT", bill.get("preAmt"));
                 convertedBill.put("REMAIN_AMT", bill.get("remainAmt"));
                 convertedBill.put("PRE_MONTH", bill.get("preMonth"));
                 convertedBill.put("INST_JUSO", bill.get("instJuso"));
                 convertedBill.put("GOODS_SN", bill.get("goodsSn"));
-                convertedBill.put("DEPT_CD_TX", bill.get("deptCdTx"));
+                convertedBill.put("DEPT_NM", bill.get("deptNm"));
                 convertedBill.put("DEPT_TELNR", bill.get("deptTelnr"));
-                convertedBill.put("ZBIGO", bill.get("zbigo"));
                 convertedBills.add(convertedBill);
             }
             excelData.put("bills", convertedBills);
+            log.debug("excelbills 데이터 변환 완료 - 변환된 건수: {}", convertedBills.size());
+        } else {
+            log.warn("excelbills 정보가 null입니다.");
         }
         
         // remarks 정보 추가 (빈 객체로)
         Map<String, Object> remarks = new HashMap<>();
         remarks.put("J_JBIGO", "");
         excelData.put("remarks", remarks);
+        log.debug("remarks 정보 추가 완료");
+        
+        log.debug("Excel 데이터 변환 완료 - customer: {}, bill_summary: {}, bills: {}, remarks: {}", 
+                 excelData.containsKey("customer"), excelData.containsKey("bill_summary"), 
+                 excelData.containsKey("bills"), excelData.containsKey("remarks"));
         
         return excelData;
+    }
+
+    /**
+     * 사업자별 템플릿 파일 존재 여부 체크
+     */
+    public List<Map<String, Object>> checkTemplateFiles(List<AutoMailData> targets) {
+        List<Map<String, Object>> templateStatus = new ArrayList<>();
+        
+        // 중복 제거를 위해 Set 사용
+        Set<String> processedBusinessNumbers = new HashSet<>();
+        
+        for (AutoMailData target : targets) {
+            try {
+                // JSON 데이터 파싱하여 사업자번호 추출
+                Map<String, Object> mailData = parseAndValidateMailData(target.getMailData());
+                String businessNumber = extractBusinessNumber(mailData);
+                
+                // 이미 처리한 사업자번호는 스킵
+                if (processedBusinessNumbers.contains(businessNumber)) {
+                    continue;
+                }
+                processedBusinessNumbers.add(businessNumber);
+                
+                // 템플릿 파일 경로 체크
+                String htmlTemplatePath = String.format("%s/template/%s/%s.html", basePath, businessNumber, businessNumber);
+                String excelTemplatePath = String.format("%s/template/%s/%s.xlsx", basePath, businessNumber, businessNumber);
+                
+                File htmlTemplate = new File(htmlTemplatePath);
+                File excelTemplate = new File(excelTemplatePath);
+                
+                Map<String, Object> status = new HashMap<>();
+                status.put("businessNumber", maskBusinessNumber(businessNumber));
+                status.put("htmlTemplateExists", htmlTemplate.exists());
+                status.put("excelTemplateExists", excelTemplate.exists());
+                status.put("bothTemplatesExist", htmlTemplate.exists() && excelTemplate.exists());
+                
+                if (!htmlTemplate.exists() || !excelTemplate.exists()) {
+                    List<String> missingTemplates = new ArrayList<>();
+                    if (!htmlTemplate.exists()) {
+                        missingTemplates.add("HTML");
+                    }
+                    if (!excelTemplate.exists()) {
+                        missingTemplates.add("Excel");
+                    }
+                    status.put("missingTemplates", missingTemplates);
+                    status.put("message", "사업자 청구서 템플릿 양식 미생성 - " + String.join(", ", missingTemplates));
+                } else {
+                    status.put("message", "템플릿 파일 정상");
+                }
+                
+                templateStatus.add(status);
+                
+            } catch (Exception e) {
+                log.error("템플릿 파일 체크 중 오류 발생 - SEQ: {}, 오류: {}", target.getSeq(), e.getMessage());
+                Map<String, Object> errorStatus = new HashMap<>();
+                errorStatus.put("businessNumber", "오류");
+                errorStatus.put("htmlTemplateExists", false);
+                errorStatus.put("excelTemplateExists", false);
+                errorStatus.put("bothTemplatesExist", false);
+                errorStatus.put("message", "템플릿 파일 체크 오류: " + e.getMessage());
+                templateStatus.add(errorStatus);
+            }
+        }
+        
+        return templateStatus;
     }
 
     /**

@@ -199,6 +199,7 @@ public class FileCreationController {
             response.put("statistics", statistics);
             response.put("message", "파일 생성 통계 조회 완료");
             
+            log.info("파일 생성 통계 조회 완료");
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
@@ -207,6 +208,36 @@ public class FileCreationController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "파일 생성 통계 조회 실패: " + e.getMessage());
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+
+    /**
+     * 사업자별 템플릿 파일 존재 여부 체크
+     */
+    @GetMapping("/template-status")
+    public ResponseEntity<Map<String, Object>> checkTemplateStatus() {
+        try {
+            log.info("템플릿 파일 상태 조회 API 호출");
+            
+            List<AutoMailData> targets = fileCreationService.getFileCreationTargets();
+            List<Map<String, Object>> templateStatus = fileCreationService.checkTemplateFiles(targets);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("templateStatus", templateStatus);
+            response.put("message", "템플릿 파일 상태 조회 완료");
+            
+            log.info("템플릿 파일 상태 조회 완료");
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("템플릿 파일 상태 조회 실패: {}", e.getMessage(), e);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "템플릿 파일 상태 조회 실패: " + e.getMessage());
             
             return ResponseEntity.internalServerError().body(response);
         }
@@ -254,54 +285,61 @@ public class FileCreationController {
             "j1kfrepre": "허윤홍외1",
             "j1kftbus": "건설업",
             "j1kftind": "일반건축공사",
-            "payComTx": "",
-            "payNo": "",
+            "totalAmount": 15680,
             "preAmt": 0,
             "remainAmt": 0,
-            "preMonth": "0"
-          },
-          "billSummary": {
-            "totalAmount": 15680,
-            "crecpYm": "202412",
-            "cdueDate": "2024-12-31",
-            "cselKunCnt": 0
+            "preMonth": "0",
+            "crecpYm": "202501",
+            "cdueDate": "20250131"
           },
           "billTypeSummary": [
             {
-              "summaryCnt": 1,
-              "summaryAmount": 15680,
-              "crecpTpTx": "렌탈료",
-              "crecpTp": "11"
+              "summaryCnt": 15680,
+              "summaryAmount": 1,
+              "crecpTpTx": "렌탈료"
             }
           ],
-          "bills": [
+          "htmlbills": [
             {
               "recpTpTx": "렌탈료",
               "orderNo": "20BC42405078",
               "vtext": "정수기",
-              "goodsCd": "000000000000113402",
-              "instDt": "2024-12-24",
-              "useDutyMonth": "36",
-              "ownerDate": "2029-12-24",
+              "goodsTx": "CHPI-5810L",
+              "instDt": "20241224",
               "useMonth": "202412",
-              "recpYm": "202412",
+              "recpYm": "202501",
+              "supplyValue": 14254,
+              "vat": 1426,
+              "billAmt": 15680
+            }
+          ],
+          "excelbills": [
+            {
+              "orderNo": "20BC42405078",
+              "vtext": "정수기",
+              "goodsTx": "CHPI-5810L",
+              "useDutyMonth": "36",
+              "ownerDate": "20291224",
+              "useMonth": "202412",
+              "recpYm": "202501",
               "fixSupplyValue": 14255,
               "fixVat": 1425,
               "fixBillAmt": 15680,
               "supplyValue": 14254,
               "vat": 1426,
               "billAmt": 15680,
-              "payComTx": "",
-              "payNo": "",
-              "instJuso": "경남 창원시 진해구 신항2로 114상가219호 (용원동)",
-              "goodsSn": "10502FI224C0600029",
-              "deptCdTx": "법인경남중부지국-C팀",
-              "deptTelnr": "055-267-7881",
-              "zbigo": "",
-              "goodsTx": "CHPI-5810L",
+              "membershipBillAmt": 0,
+              "asBillAmt": 0,
+              "consBillAmt": 0,
+              "ovdBillAmt": 0,
+              "penaltyBillAmt": 0,
               "preAmt": 0,
               "remainAmt": 0,
-              "preMonth": "0"
+              "preMonth": "0",
+              "instJuso": "경남 창원시 진해구 신항2로 114상가219호 (용원동)",
+              "goodsSn": "10502FI224C0600029",
+              "deptNm": "법인경남중부지국-C팀",
+              "deptTelnr": "055-267-7881"
             }
           ]
         }
