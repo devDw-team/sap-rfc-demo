@@ -398,6 +398,7 @@ public class FileCreationService {
             htmlData.put("PRE_AMT", customer.get("preAmt"));
             htmlData.put("REMAIN_AMT", customer.get("remainAmt"));
             htmlData.put("PRE_MONTH", customer.get("preMonth"));
+            htmlData.put("INVOICE_NOTE", customer.get("invoiceNote"));
         }
         
         // bill_summary 정보 변환 (HtmlTemplateUtil이 기대하는 bill_summary 객체 생성)
@@ -473,6 +474,7 @@ public class FileCreationService {
             customerInfo.put("J_1KFREPRE", customer.get("j1kfrepre"));
             customerInfo.put("J_1KFTBUS", customer.get("j1kftbus"));
             customerInfo.put("J_1KFTIND", customer.get("j1kftind"));
+            customerInfo.put("INVOICE_NOTE", customer.get("invoiceNote"));
             excelData.put("customer", customerInfo);
             log.debug("customer 정보 변환 완료");
         } else {

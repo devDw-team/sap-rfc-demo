@@ -151,6 +151,7 @@ public class ExcelTemplateUtil {
                 replacePlaceholder(sheet, "{J_1KFREPRE}", String.valueOf(customer.get("J_1KFREPRE")));
                 replacePlaceholder(sheet, "{J_1KFTBUS}", String.valueOf(customer.get("J_1KFTBUS")));
                 replacePlaceholder(sheet, "{J_1KFTIND}", String.valueOf(customer.get("J_1KFTIND")));
+                replacePlaceholder(sheet, "{INVOICE_NOTE}", String.valueOf(customer.get("INVOICE_NOTE")));
                 System.out.println("[ExcelTemplateUtil] 고객 정보 치환 완료");
             }
 
@@ -441,8 +442,15 @@ public class ExcelTemplateUtil {
 
     // 날짜 포맷 변환 함수 추가
     private String formatDateString(String date) {
-        if (date != null && date.length() == 10 && date.contains("-")) {
-            return date.replace("-", ".");
+        if (date != null) {
+            // YYYYMMDD 형식 (8자리 숫자) -> YYYY.MM.DD 변환
+            if (date.matches("\\d{8}")) {
+                return date.substring(0, 4) + "." + date.substring(4, 6) + "." + date.substring(6, 8);
+            }
+            // YYYY-MM-DD 형식 (10자리, 하이픈 포함) -> YYYY.MM.DD 변환
+            else if (date.length() == 10 && date.contains("-")) {
+                return date.replace("-", ".");
+            }
         }
         return date;
     }

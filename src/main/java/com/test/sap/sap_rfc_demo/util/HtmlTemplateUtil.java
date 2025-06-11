@@ -97,8 +97,9 @@ public class HtmlTemplateUtil {
                     // 1. INST_DT_DOT
                     if (row.containsKey("INST_DT")) {
                         String instDt = String.valueOf(row.get("INST_DT"));
-                        if (instDt.matches("\\d{4}-\\d{2}-\\d{2}")) {
-                            row.put("INST_DT_DOT", instDt.replace("-", "."));
+                        if (instDt.matches("\\d{8}")) {
+                            // YYYYMMDD -> YYYY.MM.DD 변환
+                            row.put("INST_DT_DOT", instDt.substring(0, 4) + "." + instDt.substring(4, 6) + "." + instDt.substring(6, 8));
                         } else {
                             row.put("INST_DT_DOT", instDt);
                         }
