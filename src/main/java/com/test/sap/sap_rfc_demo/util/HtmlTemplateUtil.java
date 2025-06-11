@@ -299,7 +299,15 @@ public class HtmlTemplateUtil {
             }
         }
 
+        // Excel 다운로드 URL 및 원본 파일명 보장
+        if (!data.containsKey("excelDownloadUrl")) {
+            data.put("excelDownloadUrl", "#"); // 기본값으로 빈 링크 설정
+        }
         
+        if (!data.containsKey("excelOriginalFileName")) {
+            data.put("excelOriginalFileName", "코웨이 청구 상세내역.xlsx"); // 기본 파일명
+        }
+
         // 파일명 동적 생성
         String year = data.getOrDefault("C_RECP_YEAR", "").toString();
         String month = data.getOrDefault("C_RECP_MONTH", "").toString();

@@ -46,6 +46,9 @@ public class FileCreationService {
     @Value("${app.file.excel-template:src/main/resources/static/excel/billinfo_template.xlsx}")
     private String excelTemplatePath;
 
+    @Value("${app.domain.base-url:http://localhost:8080}")
+    private String baseUrl;
+
     /**
      * Step 1: 파일 생성을 위한 데이터 조회
      * 조건: SEND_AUTO = 'Y', FILE_CREATE_FLAG = 'N', 현재 년월과 동일
@@ -80,11 +83,17 @@ public class FileCreationService {
             // 타임스탬프 생성
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"));
             
-            // HTML 파일 생성
-            FileCreationResult htmlResult = createHtmlFile(mailData, businessNumber, billingYearMonth, timestamp);
-            
-            // Excel 파일 생성
+            // Excel 파일 먼저 생성 (HTML에서 Excel 다운로드 URL 참조를 위해)
             FileCreationResult excelResult = createExcelFile(mailData, businessNumber, billingYearMonth, timestamp);
+            
+            // Excel 다운로드 URL 생성하여 mailData에 추가
+            String excelDownloadUrl = String.format("%s/automail/api/download/%d/excel", baseUrl, data.getSeq());
+            log.info("Excel 다운로드 URL 생성: {}", excelDownloadUrl);
+            mailData.put("excelDownloadUrl", excelDownloadUrl);
+            mailData.put("excelOriginalFileName", excelResult.getOriginalFileName());
+            
+            // HTML 파일 생성 (Excel 다운로드 URL 정보 포함)
+            FileCreationResult htmlResult = createHtmlFile(mailData, businessNumber, billingYearMonth, timestamp);
             
             // Step 3: DB 업데이트
             updateFileCreationResult(data, htmlResult, excelResult);
