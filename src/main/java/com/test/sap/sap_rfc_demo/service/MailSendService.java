@@ -12,7 +12,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
@@ -37,27 +40,45 @@ public class MailSendService {
             "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
     );
 
+    // 날짜 포맷터 (YYYY.MM.DD 시:분:초)
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss");
+
     /**
      * Step 4-1: 메일 발송 대상 조회 (전체/배치 발송용)
-     * automail-guide.md에 정의된 조회 조건을 기반으로 발송 대상 조회
+     * umsmail-guide.md에 정의된 개선된 SQL 쿼리 적용 (여러 이메일 필드를 UNION으로 처리)
      * FXDAY 조건 포함 - 오늘이 발송일인 고객만 조회
      */
     public List<AutoMailData> getMailSendTargets() {
         log.info("Step 4-1: 메일 발송 대상 조회 시작 (전체/배치 발송용)");
 
         String sql = """
-            SELECT
-                SEQ, STCD2, CUST_NM, RECP_YM,
-                SUBSTRING(RECP_YM, 1, 4) AS C_RECP_YEAR,
-                CAST(SUBSTRING(RECP_YM, 5, 2) AS UNSIGNED) AS C_RECP_MONTH,
-                EMAIL, EMAIL2, ORI_HTML_FILENM, CHG_HTML_FILENM,
-                HTML_FILEPATH, FXDAY
-            FROM b2b_automail_dt
-            WHERE SEND_AUTO = 'Y'
-                AND FILE_CREATE_FLAG = 'Y'
-                AND MAIL_SEND_FLAG = 'N'
-                AND FXDAY = DAY(CURDATE())  -- 오늘이 발송일인 고객만 조회
-            ORDER BY SEQ
+            WITH base_data AS (
+                SELECT
+                    SEQ, STCD2, CUST_NM, RECP_YM, 
+                    SUBSTRING(RECP_YM, 1, 4) AS C_RECP_YEAR, 
+                    CAST(SUBSTRING(RECP_YM, 5, 2) AS UNSIGNED) AS C_RECP_MONTH,
+                    EMAIL, EMAIL2, EMAIL3, EMAIL4, EMAIL5, EMAIL6, EMAIL7, 
+                    ORI_HTML_FILENM, CHG_HTML_FILENM, HTML_FILEPATH, FXDAY
+                FROM b2b_automail_dt
+                WHERE SEND_AUTO = 'Y' 
+                  AND FILE_CREATE_FLAG = 'Y' 
+                  AND MAIL_SEND_FLAG = 'N' 
+                  AND FXDAY = DAY(CURDATE())
+            )
+            SELECT SEQ, STCD2, CUST_NM, RECP_YM, C_RECP_YEAR, C_RECP_MONTH, EMAIL AS EMAIL, ORI_HTML_FILENM, CHG_HTML_FILENM, HTML_FILEPATH, FXDAY FROM base_data WHERE EMAIL IS NOT NULL AND EMAIL != ''
+            UNION ALL
+            SELECT SEQ, STCD2, CUST_NM, RECP_YM, C_RECP_YEAR, C_RECP_MONTH, EMAIL2 AS EMAIL, ORI_HTML_FILENM, CHG_HTML_FILENM, HTML_FILEPATH, FXDAY FROM base_data WHERE EMAIL2 IS NOT NULL AND EMAIL2 != ''
+            UNION ALL
+            SELECT SEQ, STCD2, CUST_NM, RECP_YM, C_RECP_YEAR, C_RECP_MONTH, EMAIL3 AS EMAIL, ORI_HTML_FILENM, CHG_HTML_FILENM, HTML_FILEPATH, FXDAY FROM base_data WHERE EMAIL3 IS NOT NULL AND EMAIL3 != ''
+            UNION ALL
+            SELECT SEQ, STCD2, CUST_NM, RECP_YM, C_RECP_YEAR, C_RECP_MONTH, EMAIL4 AS EMAIL, ORI_HTML_FILENM, CHG_HTML_FILENM, HTML_FILEPATH, FXDAY FROM base_data WHERE EMAIL4 IS NOT NULL AND EMAIL4 != ''
+            UNION ALL
+            SELECT SEQ, STCD2, CUST_NM, RECP_YM, C_RECP_YEAR, C_RECP_MONTH, EMAIL5 AS EMAIL, ORI_HTML_FILENM, CHG_HTML_FILENM, HTML_FILEPATH, FXDAY FROM base_data WHERE EMAIL5 IS NOT NULL AND EMAIL5 != ''
+            UNION ALL
+            SELECT SEQ, STCD2, CUST_NM, RECP_YM, C_RECP_YEAR, C_RECP_MONTH, EMAIL6 AS EMAIL, ORI_HTML_FILENM, CHG_HTML_FILENM, HTML_FILEPATH, FXDAY FROM base_data WHERE EMAIL6 IS NOT NULL AND EMAIL6 != ''
+            UNION ALL
+            SELECT SEQ, STCD2, CUST_NM, RECP_YM, C_RECP_YEAR, C_RECP_MONTH, EMAIL7 AS EMAIL, ORI_HTML_FILENM, CHG_HTML_FILENM, HTML_FILEPATH, FXDAY FROM base_data WHERE EMAIL7 IS NOT NULL AND EMAIL7 != ''
+            ORDER BY SEQ, EMAIL
             """;
 
         List<AutoMailData> targets = jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -67,7 +88,6 @@ public class MailSendService {
             data.setCustNm(rs.getString("CUST_NM"));
             data.setRecpYm(rs.getString("RECP_YM"));
             data.setEmail(rs.getString("EMAIL"));
-            data.setEmail2(rs.getString("EMAIL2"));
             data.setOriHtmlFilenm(rs.getString("ORI_HTML_FILENM"));
             data.setChgHtmlFilenm(rs.getString("CHG_HTML_FILENM"));
             data.setHtmlFilepath(rs.getString("HTML_FILEPATH"));
@@ -185,7 +205,7 @@ public class MailSendService {
                 // 데이터 검증
                 if (!validateMailSendData(target)) {
                     log.warn("메일 발송 데이터 검증 실패. SEQ: {}", target.getSeq());
-                    updateMailSendResult(target.getSeq(), "VALIDATION_ERROR", 
+                    updateMailSendResult(target.getSeq(), target.getEmail(), "VALIDATION_ERROR", 
                                        "데이터 검증 실패", null, false);
                     failCount++;
                     continue;
@@ -195,7 +215,7 @@ public class MailSendService {
                 String htmlContent = prepareMailContent(target);
                 if (htmlContent == null) {
                     log.error("메일 콘텐츠 생성 실패. SEQ: {}", target.getSeq());
-                    updateMailSendResult(target.getSeq(), "TEMPLATE_ERROR", 
+                    updateMailSendResult(target.getSeq(), target.getEmail(), "TEMPLATE_ERROR", 
                                        "메일 콘텐츠 생성 실패", null, false);
                     failCount++;
                     continue;
@@ -205,7 +225,7 @@ public class MailSendService {
                 UmsApiResponse response = sendMailToCustomer(target, htmlContent);
                 
                 // 발송 결과 업데이트
-                updateMailSendResult(target.getSeq(), response.getCode(), 
+                updateMailSendResult(target.getSeq(), target.getEmail(), response.getCode(), 
                                    response.getMessage(), response.getKey(), response.isSuccess());
 
                 if (response.isSuccess()) {
@@ -221,7 +241,7 @@ public class MailSendService {
 
             } catch (Exception e) {
                 log.error("메일 발송 처리 중 예외 발생. SEQ: {}", target.getSeq(), e);
-                updateMailSendResult(target.getSeq(), "ERROR", 
+                updateMailSendResult(target.getSeq(), target.getEmail(), "ERROR", 
                                    "처리 중 예외 발생: " + e.getMessage(), null, false);
                 failCount++;
             }
@@ -265,10 +285,10 @@ public class MailSendService {
         }
 
         // 중복 발송 방지를 위한 당일 발송 이력 체크
-        if (hasMailSentToday(target.getSeq())) {
-            log.warn("당일 이미 발송된 메일입니다. SEQ: {}", target.getSeq());
-            return false;
-        }
+        // if (hasMailSentToday(target.getSeq())) {
+        //     log.warn("당일 이미 발송된 메일입니다. SEQ: {}", target.getSeq());
+        //     return false;
+        // }
 
         return true;
     }
@@ -366,13 +386,13 @@ public class MailSendService {
     }
 
     /**
-     * 당일 발송 이력 확인
+     * 당일 발송 이력 확인 (b2b_automail_result 테이블 기준)
      */
     private boolean hasMailSentToday(Long seq) {
         String sql = """
-            SELECT COUNT(*) FROM b2b_automail_dt 
-            WHERE SEQ = ? AND MAIL_SEND_FLAG = 'Y' 
-            AND DATE(UPDATE_DATE) = CURDATE()
+            SELECT COUNT(*) FROM b2b_automail_result 
+            WHERE AUTOMAIL_SEQ = ? AND MAIL_SEND_FLAG = 'Y' 
+            AND DATE(MAIL_SEND_DATE) = CURDATE()
             """;
         
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, seq);
@@ -380,38 +400,99 @@ public class MailSendService {
     }
 
     /**
-     * 메일 발송 결과 업데이트
+     * 메일 발송 결과 처리 및 업데이트
+     * umsmail-guide.md Step 4-2에 정의된 로직:
+     * 1. b2b_automail_result 테이블에 INSERT
+     * 2. b2b_automail_dt 테이블의 MAIL_SEND_FLAG 업데이트 (성공 시에만)
      */
     @Transactional
-    public void updateMailSendResult(Long seq, String umsCode, String umsMsg, String umsKey, boolean success) {
+    public void updateMailSendResult(Long seq, String email, String umsCode, String umsMsg, String umsKey, boolean success) {
         try {
-            String sql = """
-                UPDATE b2b_automail_dt
-                SET UMS_CODE = ?,
-                    UMS_MSG = ?,
-                    UMS_KEY = ?,
-                    MAIL_SEND_FLAG = ?,
-                    UPDATE_DATE = ?
+            // Step 1: b2b_automail_result 테이블에 발송 결과 INSERT
+            insertMailSendResult(seq, email, umsCode, umsMsg, umsKey, success);
+            
+            // Step 2: b2b_automail_dt 테이블의 MAIL_SEND_FLAG 업데이트 (각 메일 건당 발송 이후 최종 한번만 실행)
+            // 단, UMS_CODE=13인 경우에만 'Y', 그 외의 경우에는 'E'로 업데이트
+            String mailSendFlag = "13".equals(umsCode) ? "Y" : "E";
+            updateMailSendFlag(seq, mailSendFlag);
+
+            log.info("메일 발송 결과 처리 완료. SEQ: {}, Email: {}, 성공: {}, UMS_CODE: {}", seq, email, success, umsCode);
+
+        } catch (Exception e) {
+            log.error("메일 발송 결과 처리 중 오류 발생. SEQ: {}", seq, e);
+            throw e; // 트랜잭션 롤백을 위해 예외 재발생
+        }
+    }
+
+    /**
+     * b2b_automail_result 테이블에 메일 발송 결과 INSERT
+     */
+    private void insertMailSendResult(Long seq, String email, String umsCode, String umsMsg, String umsKey, boolean success) {
+        try {
+            // 먼저 b2b_automail_dt에서 필요한 정보 조회
+            String selectSql = """
+                SELECT STCD2, CUST_NM, RECP_YM 
+                FROM b2b_automail_dt 
                 WHERE SEQ = ?
                 """;
+            
+            Map<String, Object> mailInfo = jdbcTemplate.queryForMap(selectSql, seq);
+            
+            // b2b_automail_result 테이블에 INSERT (MAIL_SEND_DATE는 DB에서 자동 설정)
+            String insertSql = """
+                INSERT INTO b2b_automail_result 
+                (AUTOMAIL_SEQ, STCD2, CUST_NM, RECP_YM, EMAIL, UMS_CODE, UMS_MSG, UMS_KEY, MAIL_SEND_FLAG)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
 
-            LocalDateTime now = LocalDateTime.now();
-            int updatedRows = jdbcTemplate.update(sql, 
-                    umsCode, 
-                    umsMsg, 
-                    umsKey, 
-                    success ? "Y" : "N", 
-                    now,
-                    seq);
+            String mailSendFlag = "13".equals(umsCode) ? "Y" : "E";
+            
+            int insertedRows = jdbcTemplate.update(insertSql,
+                    seq,  // AUTOMAIL_SEQ (b2b_automail_dt의 seq)
+                    mailInfo.get("STCD2"),  // STCD2
+                    mailInfo.get("CUST_NM"),  // CUST_NM
+                    mailInfo.get("RECP_YM"),  // RECP_YM
+                    email,  // EMAIL (발송 대상 이메일 주소)
+                    umsCode,  // UMS_CODE (API 응답 JSON의 "code" 값)
+                    umsMsg,   // UMS_MSG (API 응답 JSON의 "msg" 값)
+                    umsKey,   // UMS_KEY (API 응답 JSON의 "key" 값)
+                    mailSendFlag  // MAIL_SEND_FLAG (ums_code=13인 경우에만 Y, 그 외의 경우에는 E)
+            );
 
-            if (updatedRows == 1) {
-                log.debug("메일 발송 결과 업데이트 완료. SEQ: {}, 성공: {}", seq, success);
+            if (insertedRows == 1) {
+                log.debug("메일 발송 결과 INSERT 완료. SEQ: {}, Email: {}, UMS_CODE: {}", seq, email, umsCode);
             } else {
-                log.warn("메일 발송 결과 업데이트 실패. SEQ: {}, 업데이트된 행 수: {}", seq, updatedRows);
+                log.warn("메일 발송 결과 INSERT 실패. SEQ: {}, 삽입된 행 수: {}", seq, insertedRows);
             }
 
         } catch (Exception e) {
-            log.error("메일 발송 결과 업데이트 중 오류 발생. SEQ: {}", seq, e);
+            log.error("메일 발송 결과 INSERT 중 오류 발생. SEQ: {}", seq, e);
+            throw e;
+        }
+    }
+
+    /**
+     * b2b_automail_dt 테이블의 MAIL_SEND_FLAG 업데이트
+     */
+    private void updateMailSendFlag(Long seq, String mailSendFlag) {
+        try {
+            String sql = """
+                UPDATE b2b_automail_dt
+                SET MAIL_SEND_FLAG = ?
+                WHERE SEQ = ?
+                """;
+
+            int updatedRows = jdbcTemplate.update(sql, mailSendFlag, seq);
+
+            if (updatedRows == 1) {
+                log.debug("MAIL_SEND_FLAG 업데이트 완료. SEQ: {}, FLAG: {}", seq, mailSendFlag);
+            } else {
+                log.warn("MAIL_SEND_FLAG 업데이트 실패. SEQ: {}, 업데이트된 행 수: {}", seq, updatedRows);
+            }
+
+        } catch (Exception e) {
+            log.error("MAIL_SEND_FLAG 업데이트 중 오류 발생. SEQ: {}", seq, e);
+            throw e;
         }
     }
 
@@ -454,7 +535,7 @@ public class MailSendService {
             // 개별 발송용 데이터 검증 (중복 발송 체크 완화)
             if (!validateMailSendDataForIndividual(target)) {
                 log.warn("개별 메일 발송 데이터 검증 실패. SEQ: {}", target.getSeq());
-                updateMailSendResult(target.getSeq(), "VALIDATION_ERROR", 
+                updateMailSendResult(target.getSeq(), target.getEmail(), "VALIDATION_ERROR", 
                                    "개별 발송 데이터 검증 실패", null, false);
                 return;
             }
@@ -463,7 +544,7 @@ public class MailSendService {
             String htmlContent = prepareMailContent(target);
             if (htmlContent == null) {
                 log.error("개별 메일 콘텐츠 생성 실패. SEQ: {}", target.getSeq());
-                updateMailSendResult(target.getSeq(), "TEMPLATE_ERROR", 
+                updateMailSendResult(target.getSeq(), target.getEmail(), "TEMPLATE_ERROR", 
                                    "개별 메일 콘텐츠 생성 실패", null, false);
                 return;
             }
@@ -472,7 +553,7 @@ public class MailSendService {
             UmsApiResponse response = sendMailToCustomer(target, htmlContent);
             
             // 발송 결과 업데이트
-            updateMailSendResult(target.getSeq(), response.getCode(), 
+            updateMailSendResult(target.getSeq(), target.getEmail(), response.getCode(), 
                                response.getMessage(), response.getKey(), response.isSuccess());
 
             if (response.isSuccess()) {
@@ -483,7 +564,7 @@ public class MailSendService {
 
         } catch (Exception e) {
             log.error("개별 메일 발송 처리 중 예외 발생. SEQ: {}", target.getSeq(), e);
-            updateMailSendResult(target.getSeq(), "ERROR", 
+            updateMailSendResult(target.getSeq(), target.getEmail(), "ERROR", 
                                "개별 발송 처리 중 예외 발생: " + e.getMessage(), null, false);
         }
 
@@ -529,5 +610,124 @@ public class MailSendService {
         log.info("개별 발송 데이터 검증 완료. SEQ: {} (중복 발송 체크 및 첨부파일 존재 여부 체크 생략)", target.getSeq());
 
         return true;
+    }
+
+    /**
+     * 메일 발송 결과 조회 (Dashboard 용)
+     * umsmail-guide.md Step 4-4에 정의된 메일 발송 결과 확인 기능
+     */
+    public List<Map<String, Object>> getMailSendResults() {
+        log.info("메일 발송 결과 조회 시작");
+
+        String sql = """
+            SELECT 
+                r.AUTOMAIL_SEQ,
+                r.STCD2,
+                r.CUST_NM,
+                r.RECP_YM,
+                r.EMAIL,
+                r.UMS_CODE,
+                r.UMS_MSG,
+                r.UMS_KEY,
+                r.MAIL_SEND_FLAG,
+                r.MAIL_SEND_DATE
+            FROM b2b_automail_result r
+            ORDER BY r.MAIL_SEND_DATE DESC
+            LIMIT 100
+            """;
+
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql);
+        
+        // 날짜 포맷 변환
+        for (Map<String, Object> result : results) {
+            Object mailSendDate = result.get("MAIL_SEND_DATE");
+            if (mailSendDate instanceof LocalDateTime) {
+                String formattedDate = ((LocalDateTime) mailSendDate).format(DATE_FORMATTER);
+                result.put("MAIL_SEND_DATE", formattedDate);
+            }
+        }
+        
+        log.info("메일 발송 결과 조회 완료. 총 {}건", results.size());
+        return results;
+    }
+
+    /**
+     * 특정 날짜의 메일 발송 결과 조회
+     */
+    public List<Map<String, Object>> getMailSendResultsByDate(String targetDate) {
+        log.info("특정 날짜 메일 발송 결과 조회 시작. 날짜: {}", targetDate);
+
+        String sql = """
+            SELECT 
+                r.AUTOMAIL_SEQ,
+                r.STCD2,
+                r.CUST_NM,
+                r.RECP_YM,
+                r.EMAIL,
+                r.UMS_CODE,
+                r.UMS_MSG,
+                r.UMS_KEY,
+                r.MAIL_SEND_FLAG,
+                r.MAIL_SEND_DATE
+            FROM b2b_automail_result r
+            WHERE DATE(r.MAIL_SEND_DATE) = ?
+            ORDER BY r.MAIL_SEND_DATE DESC
+            """;
+
+        List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, targetDate);
+        
+        // 날짜 포맷 변환
+        for (Map<String, Object> result : results) {
+            Object mailSendDate = result.get("MAIL_SEND_DATE");
+            if (mailSendDate instanceof LocalDateTime) {
+                String formattedDate = ((LocalDateTime) mailSendDate).format(DATE_FORMATTER);
+                result.put("MAIL_SEND_DATE", formattedDate);
+            }
+        }
+        
+        log.info("특정 날짜 메일 발송 결과 조회 완료. 날짜: {}, 총 {}건", targetDate, results.size());
+        return results;
+    }
+
+    /**
+     * 메일 발송 통계 조회
+     */
+    public Map<String, Object> getMailSendStatistics() {
+        log.info("메일 발송 통계 조회 시작");
+
+        Map<String, Object> statistics = new HashMap<>();
+
+        // 오늘의 발송 대상 수
+        List<AutoMailData> todayTargets = getMailSendTargets();
+        statistics.put("todayTargetCount", todayTargets.size());
+
+        // 오늘 발송 완료된 건수
+        String todaySentSql = """
+            SELECT COUNT(*) FROM b2b_automail_result 
+            WHERE DATE(MAIL_SEND_DATE) = CURDATE() AND MAIL_SEND_FLAG = 'Y'
+            """;
+        Integer todaySentCount = jdbcTemplate.queryForObject(todaySentSql, Integer.class);
+        statistics.put("todaySentCount", todaySentCount != null ? todaySentCount : 0);
+
+        // 오늘 발송 실패한 건수
+        String todayFailedSql = """
+            SELECT COUNT(*) FROM b2b_automail_result 
+            WHERE DATE(MAIL_SEND_DATE) = CURDATE() AND MAIL_SEND_FLAG = 'E'
+            """;
+        Integer todayFailedCount = jdbcTemplate.queryForObject(todayFailedSql, Integer.class);
+        statistics.put("todayFailedCount", todayFailedCount != null ? todayFailedCount : 0);
+
+        // 전체 발송 가능한 데이터 수
+        List<AutoMailData> allTargets = getAllMailSendTargets();
+        statistics.put("totalTargetCount", allTargets.size());
+
+        // 대기 중인 건수
+        int pendingCount = todayTargets.size() - (todaySentCount != null ? todaySentCount : 0);
+        statistics.put("pendingCount", Math.max(pendingCount, 0));
+
+        statistics.put("lastUpdated", LocalDateTime.now().toString());
+
+        log.info("메일 발송 통계 조회 완료: {}", statistics);
+        return statistics;
     }
 } 

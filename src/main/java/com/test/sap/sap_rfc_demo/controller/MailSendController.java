@@ -215,19 +215,8 @@ public class MailSendController {
         try {
             log.info("메일 발송 통계 조회 API 호출");
             
-            // 오늘의 메일 발송 대상 수
-            List<AutoMailData> todayTargets = mailSendService.getMailSendTargets();
-            int todayTargetCount = todayTargets.size();
-            
-            // 발송 완료된 건수는 실제 DB에서 조회해야 하지만, 
-            // 여기서는 간단히 처리 (실제 구현 시 별도 쿼리 필요)
-            int sentCount = 0; // TODO: 실제 발송 완료 건수 조회 로직 구현
-            
-            Map<String, Object> statistics = new HashMap<>();
-            statistics.put("todayTargetCount", todayTargetCount);
-            statistics.put("sentCount", sentCount);
-            statistics.put("pendingCount", todayTargetCount - sentCount);
-            statistics.put("lastUpdated", java.time.LocalDateTime.now().toString());
+            // MailSendService에서 통계 정보 조회
+            Map<String, Object> statistics = mailSendService.getMailSendStatistics();
             
             response.put("success", true);
             response.put("message", "메일 발송 통계 조회 완료");
@@ -280,6 +269,43 @@ public class MailSendController {
             
             response.put("success", false);
             response.put("message", "메일 템플릿 미리보기 실패: " + e.getMessage());
+            
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    /**
+     * 메일 발송 결과 조회 (Dashboard 용)
+     * umsmail-guide.md Step 4-4에 정의된 메일 발송 결과 확인 기능
+     */
+    @GetMapping("/results")
+    public ResponseEntity<Map<String, Object>> getMailSendResults(
+            @RequestParam(required = false) String targetDate) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            log.info("메일 발송 결과 조회 API 호출 - 날짜: {}", targetDate);
+            
+            List<Map<String, Object>> results;
+            if (targetDate != null && !targetDate.trim().isEmpty()) {
+                results = mailSendService.getMailSendResultsByDate(targetDate);
+            } else {
+                results = mailSendService.getMailSendResults();
+            }
+            
+            response.put("success", true);
+            response.put("message", "메일 발송 결과 조회 완료");
+            response.put("results", results);
+            response.put("totalCount", results.size());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("메일 발송 결과 조회 실패", e);
+            
+            response.put("success", false);
+            response.put("message", "메일 발송 결과 조회 실패: " + e.getMessage());
             
             return ResponseEntity.status(500).body(response);
         }

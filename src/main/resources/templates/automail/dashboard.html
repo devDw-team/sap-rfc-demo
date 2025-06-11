@@ -180,7 +180,7 @@
                         <div class="col-md-4 mb-2">
                             <button class="btn btn-execute w-100" onclick="getMailSendTargets()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                                 <i class="fas fa-envelope-open me-2"></i>
-                                Step 4-1: 메일 발송 대상 조회
+                                Step 4-1: 당월 메일 발송 대상 조회
                             </button>
                         </div>
                         <div class="col-md-4 mb-2">
@@ -210,15 +210,29 @@
                             </button>
                         </div>
                         <div class="col-md-3">
-                            <button class="btn btn-outline-warning" onclick="viewBatchHistory()">
+                            <button class="btn btn-outline-info" onclick="showMailSendResults()">
+                                <i class="fas fa-envelope-check me-2"></i>
+                                메일 발송 결과 확인
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-warning w-100" onclick="viewBatchHistory()">
                                 <i class="fas fa-history me-2"></i>
                                 배치 실행 이력 조회
                             </button>
                         </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-outline-success" onclick="createSampleData()">
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-success w-100" onclick="createSampleData()">
                                 <i class="fas fa-database me-2"></i>
                                 테스트용 샘플 데이터 생성
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-secondary w-100" onclick="refreshDashboard()">
+                                <i class="fas fa-sync-alt me-2"></i>
+                                대시보드 새로고침
                             </button>
                         </div>
                     </div>
@@ -370,6 +384,121 @@
                     <div id="detailContent">
                         <!-- 상세 내용이 여기에 로드됩니다 -->
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메일 발송 결과 확인 모달 -->
+    <div class="modal fade" id="mailResultModal" tabindex="-1" aria-labelledby="mailResultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mailResultModalLabel">
+                        <i class="fas fa-envelope-check me-2"></i>
+                        메일 발송 결과 확인
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 필터 및 검색 영역 -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="resultDateFilter" class="form-label">날짜 필터</label>
+                            <input type="date" class="form-control" id="resultDateFilter" 
+                                   onchange="filterMailResults()">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="resultStatusFilter" class="form-label">발송 상태</label>
+                            <select class="form-select" id="resultStatusFilter" onchange="filterMailResults()">
+                                <option value="">전체</option>
+                                <option value="Y">발송 성공</option>
+                                <option value="E">발송 실패</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="button" class="btn btn-primary me-2" onclick="loadMailResults()">
+                                <i class="fas fa-refresh me-1"></i>새로고침
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearResultFilters()">
+                                <i class="fas fa-eraser me-1"></i>필터 초기화
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 통계 영역 -->
+                    <div class="row mb-3" id="mailResultStats">
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body py-2">
+                                    <h6 class="card-title mb-1">전체</h6>
+                                    <h4 class="text-primary mb-0" id="totalResultCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body py-2">
+                                    <h6 class="card-title mb-1">발송 성공</h6>
+                                    <h4 class="text-success mb-0" id="successResultCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body py-2">
+                                    <h6 class="card-title mb-1">발송 실패</h6>
+                                    <h4 class="text-danger mb-0" id="failResultCount">0</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card text-center">
+                                <div class="card-body py-2">
+                                    <h6 class="card-title mb-1">성공률</h6>
+                                    <h4 class="text-info mb-0" id="successRate">0%</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 결과 테이블 -->
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>SEQ</th>
+                                    <th>사업자번호</th>
+                                    <th>고객명</th>
+                                    <th>청구년월</th>
+                                    <th>발송이메일</th>
+                                    <th>UMS코드</th>
+                                    <th>UMS메시지</th>
+                                    <th>UMS키</th>
+                                    <th>발송상태</th>
+                                    <th>발송시간</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mailResultTableBody">
+                                <!-- 데이터가 JavaScript로 로드됩니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 로딩 및 메시지 영역 -->
+                    <div id="mailResultLoading" class="text-center py-4" style="display: none;">
+                        <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                        <div class="mt-2">데이터를 로드하는 중...</div>
+                    </div>
+
+                    <div id="mailResultEmpty" class="text-center py-4" style="display: none;">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <div class="h5 text-muted">발송 결과가 없습니다</div>
+                        <div class="text-muted">조건을 변경하거나 메일을 발송해보세요.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
                 </div>
             </div>
         </div>
@@ -827,7 +956,7 @@ VALUES
                     hideLoading();
                     if (data.success) {
                         showMessage('success', 
-                            `Step 4-1: 메일 발송 대상 조회 완료<br>
+                            `Step 4-1: 당월 메일 발송 대상 조회 완료<br>
                             총 대상: ${data.totalCount}건`);
                         
                         // 대상 목록을 모달로 표시
@@ -835,12 +964,12 @@ VALUES
                             showMailSendTargets(data.targets);
                         }
                     } else {
-                        showMessage('danger', 'Step 4-1: 메일 발송 대상 조회 실패: ' + data.message);
+                        showMessage('danger', 'Step 4-1: 당월 메일 발송 대상 조회 실패: ' + data.message);
                     }
                 })
                 .catch(error => {
                     hideLoading();
-                    showMessage('danger', 'Step 4-1: 메일 발송 대상 조회 중 오류 발생: ' + error.message);
+                    showMessage('danger', 'Step 4-1: 당월 메일 발송 대상 조회 중 오류 발생: ' + error.message);
                 });
         }
 
@@ -885,7 +1014,7 @@ VALUES
             `;
             
             document.getElementById('detailContent').innerHTML = content;
-            document.querySelector('#detailModal .modal-title').textContent = 'Step 4-1: 메일 발송 대상 목록';
+            document.querySelector('#detailModal .modal-title').textContent = 'Step 4-1: 당월 메일 발송 대상 목록';
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
 
@@ -1033,7 +1162,7 @@ VALUES
                                         <div class="col-md-4">
                                             <div class="card text-center bg-primary text-white">
                                                 <div class="card-body">
-                                                    <h5>${stats.todayTargetCount}</h5>
+                                                    <h5>${stats.todayTargetCount || 0}</h5>
                                                     <p class="mb-0">오늘 발송 대상</p>
                                                 </div>
                                             </div>
@@ -1041,7 +1170,7 @@ VALUES
                                         <div class="col-md-4">
                                             <div class="card text-center bg-success text-white">
                                                 <div class="card-body">
-                                                    <h5>${stats.sentCount}</h5>
+                                                    <h5>${stats.sentCount || 0}</h5>
                                                     <p class="mb-0">발송 완료</p>
                                                 </div>
                                             </div>
@@ -1049,14 +1178,14 @@ VALUES
                                         <div class="col-md-4">
                                             <div class="card text-center bg-warning text-white">
                                                 <div class="card-body">
-                                                    <h5>${stats.pendingCount}</h5>
+                                                    <h5>${stats.pendingCount || 0}</h5>
                                                     <p class="mb-0">발송 대기</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="mt-3">
-                                        <p><strong>마지막 업데이트:</strong> ${stats.lastUpdated}</p>
+                                        <p><strong>마지막 업데이트:</strong> ${stats.lastUpdated || '정보 없음'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -1416,6 +1545,169 @@ VALUES
         }
 
         // === 템플릿 파일 상태 확인 관련 함수들 ===
+
+        // === 메일 발송 결과 확인 관련 함수들 ===
+
+        // 메일 발송 결과 모달 표시
+        function showMailSendResults() {
+            const modal = new bootstrap.Modal(document.getElementById('mailResultModal'));
+            modal.show();
+            
+            // 오늘 날짜를 기본값으로 설정
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('resultDateFilter').value = today;
+            
+            // 결과 로드
+            loadMailResults();
+        }
+
+        // 메일 발송 결과 로드
+        function loadMailResults() {
+            const dateFilter = document.getElementById('resultDateFilter').value;
+            const statusFilter = document.getElementById('resultStatusFilter').value;
+            
+            // 로딩 표시
+            document.getElementById('mailResultLoading').style.display = 'block';
+            document.getElementById('mailResultEmpty').style.display = 'none';
+            document.getElementById('mailResultTableBody').innerHTML = '';
+            
+            let url = '/api/mail-send/results';
+            const params = new URLSearchParams();
+            
+            if (dateFilter) {
+                params.append('targetDate', dateFilter);
+            }
+            
+            if (params.toString()) {
+                url += '?' + params.toString();
+            }
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('mailResultLoading').style.display = 'none';
+                    
+                    if (data.success && data.results) {
+                        let filteredResults = data.results;
+                        
+                        // 상태 필터 적용
+                        if (statusFilter) {
+                            filteredResults = data.results.filter(result => result.MAIL_SEND_FLAG === statusFilter);
+                        }
+                        
+                        if (filteredResults.length > 0) {
+                            displayMailResults(filteredResults);
+                            updateMailResultStats(filteredResults);
+                        } else {
+                            document.getElementById('mailResultEmpty').style.display = 'block';
+                            updateMailResultStats([]);
+                        }
+                    } else {
+                        document.getElementById('mailResultEmpty').style.display = 'block';
+                        showMessage('danger', '메일 발송 결과 조회 실패: ' + data.message);
+                        updateMailResultStats([]);
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('mailResultLoading').style.display = 'none';
+                    document.getElementById('mailResultEmpty').style.display = 'block';
+                    console.error('메일 발송 결과 조회 오류:', error);
+                    showMessage('danger', '메일 발송 결과 조회 중 오류 발생: ' + error.message);
+                    updateMailResultStats([]);
+                });
+        }
+
+        // 메일 발송 결과 테이블에 표시
+        function displayMailResults(results) {
+            const tbody = document.getElementById('mailResultTableBody');
+            tbody.innerHTML = '';
+            
+            results.forEach(result => {
+                const row = document.createElement('tr');
+                
+                // 발송 상태에 따른 배지 클래스 설정
+                let statusBadge = '';
+                if (result.MAIL_SEND_FLAG === 'Y') {
+                    statusBadge = '<span class="badge bg-success">성공</span>';
+                } else if (result.MAIL_SEND_FLAG === 'E') {
+                    statusBadge = '<span class="badge bg-danger">실패</span>';
+                } else {
+                    statusBadge = '<span class="badge bg-secondary">대기</span>';
+                }
+                
+                // 발송이메일 표시 (여러 이메일 중 하나 선택)
+                let sendEmail = '';
+                const emails = [result.EMAIL, result.EMAIL2, result.EMAIL3, result.EMAIL4, 
+                               result.EMAIL5, result.EMAIL6, result.EMAIL7];
+                const validEmails = emails.filter(email => email && email.trim() !== '');
+                if (validEmails.length > 0) {
+                    sendEmail = validEmails[0]; // 첫 번째 유효한 이메일 사용
+                    if (validEmails.length > 1) {
+                        sendEmail += ` (외 ${validEmails.length - 1}개)`;
+                    }
+                }
+                
+                // 날짜 포맷팅
+                let sendDate = '';
+                if (result.MAIL_SEND_DATE) {
+                    const date = new Date(result.MAIL_SEND_DATE);
+                    sendDate = date.toLocaleString('ko-KR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+                
+                row.innerHTML = `
+                    <td>${result.AUTOMAIL_SEQ || ''}</td>
+                    <td>${result.STCD2 || ''}</td>
+                    <td>${result.CUST_NM || ''}</td>
+                    <td>${result.RECP_YM || ''}</td>
+                    <td class="text-break" style="max-width: 200px;" title="${sendEmail}">${sendEmail}</td>
+                    <td>${result.UMS_CODE || ''}</td>
+                    <td class="text-break" style="max-width: 150px;" title="${result.UMS_MSG || ''}">${result.UMS_MSG || ''}</td>
+                    <td>${result.UMS_KEY || ''}</td>
+                    <td>${statusBadge}</td>
+                    <td>${sendDate}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // 메일 발송 결과 통계 업데이트
+        function updateMailResultStats(results) {
+            const total = results.length;
+            const success = results.filter(r => r.MAIL_SEND_FLAG === 'Y').length;
+            const fail = results.filter(r => r.MAIL_SEND_FLAG === 'E').length;
+            const successRate = total > 0 ? Math.round((success / total) * 100) : 0;
+            
+            document.getElementById('totalResultCount').textContent = total;
+            document.getElementById('successResultCount').textContent = success;
+            document.getElementById('failResultCount').textContent = fail;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        // 메일 발송 결과 필터 적용
+        function filterMailResults() {
+            loadMailResults();
+        }
+
+        // 결과 필터 초기화
+        function clearResultFilters() {
+            document.getElementById('resultDateFilter').value = '';
+            document.getElementById('resultStatusFilter').value = '';
+            loadMailResults();
+        }
+
+        // 대시보드 새로고침
+        function refreshDashboard() {
+            if (confirm('대시보드를 새로고침하시겠습니까?')) {
+                location.reload();
+            }
+        }
 
         // 템플릿 파일 상태 확인
         function checkTemplateStatus() {
