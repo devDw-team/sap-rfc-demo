@@ -545,6 +545,12 @@ public class FileCreationService {
                 convertedBill.put("GOODS_SN", bill.get("goodsSn"));
                 convertedBill.put("DEPT_NM", bill.get("deptNm"));
                 convertedBill.put("DEPT_TELNR", bill.get("deptTelnr"));
+                convertedBill.put("REQ_VALUE1", bill.get("reqValue1"));
+                convertedBill.put("REQ_VALUE2", bill.get("reqValue2"));
+                convertedBill.put("REQ_VALUE3", bill.get("reqValue3"));
+                convertedBill.put("REQ_VALUE4", bill.get("reqValue4"));
+                convertedBill.put("REQ_VALUE5", bill.get("reqValue5"));
+                convertedBill.put("ZBIGO", bill.get("zbigo"));
                 convertedBills.add(convertedBill);
             }
             excelData.put("bills", convertedBills);

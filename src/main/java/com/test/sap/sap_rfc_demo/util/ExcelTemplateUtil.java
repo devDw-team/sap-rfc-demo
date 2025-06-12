@@ -288,11 +288,11 @@ public class ExcelTemplateUtil {
                 setCellValueWithStyle(row, 29, String.valueOf(bill.getOrDefault("DEPT_TELNR", "")), centerBottomBorderStyle);
                 
                 // 30, 31, 32, 33, 34 컬럼 빈값 설정
-                setCellValueWithStyle(row, 30, "", centerBottomBorderStyle);
-                setCellValueWithStyle(row, 31, "", centerBottomBorderStyle);
-                setCellValueWithStyle(row, 32, "", centerBottomBorderStyle);
-                setCellValueWithStyle(row, 33, "", centerBottomBorderStyle);
-                setCellValueWithStyle(row, 34, "", centerBottomBorderStyle);
+                setCellValueWithStyle(row, 30, String.valueOf(bill.getOrDefault("REQ_VALUE1", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 31, String.valueOf(bill.getOrDefault("REQ_VALUE2", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 32, String.valueOf(bill.getOrDefault("REQ_VALUE3", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 33, String.valueOf(bill.getOrDefault("REQ_VALUE4", "")), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 34, String.valueOf(bill.getOrDefault("REQ_VALUE5", "")), centerBottomBorderStyle);
                 
                 setCellValueWithStyle(row, 35, String.valueOf(bill.getOrDefault("ZBIGO", "")), centerBottomBorderStyle);
                 
