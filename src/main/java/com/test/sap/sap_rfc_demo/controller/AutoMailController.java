@@ -635,4 +635,53 @@ public class AutoMailController {
             return ResponseEntity.internalServerError().body(response);
         }
     }
+
+    /**
+     * B2B 사업자 청구서 양식 선택 생성 (수동)
+     */
+    @PostMapping("/api/templates/generate-selected")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> generateSelectedBusinessTemplates(@RequestBody Map<String, Object> req) {
+        log.info("B2B 사업자 청구서 양식 선택 생성 API 호출: {}", req);
+        Map<String, Object> response = new HashMap<>();
+        try {
+            // businessNos: List<String>
+            Object businessNosObj = req.get("businessNos");
+            if (businessNosObj == null || !(businessNosObj instanceof java.util.List)) {
+                response.put("success", false);
+                response.put("message", "businessNos 파라미터가 올바르지 않습니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            @SuppressWarnings("unchecked")
+            java.util.List<String> businessNos = (java.util.List<String>) businessNosObj;
+            if (businessNos.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "선택된 사업자가 없습니다.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            int successCount = 0;
+            int failCount = 0;
+            StringBuilder failMsg = new StringBuilder();
+            for (String businessNo : businessNos) {
+                try {
+                    tmplService.generateTemplateByBusinessNo(businessNo);
+                    successCount++;
+                } catch (Exception e) {
+                    log.error("사업자 템플릿 생성 실패 - 사업자번호: {}", businessNo, e);
+                    failCount++;
+                    failMsg.append(businessNo).append(": ").append(e.getMessage()).append("; ");
+                }
+            }
+            response.put("success", failCount == 0);
+            response.put("message", String.format("총 %d건 중 %d건 성공, %d건 실패", businessNos.size(), successCount, failCount)
+                + (failCount > 0 ? ("<br>실패: " + failMsg) : ""));
+            response.put("executedAt", java.time.LocalDateTime.now().toString());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("선택 사업자 템플릿 생성 중 오류 발생", e);
+            response.put("success", false);
+            response.put("message", "선택 사업자 템플릿 생성 중 오류 발생: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
 } 

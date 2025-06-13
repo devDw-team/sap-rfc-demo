@@ -257,6 +257,15 @@
                             </button>
                         </div>
                     </div>
+                    <!-- B2B 사업자 양식 수동 생성 버튼 추가 -->
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <button class="btn btn-execute w-100" onclick="openManualTemplateModal()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <i class="fas fa-hand-pointer me-2"></i>
+                                B2B 사업자 양식 수동 생성
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -502,6 +511,21 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- B2B 사업자 양식 수동 생성 모달 -->
+    <div class="modal fade" id="manualTemplateModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">B2B 사업자 양식 수동 생성</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="manualTemplateModalBody">
+            <!-- 사업자 목록 테이블이 JS로 동적으로 삽입됩니다 -->
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -1786,6 +1810,97 @@ VALUES
                     hideLoading();
                     showMessage('danger', '템플릿 파일 상태 조회 중 오류 발생: ' + error.message);
                 });
+        }
+
+        // === B2B 사업자 양식 수동 생성 관련 함수들 ===
+        function openManualTemplateModal() {
+            showLoading();
+            fetch('/automail/api/templates/targets')
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success && data.targets && data.targets.length > 0) {
+                        renderManualTemplateTable(data.targets);
+                        new bootstrap.Modal(document.getElementById('manualTemplateModal')).show();
+                    } else {
+                        showMessage('danger', '사업자 양식 생성 대상이 없습니다.');
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    showMessage('danger', '사업자 목록 조회 중 오류 발생: ' + error.message);
+                });
+        }
+
+        function renderManualTemplateTable(targets) {
+            let tableRows = targets.map((target, idx) => `
+                <tr>
+                    <td><input type="checkbox" class="manual-template-checkbox" value="${target.businessNo}"></td>
+                    <td>${target.businessNo}</td>
+                    <td>${target.businessNm}</td>
+                    <td>${target.stampYn === 'Y' ? '사용' : '미사용'}</td>
+                    <td>${target.csGuideYn === 'Y' ? '사용' : '미사용'}</td>
+                </tr>
+            `).join('');
+
+            const tableHtml = `
+                <button class="btn btn-primary mb-2" onclick="generateSelectedTemplates()">선택 사업자 양식 생성</button>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th><input type="checkbox" id="manual-template-checkall" onclick="toggleAllManualTemplateCheckboxes(this)"></th>
+                                <th>사업자번호</th>
+                                <th>사업자명</th>
+                                <th>인감날인</th>
+                                <th>고객센터안내</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-primary mt-2" onclick="generateSelectedTemplates()">선택 사업자 양식 생성</button>
+            `;
+            document.getElementById('manualTemplateModalBody').innerHTML = tableHtml;
+        }
+
+        function toggleAllManualTemplateCheckboxes(master) {
+            const checkboxes = document.querySelectorAll('.manual-template-checkbox');
+            checkboxes.forEach(cb => cb.checked = master.checked);
+        }
+
+        function generateSelectedTemplates() {
+            const checked = Array.from(document.querySelectorAll('.manual-template-checkbox:checked'));
+            if (checked.length === 0) {
+                alert('사업자를 1개 이상 선택하세요.');
+                return;
+            }
+            if (!confirm('선택한 사업자에 대해 청구서 양식을 생성하시겠습니까?')) return;
+
+            const businessNos = checked.map(cb => cb.value);
+
+            showLoading();
+            fetch('/automail/api/templates/generate-selected', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ businessNos })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    showMessage('success', `선택 사업자 양식 생성 완료<br>처리 결과: ${data.message || ''}`);
+                    bootstrap.Modal.getInstance(document.getElementById('manualTemplateModal')).hide();
+                } else {
+                    showMessage('danger', '양식 생성 실패: ' + data.message);
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showMessage('danger', '양식 생성 중 오류 발생: ' + error.message);
+            });
         }
     </script>
 </body>
