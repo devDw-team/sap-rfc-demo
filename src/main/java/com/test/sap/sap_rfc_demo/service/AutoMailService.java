@@ -37,7 +37,6 @@ public class AutoMailService {
     private ObjectMapper createOptimizedObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         return mapper;
     }
 
@@ -572,42 +571,58 @@ public class AutoMailService {
 
         return jdbcTemplate.query(sql,
             new Object[]{target.getMgmtId(), target.getKunnr()},
-            (rs, rowNum) -> MailDataDto.ExcelBill.builder()
-                .orderNo(rs.getString("ORDER_NO"))
-                .vtext(rs.getString("VTEXT"))
-                .goodsTx(rs.getString("GOODS_TX"))
-                .useDutyMonth(rs.getString("USE_DUTY_MONTH"))
-                .ownerDate(rs.getString("OWNER_DATE"))
-                .useMonth(rs.getString("USE_MONTH"))
-                .recpYm(rs.getString("RECP_YM"))
-                .fixSupplyValue(rs.getBigDecimal("FIX_SUPPLY_VALUE"))
-                .fixVat(rs.getBigDecimal("FIX_VAT"))
-                .fixBillAmt(rs.getBigDecimal("FIX_BILL_AMT"))
-                .supplyValue(rs.getBigDecimal("SUPPLY_VALUE"))
-                .vat(rs.getBigDecimal("VAT"))
-                .billAmt(rs.getBigDecimal("BILL_AMT"))
-                .membershipBillAmt(rs.getBigDecimal("MEMBERSHIP_BILL_AMT"))
-                .asBillAmt(rs.getBigDecimal("AS_BILL_AMT"))
-                .consBillAmt(rs.getBigDecimal("CONS_BILL_AMT"))
-                .ovdBillAmt(rs.getBigDecimal("OVD_BILL_AMT"))
-                .penaltyBillAmt(rs.getBigDecimal("PENALTY_BILL_AMT"))
-                .payComTx(rs.getString("PAY_COM_TX"))
-                .payNo(rs.getString("PAY_NO"))
-                .preAmt(rs.getBigDecimal("PRE_AMT"))
-                .remainAmt(rs.getBigDecimal("REMAIN_AMT"))
-                .preMonth(rs.getString("PRE_MONTH"))
-                .instJuso(rs.getString("INST_JUSO"))
-                .goodsSn(rs.getString("GOODS_SN"))
-                .deptNm(rs.getString("DEPT_NM"))
-                .deptTelnr(rs.getString("DEPT_TELNR"))
-                .reqValue1(rs.getString("REQ_VALUE1"))
-                .reqValue2(rs.getString("REQ_VALUE2"))
-                .reqValue3(rs.getString("REQ_VALUE3"))
-                .reqValue4(rs.getString("REQ_VALUE4"))
-                .reqValue5(rs.getString("REQ_VALUE5"))
-                .zbigo(rs.getString("ZBIGO"))
-                .instDt(rs.getString("INST_DT"))
-                .build()
+            (rs, rowNum) -> {
+                String reqValue1 = rs.getString("REQ_VALUE1");
+                String reqValue2 = rs.getString("REQ_VALUE2");
+                String reqValue3 = rs.getString("REQ_VALUE3");
+                String reqValue4 = rs.getString("REQ_VALUE4");
+                String reqValue5 = rs.getString("REQ_VALUE5");
+                String zbigo     = rs.getString("ZBIGO");
+
+                reqValue1 = reqValue1 == null ? "" : reqValue1;
+                reqValue2 = reqValue2 == null ? "" : reqValue2;
+                reqValue3 = reqValue3 == null ? "" : reqValue3;
+                reqValue4 = reqValue4 == null ? "" : reqValue4;
+                reqValue5 = reqValue5 == null ? "" : reqValue5;
+                zbigo     = zbigo     == null ? "" : zbigo;
+
+                return MailDataDto.ExcelBill.builder()
+                    .orderNo(rs.getString("ORDER_NO"))
+                    .vtext(rs.getString("VTEXT"))
+                    .goodsTx(rs.getString("GOODS_TX"))
+                    .useDutyMonth(rs.getString("USE_DUTY_MONTH"))
+                    .ownerDate(rs.getString("OWNER_DATE"))
+                    .useMonth(rs.getString("USE_MONTH"))
+                    .recpYm(rs.getString("RECP_YM"))
+                    .fixSupplyValue(rs.getBigDecimal("FIX_SUPPLY_VALUE"))
+                    .fixVat(rs.getBigDecimal("FIX_VAT"))
+                    .fixBillAmt(rs.getBigDecimal("FIX_BILL_AMT"))
+                    .supplyValue(rs.getBigDecimal("SUPPLY_VALUE"))
+                    .vat(rs.getBigDecimal("VAT"))
+                    .billAmt(rs.getBigDecimal("BILL_AMT"))
+                    .membershipBillAmt(rs.getBigDecimal("MEMBERSHIP_BILL_AMT"))
+                    .asBillAmt(rs.getBigDecimal("AS_BILL_AMT"))
+                    .consBillAmt(rs.getBigDecimal("CONS_BILL_AMT"))
+                    .ovdBillAmt(rs.getBigDecimal("OVD_BILL_AMT"))
+                    .penaltyBillAmt(rs.getBigDecimal("PENALTY_BILL_AMT"))
+                    .payComTx(rs.getString("PAY_COM_TX"))
+                    .payNo(rs.getString("PAY_NO"))
+                    .preAmt(rs.getBigDecimal("PRE_AMT"))
+                    .remainAmt(rs.getBigDecimal("REMAIN_AMT"))
+                    .preMonth(rs.getString("PRE_MONTH"))
+                    .instJuso(rs.getString("INST_JUSO"))
+                    .goodsSn(rs.getString("GOODS_SN"))
+                    .deptNm(rs.getString("DEPT_NM"))
+                    .deptTelnr(rs.getString("DEPT_TELNR"))
+                    .reqValue1(reqValue1)
+                    .reqValue2(reqValue2)
+                    .reqValue3(reqValue3)
+                    .reqValue4(reqValue4)
+                    .reqValue5(reqValue5)
+                    .zbigo(zbigo)
+                    .instDt(rs.getString("INST_DT"))
+                    .build();
+            }
         );
     }
 
