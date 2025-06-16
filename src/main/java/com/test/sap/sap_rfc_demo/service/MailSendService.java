@@ -32,7 +32,10 @@ public class MailSendService {
     private final TemplateService templateService;
     private final EmailService emailService;
 
-    @Value("${email.attachment.base-url}")
+    //@Value("${email.attachment.base-url}")
+    //private String attachmentBaseUrl;
+
+    @Value("${email.attachment.dw-url}")
     private String attachmentBaseUrl;
 
     // 이메일 주소 유효성 검사를 위한 정규식

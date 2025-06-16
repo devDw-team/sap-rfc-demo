@@ -50,10 +50,10 @@ public class EmailService {
                  maskEmail(req.getEmail()), req.getTitle());
 
         // 파일 첨부 경로 검증 (개별 발송용으로 완화)
-        if (!validateAttachmentPath(req.getAttPath1())) {
-            log.warn("[EmailService] 첨부파일 경로가 유효하지 않지만 메일 발송을 계속 진행합니다: {}", req.getAttPath1());
-            // 테스트용으로 첨부파일 없어도 진행 (return 문 제거)
-        }
+        //if (!validateAttachmentPath(req.getAttPath1())) {
+        //    log.warn("[EmailService] 첨부파일 경로가 유효하지 않지만 메일 발송을 계속 진행합니다: {}", req.getAttPath1());
+        //    // 테스트용으로 첨부파일 없어도 진행 (return 문 제거)
+        //}
 
         RestTemplate restTemplate = new RestTemplate();
 
@@ -65,12 +65,12 @@ public class EmailService {
         body.put("FROMADDRESS", req.getFromAddress());
         
         // 첨부파일이 유효하지 않으면 첨부 정보 제외
-        if (validateAttachmentPath(req.getAttPath1())) {
-            body.put("ATTNAME1", req.getAttName1());
-            body.put("ATTPATH1", req.getAttPath1());
-        } else {
-            log.warn("[EmailService] 첨부파일 정보를 제외하고 메일 발송 진행");
-        }
+        //if (validateAttachmentPath(req.getAttPath1())) {
+        body.put("ATTNAME1", req.getAttName1());
+        body.put("ATTPATH1", req.getAttPath1());
+        //} else {
+        //    log.warn("[EmailService] 첨부파일 정보를 제외하고 메일 발송 진행");
+        //}
         
         body.put("AUTOTYPE", "CWB2B");
         body.put("AUTOTYPEDESC", "코웨이 B2B 청구서 메일");
