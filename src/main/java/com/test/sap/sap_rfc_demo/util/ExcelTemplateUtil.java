@@ -172,19 +172,19 @@ public class ExcelTemplateUtil {
                 String cDueDate;
                 
                 // C_SEL_KUN_CNT < 1 이면 오늘날짜 기준으로 값 설정
-                if (selKunCnt < 1) {
-                    LocalDate today = LocalDate.now();
-                    // 청구년월(C_RECP_YM): 오늘날짜 기준 년월(YYYYMM)
-                    cRecpYm = String.format("%d%02d", today.getYear(), today.getMonthValue());
+                //if (selKunCnt < 1) {
+                //    LocalDate today = LocalDate.now();
+                //    // 청구년월(C_RECP_YM): 오늘날짜 기준 년월(YYYYMM)
+                //    cRecpYm = String.format("%d%02d", today.getYear(), today.getMonthValue());
                     
                     // 납부기한(C_DUE_DATE): 오늘날짜 기준 해당 월의 영업일 기준 말일 날짜(YYYY-MM-DD)
-                    LocalDate lastBusinessDay = getLastBusinessDay(today.getYear(), today.getMonthValue());
-                    cDueDate = lastBusinessDay.toString(); // YYYY-MM-DD 형식
-                } else {
+                //    LocalDate lastBusinessDay = getLastBusinessDay(today.getYear(), today.getMonthValue());
+                //    cDueDate = lastBusinessDay.toString(); // YYYY-MM-DD 형식
+                //} else {
                     // 기존 프로세스: billSummary에서 값 그대로 추출
                     cRecpYm = String.valueOf(billSummary.get("C_RECP_YM"));
                     cDueDate = String.valueOf(billSummary.get("C_DUE_DATE"));
-                }
+                //}
                 
                 // {C_RECP_YM} 치환 추가
                 System.out.println("cRecpYm : " + cRecpYm);
@@ -200,12 +200,17 @@ public class ExcelTemplateUtil {
                 }
                 
                 // {C_DUE_DATE} 변환 및 치환
-                if (cDueDate != null && cDueDate.length() == 10) {
-                    String formattedDueDate = cDueDate.replace("-", ".");
-                    replacePlaceholder(sheet, "{C_DUE_DATE}", formattedDueDate);
+                String formattedDueDate;
+                if (cDueDate != null && cDueDate.matches("\\d{8}")) {
+                    // YYYYMMDD -> YYYY.MM.DD
+                    formattedDueDate = cDueDate.substring(0, 4) + "." + cDueDate.substring(4, 6) + "." + cDueDate.substring(6, 8);
+                } else if (cDueDate != null && cDueDate.length() == 10 && cDueDate.contains("-")) {
+                    // YYYY-MM-DD -> YYYY.MM.DD
+                    formattedDueDate = cDueDate.replace("-", ".");
                 } else {
-                    replacePlaceholder(sheet, "{C_DUE_DATE}", cDueDate != null ? cDueDate : "");
+                    formattedDueDate = cDueDate;
                 }
+                replacePlaceholder(sheet, "{C_DUE_DATE}", formattedDueDate);
                 
                 replacePlaceholder(sheet, "{TOTAL_AMOUNT}", String.valueOf(billSummary.get("TOTAL_AMOUNT")));
             }

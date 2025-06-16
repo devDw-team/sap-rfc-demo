@@ -193,46 +193,53 @@ public class HtmlTemplateUtil {
             Map<String, Object> billSummary = (Map<String, Object>) data.get("bill_summary");
             
             // C_SEL_KUN_CNT 값 확인
-            Object selKunCntObj = billSummary.get("C_SEL_KUN_CNT");
-            int selKunCnt = 0;
-            if (selKunCntObj != null) {
-                try {
-                    selKunCnt = Integer.parseInt(selKunCntObj.toString());
-                } catch (NumberFormatException e) {
-                    selKunCnt = 0;
-                }
-            }
+            //Object selKunCntObj = billSummary.get("C_SEL_KUN_CNT");
+            //int selKunCnt = 0;
+            //if (selKunCntObj != null) {
+            //    try {
+            //        selKunCnt = Integer.parseInt(selKunCntObj.toString());
+            //    } catch (NumberFormatException e) {
+            //        selKunCnt = 0;
+            //    }
+            //}
             
             // C_SEL_KUN_CNT < 1 이면 오늘날짜 기준으로 값 설정
-            if (selKunCnt < 1) {
-                LocalDate today = LocalDate.now();
+            //if (selKunCnt < 1) {
+            //    LocalDate today = LocalDate.now();
                 // 청구년월(C_RECP_YM): 오늘날짜 기준 년월(YYYYMM)
-                String recpYm = today.format(DateTimeFormatter.ofPattern("yyyyMM"));
-                data.put("C_RECP_YM", recpYm);
+            //    String recpYm = today.format(DateTimeFormatter.ofPattern("yyyyMM"));
+            //    data.put("C_RECP_YM", recpYm);
                 
                 // 납부기한(C_DUE_DATE): 오늘날짜 기준 해당 월의 영업일 기준 말일 날짜(YYYY-MM-DD)
-                LocalDate lastBusinessDay = getLastBusinessDay(today.getYear(), today.getMonthValue());
-                String dueDate = lastBusinessDay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                data.put("C_DUE_DATE", dueDate);
+            //    LocalDate lastBusinessDay = getLastBusinessDay(today.getYear(), today.getMonthValue());
+            //    String dueDate = lastBusinessDay.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            //    data.put("C_DUE_DATE", dueDate);
                 
                 // TOTAL_AMOUNT는 기존 값 유지 또는 0으로 설정
-                if (billSummary.containsKey("TOTAL_AMOUNT")) {
-                    data.put("TOTAL_AMOUNT", billSummary.get("TOTAL_AMOUNT"));
-                } else {
-                    data.put("TOTAL_AMOUNT", 0);
-                }
-            } else {
+             //   if (billSummary.containsKey("TOTAL_AMOUNT")) {
+             //       data.put("TOTAL_AMOUNT", billSummary.get("TOTAL_AMOUNT"));
+             //   } else {
+             //       data.put("TOTAL_AMOUNT", 0);
+             //   }
+            //} else {
                 // 기존 프로세스: bill_summary에서 값 그대로 추출
                 if (billSummary.containsKey("C_RECP_YM")) {
                     data.put("C_RECP_YM", billSummary.get("C_RECP_YM"));
                 }
                 if (billSummary.containsKey("C_DUE_DATE")) {
-                    data.put("C_DUE_DATE", billSummary.get("C_DUE_DATE"));
+                    Object dueObj = billSummary.get("C_DUE_DATE");
+                    if (dueObj != null) {
+                        String due = dueObj.toString();
+                        if (due.matches("\\d{8}")) {
+                            due = due.substring(0, 4) + "." + due.substring(4, 6) + "." + due.substring(6, 8);
+                        }
+                        data.put("C_DUE_DATE", due);
+                    }
                 }
                 if (billSummary.containsKey("TOTAL_AMOUNT")) {
                     data.put("TOTAL_AMOUNT", billSummary.get("TOTAL_AMOUNT"));
                 }
-            }
+            //}
         }
         // 반드시 bill_summary에서 값을 꺼낸 후 C_RECP_YM을 기준으로 파생값 생성
         if (data.containsKey("C_RECP_YM")) {
