@@ -21,12 +21,6 @@
 
 
 /* common */
-@media print {
-	body {
-		print-color-adjust: exact;
-		-webkit-print-color-adjust: exact;
-	}
-}
 html, body {width: 100%; height: 100%;}
 body {font-family: 'Spoqa Han Sans Neo', 'sans-serif'; font-size: 14px; color: #1B2529; line-height: 1.2; word-break:keep-all;}
 
@@ -667,6 +661,16 @@ footer .coppy-right-wrap .coppy-right-para {margin: 0 auto; padding:  20px 48px 
     footer .coppy-right-wrap {padding: 16px 24px 30px;}
     footer .coppy-right-wrap .coppy-right-para {padding: 0; letter-spacing: -.03em;}
 }		
+	</style>
+	<style type="text/css" media="print">
+		@media print {
+			body {
+				print-color-adjust: exact;
+				-webkit-print-color-adjust: exact;
+			}
+			.download-btn {display: none;}
+			.print-btn {display: none;}
+		}
 	</style>
 </head>
 <body>
