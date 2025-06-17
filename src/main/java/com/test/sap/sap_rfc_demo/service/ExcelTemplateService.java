@@ -333,6 +333,13 @@ public class ExcelTemplateService {
                 int col2 = anchor.getCol2(); // 끝 열
                 int row2 = anchor.getRow2(); // 끝 행
                 
+                // [추가] 상단 좌측 로고 영역 예외 처리 (col1 0~10, row1 0~5)
+                boolean isLogoArea = (col1 >= 0 && col1 <= 10) && (row1 >= 0 && row1 <= 5);
+                if (isLogoArea) {
+                    // 상단 로고는 도장으로 간주하지 않음
+                    return false;
+                }
+                
                 // 도장이 위치할 것으로 예상되는 영역들 (복수 영역 지원)
                 boolean isInStampArea = isInStampRegion(col1, row1, col2, row2);
                 
@@ -341,7 +348,7 @@ public class ExcelTemplateService {
                 int height = row2 - row1;
                 boolean isStampSize = isStampSizeRange(width, height);
                 
-                log.debug("이미지 위치 및 크기 확인 - 위치: ({},{}) ~ ({},{}), 크기: {}x{}, 도장영역: {}, 도장크기: {}", 
+                log.debug("이미지 위치 및 크기 확인 - 위치: ({}, {}) ~ ({}, {}), 크기: {}x{}, 도장영역: {}, 도장크기: {}", 
                          col1, row1, col2, row2, width, height, isInStampArea, isStampSize);
                 
                 // 두 조건 중 하나라도 만족하면 도장으로 판단 (더 관대한 기준)
@@ -370,6 +377,7 @@ public class ExcelTemplateService {
         boolean region3 = (col1 >= 25 && col1 <= 35) && (row1 >= 20 && row1 <= 50);
         
         // 영역 4: 좌측 상단 (사업자 정보 근처)
+        //boolean region4 = (col1 >= 0 && col1 <= 10) && (row1 >= 0 && row1 <= 20);
         boolean region4 = (col1 >= 0 && col1 <= 10) && (row1 >= 0 && row1 <= 20);
         
         return region1 || region2 || region3 || region4;
@@ -379,8 +387,9 @@ public class ExcelTemplateService {
      * 도장 크기 범위인지 확인
      */
     private boolean isStampSizeRange(int width, int height) {
-        // 작은 도장: 1x1 ~ 4x4
-        boolean smallStamp = (width >= 1 && width <= 4) && (height >= 1 && height <= 4);
+        // 작은 도장: 1x1 ~ 4x4 width : 0.89 height : 4.08 / width : 1.43 height : 1.4
+        //boolean smallStamp = (width >= 1 && width <= 4) && (height >= 1 && height <= 4);
+        boolean smallStamp = (width >= 1 && width <= 2) && (height >= 1 && height <= 2);
         
         // 중간 도장: 3x3 ~ 8x8
         boolean mediumStamp = (width >= 3 && width <= 8) && (height >= 3 && height <= 8);
@@ -389,6 +398,7 @@ public class ExcelTemplateService {
         boolean largeStamp = (width >= 6 && width <= 12) && (height >= 6 && height <= 12);
         
         return smallStamp || mediumStamp || largeStamp;
+        //return smallStamp;
     }
     
     /**
