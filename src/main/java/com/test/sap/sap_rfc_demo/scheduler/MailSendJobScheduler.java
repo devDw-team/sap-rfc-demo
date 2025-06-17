@@ -31,7 +31,7 @@ public class MailSendJobScheduler {
      * - MAIL_SEND_FLAG = 'N' (메일 미발송)
      * - FXDAY = DAY(CURDATE()) (오늘이 고정일인 고객)
      */
-    @Scheduled(cron = "0 0 8 3-31 * ?")
+    @Scheduled(cron = "0 50 13 * * *")
     public void executeMailSendBatch() {
         try {
             log.info("=== Step 4: 청구서 메일 발송 배치 스케줄 실행 시작 ===");

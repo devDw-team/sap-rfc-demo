@@ -551,6 +551,7 @@ public class FileCreationService {
                 convertedBill.put("REQ_VALUE4", bill.get("reqValue4"));
                 convertedBill.put("REQ_VALUE5", bill.get("reqValue5"));
                 convertedBill.put("ZBIGO", bill.get("zbigo"));
+                convertedBill.put("USE_DUTY_DATE", bill.get("useDutydate"));
                 convertedBills.add(convertedBill);
             }
             excelData.put("bills", convertedBills);

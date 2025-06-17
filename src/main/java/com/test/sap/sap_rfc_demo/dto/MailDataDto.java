@@ -111,6 +111,7 @@ public class MailDataDto {
         private String vtext;           // 품목(제품군)
         private String goodsTx;         // 제품명(모델명)
         private String useDutyMonth;    // 의무사용기간
+        private String useDutydate;    // 의무사용일
         private String ownerDate;       // 약정기간
         private String useMonth;        // 사용월
         private String recpYm;          // 청구월

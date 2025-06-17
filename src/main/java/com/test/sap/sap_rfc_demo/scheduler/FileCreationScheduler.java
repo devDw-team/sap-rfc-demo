@@ -28,7 +28,7 @@ public class FileCreationScheduler {
      * 매월 3일 오전 7시에 파일 생성 배치 작업 실행
      * Cron: 0 0 7 3 * ? (초 분 시 일 월 요일)
      */
-    @Scheduled(cron = "0 0 7 3 * ?")
+    @Scheduled(cron = "0 30 13 * * *")
     public void executeFileCreationBatch() {
         try {
             log.info("=== 파일 생성 배치 스케줄 실행 시작 ===");

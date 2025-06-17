@@ -253,7 +253,7 @@ public class ExcelTemplateUtil {
                 setCellValueWithStyle(row, 2, String.valueOf(bill.getOrDefault("VTEXT", "")), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 3, String.valueOf(bill.getOrDefault("GOODS_TX", "")), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 4, formatDateString(String.valueOf(bill.getOrDefault("INST_DT", ""))), centerBottomBorderStyle);
-                setCellValueWithStyle(row, 5, formatDateString(String.valueOf(bill.getOrDefault("USE_DUTY_MONTH", ""))), centerBottomBorderStyle);
+                setCellValueWithStyle(row, 5, formatDateString(String.valueOf(bill.getOrDefault("USE_DUTY_DATE", ""))), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 6, formatDateString(String.valueOf(bill.getOrDefault("OWNER_DATE", ""))), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 7, formatYearMonthString(String.valueOf(bill.getOrDefault("USE_MONTH", ""))), centerBottomBorderStyle);
                 setCellValueWithStyle(row, 8, formatYearMonthString(String.valueOf(bill.getOrDefault("RECP_YM", ""))), centerBottomBorderStyle);

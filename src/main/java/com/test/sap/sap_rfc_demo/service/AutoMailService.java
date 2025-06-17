@@ -71,6 +71,7 @@ public class AutoMailService {
                                       AND invd.cust_no = invc.cust_no
                                       AND (invd.group_no = invc.group_no OR invd.order_no = invc.order_no)
             WHERE invc.send_auto = 'Y'
+            AND CAST(invc.bill_date AS UNSIGNED) = DAY(CURDATE()) -- 숫자 형태로 변환하여 비교
             GROUP BY
                 bsmg.busi_mgmt_id,
                 bsmg.business_no,
@@ -561,7 +562,8 @@ public class AutoMailService {
                     invd.req_value4 AS REQ_VALUE4,
                     invd.req_value5 AS REQ_VALUE5,
                     invd.note AS ZBIGO,
-                    invd.contact_date AS INST_DT      -- 계약일(설치일)
+                    invd.contact_date AS INST_DT,      -- 계약일(설치일)
+                    invd.use_duty_date AS USE_DUTY_DATE -- 의무사용일
             FROM bbimcd_invd invd, bbimcm_invc invc
             WHERE invd.invc_id = invc.invc_id
             AND   invc.busi_mgmt_id = ?
@@ -578,6 +580,7 @@ public class AutoMailService {
                 String reqValue4 = rs.getString("REQ_VALUE4");
                 String reqValue5 = rs.getString("REQ_VALUE5");
                 String zbigo     = rs.getString("ZBIGO");
+                String useDutydate = rs.getString("USE_DUTY_DATE");
 
                 reqValue1 = reqValue1 == null ? "" : reqValue1;
                 reqValue2 = reqValue2 == null ? "" : reqValue2;
@@ -585,6 +588,7 @@ public class AutoMailService {
                 reqValue4 = reqValue4 == null ? "" : reqValue4;
                 reqValue5 = reqValue5 == null ? "" : reqValue5;
                 zbigo     = zbigo     == null ? "" : zbigo;
+                useDutydate = useDutydate == null ? "" : useDutydate;
 
                 return MailDataDto.ExcelBill.builder()
                     .orderNo(rs.getString("ORDER_NO"))
@@ -621,6 +625,7 @@ public class AutoMailService {
                     .reqValue5(reqValue5)
                     .zbigo(zbigo)
                     .instDt(rs.getString("INST_DT"))
+                    .useDutydate(useDutydate)
                     .build();
             }
         );
